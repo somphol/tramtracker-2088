@@ -6,21 +6,21 @@
   "liveDemo": "https://somphol.github.io/tramtracker-2088/",
   "build": {
     "startedAt": "2026-11-01T16:59:53Z",
-    "packagedAt": "2026-11-01T20:17:46Z",
-    "durationSeconds": 11873,
-    "durationHuman": "3h 17m 53s",
+    "packagedAt": "2026-11-01T21:00:52Z",
+    "durationSeconds": 14452,
+    "durationHuman": "4h 0m 52s",
     "timezone": "UTC",
-    "includes": "Initial build, track fix, driver cab, doors/announcements, extended CBD loop, stop guides, Richer city soundscape and real stop names"
+    "includes": "Initial build, track/cab/doors/announcement/CBD extension work, stop guides, city ambience, passenger destination manifests, stop requests and five more tourist stops"
   },
   "tokens": {
-    "input": 882635,
-    "output": 218794,
-    "reasoning": 310011,
-    "cacheRead": 131062016,
+    "input": 993333,
+    "output": 246290,
+    "reasoning": 358215,
+    "cacheRead": 177526528,
     "cacheWrite": 1190,
-    "total": 1411440,
-    "totalWithCache": 132474646,
-    "note": "Snapshot from the OpenCode session record at 2026-11-01T20:17:46Z. total = input + output + reasoning. Cache reads/writes are context-usage figures and are reported separately."
+    "total": 1597838,
+    "totalWithCache": 179125556,
+    "note": "Snapshot from the OpenCode session record at 2026-11-01T21:00:52Z. total = input + output + reasoning. Cache reads/writes are context-usage figures and are reported separately."
   },
   "cost": {
     "usd": 0.0,
@@ -65,23 +65,23 @@
   "files": [
     {
       "path": "index.html",
-      "bytes": 18381,
-      "lines": 360
+      "bytes": 18737,
+      "lines": 368
     },
     {
       "path": "style.css",
-      "bytes": 52154,
-      "lines": 2006
+      "bytes": 55256,
+      "lines": 2141
     },
     {
       "path": "script.js",
-      "bytes": 244929,
-      "lines": 5843
+      "bytes": 267826,
+      "lines": 6284
     },
     {
       "path": "README.md",
-      "bytes": 18561,
-      "lines": 378
+      "bytes": 21534,
+      "lines": 419
     }
   ],
   "screenshots": [
@@ -102,7 +102,12 @@
     "screenshot-yarra.png",
     "screenshot-hook.png",
     "screenshot-mobile.png",
-    "screenshot-start.png"
+    "screenshot-start.png",
+    "screenshot-stop-request.png",
+    "screenshot-bourke.png",
+    "screenshot-chinatown.png",
+    "screenshot-princess.png",
+    "screenshot-tour.png"
   ],
   "features": [
     "Procedural Melbourne city grid with Swanston Street and Flinders Street",
@@ -129,7 +134,10 @@
     "CBD loop via Flinders, Spring/Exhibition, Collins, La Trobe/Queensberry and Swanston",
     "Stop guide cards with nearby landmarks and Wikipedia links",
     "Layered city soundscape with traffic, crowd, birds, horns and distant tram bells",
-    "Real Melbourne stop names including Arts Precinct, Flinders Street Station and Melbourne University"
+    "Real Melbourne stop names including Arts Precinct, Flinders Street Station and Melbourne University",
+    "Passenger destination manifests and alighting animations",
+    "Pull-the-cord stop requests with a cab/HUD indicator",
+    "Five more tourist stops: Princess Theatre, Fitzroy Gardens, Carlton Gardens, Bourke Street Mall and Chinatown"
   ],
   "revisions": [
     {
@@ -151,25 +159,30 @@
     {
       "date": "2026-11-01",
       "change": "Added stop-guide cards with nearby places and Wikipedia links, richer layered city ambience, real stop names and double-faced stop signage."
+    },
+    {
+      "date": "2026-11-01",
+      "change": "Added passenger destination manifests, onboard stop requests with cord animation/cab indication, alighting animations, and five more tourist stops with landmarks, guides and announcements."
     }
   ],
   "verification": {
-    "selfTest": "29/29 PASS",
+    "selfTest": "31/31 PASS",
     "selfTestUrl": "https://somphol.github.io/tramtracker-2088/?selftest=1",
     "checked": [
       "Three.js r128 and Cannon.js 0.6.2 loaded",
       "WebGL renderer and 400+ object scene",
-      "518 m seven-stop CBD loop with 28 waiting passengers",
+      "518 m twelve-stop CBD loop with waiting passengers",
       "49-part tram mesh and 12,000 kg Cannon body",
       "Flinders Street Station, Federation Square, Yarra River and catenary",
       "Parliament House, RMIT University and Collins Street landmarks",
-      "Web Audio voices and three weather presets",
+      "Princess Theatre, Fitzroy Gardens, Carlton Gardens, Bourke Street Mall and Chinatown",
+      "Web Audio voices, layered city ambience and three weather presets",
       "Save schema validation and export/import",
       "Nine badges, minimap, HUD and save/load wiring",
       "Traction simulation and live Myki boarding",
       "Driver's cab view switching, camera FOV and orbit-control handoff",
-      "Manual door open/close, passenger boarding and stop/door announcement wiring",
-      "Stop-guide cards, nearby places and Wikipedia links",
+      "Manual door open/close and stop/door announcements",
+      "Passenger destination manifests, stop requests and alighting animations",
       "Hook Turn scene readiness",
       "Zero uncaught errors"
     ],

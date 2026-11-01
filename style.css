@@ -2004,3 +2004,138 @@ body[data-weather="rain"] .cab-wipers i:nth-child(2) {
   .stop-info h2 { font-size: 16px; }
   .stop-info p { font-size: 11.5px; }
 }
+
+/* --------------------------------------------------------------------------
+   Onboard manifest and passenger stop requests
+   -------------------------------------------------------------------------- */
+
+.load-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 2px 0 1px;
+  border-top: 1px solid rgba(70, 255, 211, 0.12);
+  padding-top: 8px;
+}
+
+.onboard-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-display);
+  font-size: 7.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.onboard-chip b {
+  color: var(--ice);
+  font-size: 11px;
+  letter-spacing: 0;
+}
+
+.request-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 7px;
+  border: 1px solid rgba(246, 200, 0, 0.42);
+  border-radius: 999px;
+  background: rgba(246, 200, 0, 0.1);
+  color: var(--gold);
+  font-family: var(--font-display);
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(3px);
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.request-chip.show {
+  opacity: 1;
+  transform: translateY(0);
+  animation: requestPulse 1.5s ease-in-out infinite;
+}
+
+.request-chip b {
+  color: var(--ice);
+  font-size: 10px;
+}
+
+.request-chip .cord {
+  position: relative;
+  width: 2px;
+  height: 13px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--gold), rgba(246, 200, 0, 0.25));
+  transform-origin: 50% 0;
+}
+
+.request-chip .cord::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -3px;
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--gold);
+  border-radius: 50%;
+  background: rgba(246, 200, 0, 0.22);
+  transform: translateX(-50%);
+}
+
+.request-chip.is-pulling .cord {
+  animation: pullCord 0.85s cubic-bezier(0.3, 0.9, 0.3, 1);
+}
+
+@keyframes pullCord {
+  0% { transform: rotate(0) scaleY(1); }
+  22% { transform: rotate(-24deg) scaleY(1.22); }
+  50% { transform: rotate(19deg) scaleY(1.05); }
+  75% { transform: rotate(-7deg) scaleY(1); }
+  100% { transform: rotate(0) scaleY(1); }
+}
+
+@keyframes requestPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(246, 200, 0, 0.3); }
+  50% { box-shadow: 0 0 0 5px rgba(246, 200, 0, 0); }
+}
+
+body.stop-requested .cab-request {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.cab-request {
+  position: absolute;
+  left: 50%;
+  bottom: calc(23vh + 22px);
+  transform: translate(-50%, 8px);
+  z-index: 7;
+  padding: 6px 12px;
+  border: 1px solid rgba(246, 200, 0, 0.55);
+  border-radius: 999px;
+  background: rgba(10, 8, 2, 0.6);
+  color: var(--gold);
+  font-family: var(--font-display);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s, transform 0.25s;
+  box-shadow: 0 0 24px rgba(246, 200, 0, 0.18);
+  backdrop-filter: blur(7px);
+}
+
+@media (max-width: 640px) {
+  .load-row { padding-top: 6px; }
+  .onboard-chip { font-size: 6.5px; }
+  .request-chip { font-size: 6px; padding: 2px 5px; }
+  .cab-request { bottom: calc(20vh + 18px); }
+}

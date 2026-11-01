@@ -11,7 +11,7 @@
      Constants
      ------------------------------------------------------------------------ */
 
-  const VERSION = '1.0.7';
+  const VERSION = '1.0.8';
   const SAVE_KEY = 'tramtracker_2088_v1';
   const SAVE_FILE = 'tramtracker_save.json';
   const APP_NAME = 'TramTracker 2088';
@@ -91,6 +91,20 @@
       nearby: ['Parliament Station', 'the Old Treasury Building', 'Fitzroy Gardens']
     },
     {
+      id: 'fitzroy', name: 'Fitzroy Gardens', speechName: 'Fitzroy Gardens', short: 'Fitzroy Gdns',
+      point: { x: 100, z: 105 }, hue: 0x64d68f,
+      wiki: 'https://en.wikipedia.org/wiki/Fitzroy_Gardens',
+      blurb: "One of Melbourne's oldest public gardens, with elm avenues, the Fairies' Tree, Cook's Cottage and the glass Fitzroy Gardens Conservatory.",
+      nearby: ["Cook's Cottage", 'the Fitzroy Gardens Conservatory', 'the Old Treasury Building']
+    },
+    {
+      id: 'carlton', name: 'Carlton Gardens', speechName: 'Carlton Gardens', short: 'Carlton Gdns',
+      point: { x: 80, z: 140 }, hue: 0xa8d86a,
+      wiki: 'https://en.wikipedia.org/wiki/Carlton_Gardens',
+      blurb: 'A World Heritage-listed Victorian garden surrounding the Royal Exhibition Building and the Melbourne Museum.',
+      nearby: ['the Royal Exhibition Building', 'Melbourne Museum', 'the Carlton Gardens']
+    },
+    {
       id: 'rmit', name: 'RMIT University', speechName: 'RMIT University', short: 'RMIT',
       point: { x: 60, z: 120 }, hue: 0xff5577,
       wiki: 'https://en.wikipedia.org/wiki/RMIT_University',
@@ -98,13 +112,37 @@
       nearby: ['State Library Victoria', 'Melbourne Central', 'the Old Melbourne Gaol']
     },
     {
+      id: 'princess', name: 'Princess Theatre', speechName: 'Princess Theatre', short: 'Princess',
+      point: { x: 100, z: 85 }, hue: 0xff7aa8,
+      wiki: 'https://en.wikipedia.org/wiki/Princess_Theatre_(Melbourne)',
+      blurb: 'A Melbourne landmark since 1886, the Princess Theatre is a grand Victorian playhouse famous for its frescoed auditorium and long-running productions.',
+      nearby: ['the Princess Theatre', 'Parliament House', 'Fitzroy Gardens']
+    },
+    {
       id: 'uni', name: 'Melbourne University', speechName: 'Melbourne University', short: 'Melbourne Uni',
       point: { x: 0, z: 80 }, hue: 0x68a8ff,
       wiki: 'https://en.wikipedia.org/wiki/University_of_Melbourne',
       blurb: "Australia's second-oldest university, founded in 1853, with a historic Parkville campus and cultural collections.",
       nearby: ['the Grainger Museum', 'the Royal Melbourne Hospital', 'Carlton Gardens']
+    },
+    {
+      id: 'bourke', name: 'Bourke Street Mall', speechName: 'Bourke Street Mall', short: 'Bourke Mall',
+      point: { x: 0, z: 55 }, hue: 0xff9b5c,
+      wiki: 'https://en.wikipedia.org/wiki/Bourke_Street_Mall',
+      blurb: 'The heart of Melbourne retail: a pedestrian mall of department stores, arcades, buskers and the historic General Post Office.',
+      nearby: ['the Bourke Street Mall', 'the Block Arcade', 'the Royal Arcade']
+    },
+    {
+      id: 'chinatown', name: 'Chinatown', speechName: 'Chinatown', short: 'Chinatown',
+      point: { x: 0, z: 40 }, hue: 0xff5b6e,
+      wiki: 'https://en.wikipedia.org/wiki/Chinatown,_Melbourne',
+      blurb: "Australia's oldest continuous Chinatown, centred on Little Bourke Street with laneway restaurants, the Chinese Museum and a ceremonial gate.",
+      nearby: ['Little Bourke Street', 'the Chinese Museum', 'Her Majesty’s Theatre']
     }
   ];
+
+  const STOP_ROUTE_ORDER = ['flinders', 'arts', 'fed', 'collins', 'parliament', 'princess', 'fitzroy', 'carlton', 'rmit', 'uni', 'bourke', 'chinatown'];
+  STOP_DEFS.sort((a, b) => STOP_ROUTE_ORDER.indexOf(a.id) - STOP_ROUTE_ORDER.indexOf(b.id));
 
   const PALETTE = {
     green: 0x00853e,
@@ -373,6 +411,7 @@
       let dur = 0.55;
       let vol = 0.065;
       if (kind === 'close') { notes = [880, 880, 880]; gap = 0.18; dur = 0.17; vol = 0.055; }
+      else if (kind === 'request') { notes = [880, 1174.66]; gap = 0.12; dur = 0.24; vol = 0.05; }
       else if (kind === 'open') { notes = [783.99, 1174.66]; gap = 0.16; dur = 0.6; }
       else if (kind === 'welcome') { notes = [523.25, 659.25, 783.99]; gap = 0.14; dur = 0.5; }
       notes.forEach((freq, i) => {
@@ -986,6 +1025,10 @@
       this.lastDoorHint = 0;
       this.guideStopId = null;
       this.guideTimer = null;
+      this.onboard = [];
+      this.alighting = [];
+      this.stopRequest = null;
+      this.lastNextStopId = null;
       this.tramDoors = [];
       this.expectedErrors = [];
       this.jsErrors = [];
@@ -1042,6 +1085,7 @@
         this.buildStreetProps();
         this.buildStops();
         this.buildPassengers();
+        this.seedOnboardPassengers();
         await this.frameBreak();
         this.setLoading(80, 'Rolling out W-Class 2088…');
         this.buildTram();
@@ -1101,6 +1145,10 @@
         bestValue: $('#bestValue'),
         passengerValue: $('#passengerValue'),
         loopValue: $('#loopValue'),
+        onboardValue: $('#onboardValue'),
+        requestChip: $('#requestChip'),
+        requestCount: $('#requestCount'),
+        cabRequest: $('#cabRequest'),
         nextStopName: $('#nextStopName'),
         nextStopDistance: $('#nextStopDistance'),
         stopProgress: $('#stopProgress'),
@@ -1465,6 +1513,7 @@
       if (d.bestValue) d.bestValue.textContent = fmt(Math.max(this.career.stats.bestScore, this.trip.score));
       if (d.passengerValue) d.passengerValue.textContent = fmt(this.career.stats.totalPassengers);
       if (d.loopValue) d.loopValue.textContent = fmt(this.trip.loops);
+      if (d.onboardValue) d.onboardValue.textContent = String(this.onboard.length);
 
       const speedRatio = clamp(Math.abs(this.tram.speed) / this.tram.maxSpeed, 0, 1);
       if (d.tractionBars) {
@@ -1482,12 +1531,22 @@
 
       const next = this.getNextStop();
       const platform = this.getPlatformStop();
+      const request = this.stopRequest && next && this.stopRequest.stopId === next.id ? this.stopRequest : null;
+      if (d.requestChip) {
+        d.requestChip.classList.toggle('show', !!request);
+        if (d.requestCount) d.requestCount.textContent = request ? String(request.count) : '0';
+      }
+      document.body.classList.toggle('stop-requested', !!request);
       if (next) {
         const ahead = this.distanceAhead(next);
         if (d.nextStopName) d.nextStopName.textContent = next.name;
         if (d.nextStopDistance) d.nextStopDistance.textContent = Math.round(ahead) + ' m';
         if (d.stopProgress) d.stopProgress.style.width = clamp(100 - (ahead / 70) * 100, 0, 100).toFixed(1) + '%';
-        if (d.stopHint) d.stopHint.textContent = platform ? 'Press O or DOORS to open' : 'Roll up to the platform';
+        if (d.stopHint) {
+          d.stopHint.textContent = request
+            ? 'Stop requested · ' + request.count + ' alighting'
+            : platform ? 'Press O or DOORS to open' : 'Roll up to the platform';
+        }
         if (ahead > 2 && ahead < 26 && this.trip.doorState === 'closed' && next.blurb && this.guideStopId !== next.id) {
           this.showStopGuide(next);
         }
@@ -1497,12 +1556,14 @@
           d.stopPrompt.classList.toggle('ready', !!platform);
           if (d.promptTitle) d.promptTitle.textContent = next.name.toUpperCase();
           if (d.promptText) d.promptText.textContent = platform
-            ? 'Stopped at platform — press O or DOORS to open'
-            : 'Stop within the platform zone to open the doors';
-          if (d.promptDist) d.promptDist.textContent = platform ? 'READY' : Math.round(ahead) + ' m';
+            ? (request ? request.count + ' alighting — press O or DOORS' : 'Stopped at platform — press O or DOORS to open')
+            : (request ? 'Stop requested — ' + request.count + (request.count === 1 ? ' passenger' : ' passengers') + ' will alight here' : 'Stop within the platform zone to open the doors');
+          if (d.promptDist) d.promptDist.textContent = platform ? 'READY' : (request ? 'REQ' : Math.round(ahead) + ' m');
         }
-      } else if (d.stopPrompt) {
-        d.stopPrompt.classList.remove('show');
+      } else {
+        if (d.stopPrompt) d.stopPrompt.classList.remove('show');
+        if (d.requestChip) d.requestChip.classList.remove('show');
+        document.body.classList.remove('stop-requested');
       }
       this.updateDoorButtonUI();
 
@@ -1973,8 +2034,8 @@
       sun.castShadow = true;
       sun.shadow.mapSize.set(2048, 2048);
       sun.shadow.camera.left = -125;
-      sun.shadow.camera.right = 155;
-      sun.shadow.camera.top = 175;
+      sun.shadow.camera.right = 165;
+      sun.shadow.camera.top = 205;
       sun.shadow.camera.bottom = -125;
       sun.shadow.camera.near = 1;
       sun.shadow.camera.far = 420;
@@ -2935,7 +2996,10 @@
         { x0: 68, x1: 98, z0: 106, z1: 136 },  // RMIT campus
         { x0: 106, x1: 134, z0: 50, z1: 80 },  // Parliament House
         { x0: 62, x1: 98, z0: 36, z1: 56 },    // Collins north landmark
-        { x0: 62, x1: 98, z0: 0, z1: 16 }      // Collins south landmark
+        { x0: 62, x1: 98, z0: 0, z1: 16 },     // Collins south landmark
+        { x0: 108, x1: 132, z0: 72, z1: 98 },  // Princess Theatre
+        { x0: 85, x1: 175, z0: 55, z1: 155 },  // Fitzroy Gardens
+        { x0: 30, x1: 145, z0: 128, z1: 205 }  // Carlton Gardens
       ];
       const overlaps = (r) => exclude.some((e) => r.x0 < e.x1 && r.x1 > e.x0 && r.z0 < e.z1 && r.z1 > e.z0);
       const roadCorridors = [
@@ -2986,13 +3050,22 @@
         { x: 82, z: 78, w: 16, d: 18, h: 46 },
         { x: 82, z: 158, w: 18, d: 16, h: 38 }
       ];
-      towerSpots.forEach((t, i) => this.addBuilding(t.x, t.z, t.w, t.d, t.h, rng, 900 + i, true));
+      towerSpots.forEach((t, i) => {
+        const rect = { x0: t.x - t.w / 2, x1: t.x + t.w / 2, z0: t.z - t.d / 2, z1: t.z + t.d / 2 };
+        if (overlaps(rect) || nearRoad(rect)) return;
+        this.addBuilding(t.x, t.z, t.w, t.d, t.h, rng, 900 + i, true);
+      });
     }
 
     buildCBDLandmarks() {
       this.buildParliamentHouse();
       this.buildRMIT();
       this.buildCollinsStreet();
+      this.buildPrincessTheatre();
+      this.buildBourkeMall();
+      this.buildChinatown();
+      this.buildFitzroyGardens();
+      this.buildCarltonGardens();
     }
 
     buildParliamentHouse() {
@@ -3231,6 +3304,224 @@
 
       this.scene.add(group);
       this.collins = group;
+    }
+
+    buildBourkeMall() {
+      const group = new THREE.Group();
+      group.name = 'Bourke Street Mall';
+      const paving = new THREE.Mesh(new THREE.BoxGeometry(62, 0.08, 13), this.sidewalkMat);
+      paving.position.set(0, 0.04, 55);
+      paving.receiveShadow = true;
+      group.add(paving);
+      const bollardMat = new THREE.MeshStandardMaterial({ color: 0x313d36, roughness: 0.7, metalness: 0.4 });
+      for (let i = -12; i <= 12; i += 3) {
+        if (Math.abs(i) < 2) continue;
+        const b = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.16, 0.9, 8), bollardMat);
+        b.position.set(i * 2.4, 0.55, 49.2);
+        group.add(b);
+        const b2 = b.clone();
+        b2.position.z = 60.8;
+        group.add(b2);
+      }
+      const sign = new THREE.Mesh(new THREE.PlaneGeometry(16, 2.2), new THREE.MeshBasicMaterial({ map: makeSignTexture('BOURKE STREET MALL', 'RETAIL · ARCADE · STREET LIFE', { fontSize: 42 }) }));
+      sign.position.set(0, 4.6, 61.2);
+      sign.rotation.y = Math.PI;
+      group.add(sign);
+      const stage = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.35, 2.2), new THREE.MeshStandardMaterial({ color: 0x5d4630, roughness: 0.8 }));
+      stage.position.set(-6, 0.2, 57);
+      group.add(stage);
+      const busker = this.makePerson(9031);
+      busker.position.set(-6, 0.34, 57);
+      busker.rotation.y = 1.2;
+      group.add(busker);
+      const amp = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.45, 0.35), new THREE.MeshStandardMaterial({ color: 0x171d1a, roughness: 0.5, metalness: 0.4 }));
+      amp.position.set(-7.1, 0.55, 57);
+      group.add(amp);
+      this.scene.add(group);
+      this.bourkeMall = group;
+    }
+
+    buildChinatown() {
+      const group = new THREE.Group();
+      group.name = 'Chinatown';
+      const red = new THREE.MeshStandardMaterial({ color: 0x9e1f27, roughness: 0.5, metalness: 0.15, emissive: 0x280408, emissiveIntensity: 0.45 });
+      const redDark = new THREE.MeshStandardMaterial({ color: 0x5c1016, roughness: 0.6 });
+      const gold = new THREE.MeshStandardMaterial({ color: 0xf6c800, roughness: 0.3, metalness: 0.65, emissive: 0x3a2a00, emissiveIntensity: 0.4 });
+      [-8, 8].forEach((x) => {
+        const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.7, 6.2, 0.7), red);
+        pillar.position.set(x, 3.1, 40);
+        pillar.castShadow = true;
+        group.add(pillar);
+        const base = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.5, 1.3), redDark);
+        base.position.set(x, 0.3, 40);
+        group.add(base);
+        const lantern = new THREE.Mesh(new THREE.SphereGeometry(0.28, 10, 8), new THREE.MeshStandardMaterial({ color: 0xff3b55, emissive: 0xff2244, emissiveIntensity: 1.8 }));
+        lantern.position.set(x * 0.88, 4.8, 40);
+        group.add(lantern);
+      });
+      const beam = new THREE.Mesh(new THREE.BoxGeometry(17, 0.7, 0.9), red);
+      beam.position.set(0, 6.2, 40);
+      group.add(beam);
+      const roof = new THREE.Mesh(new THREE.BoxGeometry(19, 0.45, 1.8), redDark);
+      roof.position.set(0, 6.75, 40);
+      group.add(roof);
+      for (let i = -4; i <= 4; i++) {
+        const tile = new THREE.Mesh(new THREE.ConeGeometry(0.4, 0.55, 4), redDark);
+        tile.rotation.y = Math.PI / 4;
+        tile.position.set(i * 2, 7.1, 40);
+        group.add(tile);
+      }
+      const signTex = makeSignTexture('CHINATOWN', 'LITTLE BOURKE STREET', { fontSize: 44, fg: '#f6c800', accent: '#ff9b5c' });
+      [0, Math.PI].forEach((rot) => {
+        const sign = new THREE.Mesh(new THREE.PlaneGeometry(10, 1.7), new THREE.MeshBasicMaterial({ map: signTex }));
+        sign.position.set(0, 5.55, 40 + (rot === 0 ? 0.5 : -0.5));
+        sign.rotation.y = rot;
+        group.add(sign);
+      });
+      const awning = new THREE.Mesh(new THREE.BoxGeometry(7, 0.16, 2.1), red);
+      awning.position.set(-12, 3.6, 40);
+      group.add(awning);
+      const awning2 = awning.clone();
+      awning2.position.x = 12;
+      group.add(awning2);
+      this.scene.add(group);
+      this.chinatown = group;
+    }
+
+    buildFitzroyGardens() {
+      const group = new THREE.Group();
+      group.name = 'Fitzroy Gardens';
+      const lawn = new THREE.Mesh(new THREE.PlaneGeometry(34, 32), new THREE.MeshStandardMaterial({ color: 0x2b653d, roughness: 1 }));
+      lawn.rotation.x = -Math.PI / 2;
+      lawn.position.set(119, 0.03, 105);
+      group.add(lawn);
+      const pathMat = new THREE.MeshStandardMaterial({ color: 0x9b8b70, roughness: 0.95 });
+      const path = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 30), pathMat);
+      path.rotation.x = -Math.PI / 2;
+      path.position.set(112, 0.04, 105);
+      group.add(path);
+      const treeMat = new THREE.MeshStandardMaterial({ color: 0x265b37, roughness: 1, flatShading: true });
+      const trunkMat = new THREE.MeshStandardMaterial({ color: 0x443322, roughness: 1 });
+      [[110, 94], [110, 116], [126, 97], [127, 114], [119, 96], [118, 115]].forEach(([x, z]) => {
+        const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.28, 2.5, 7), trunkMat);
+        trunk.position.set(x, 1.3, z);
+        group.add(trunk);
+        for (let i = 0; i < 3; i++) {
+          const leaf = new THREE.Mesh(new THREE.IcosahedronGeometry(1.2 + Math.random() * 0.5, 0), treeMat);
+          leaf.position.set(x + (Math.random() - 0.5) * 1.6, 3 + Math.random() * 1.4, z + (Math.random() - 0.5) * 1.6);
+          group.add(leaf);
+        }
+      });
+      const conservatory = new THREE.Mesh(new THREE.BoxGeometry(9, 5, 7), new THREE.MeshStandardMaterial({ color: 0x9fd8d0, roughness: 0.15, metalness: 0.5, transparent: true, opacity: 0.7 }));
+      conservatory.position.set(121, 3, 105);
+      group.add(conservatory);
+      const frame = new THREE.Mesh(new THREE.BoxGeometry(9.4, 5.3, 7.4), new THREE.MeshStandardMaterial({ color: 0xd8cba9, roughness: 0.6, transparent: true, opacity: 0.32 }));
+      frame.position.set(121, 3, 105);
+      group.add(frame);
+      const pond = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.2, 0.12, 24), new THREE.MeshStandardMaterial({ color: 0x3d8f9c, roughness: 0.1, metalness: 0.5 }));
+      pond.position.set(108, 0.18, 105);
+      group.add(pond);
+      const sign = new THREE.Mesh(new THREE.PlaneGeometry(15, 2.4), new THREE.MeshBasicMaterial({ map: makeSignTexture('FITZROY GARDENS', "COOK'S COTTAGE · CONSERVATORY", { fontSize: 40, fg: '#a8d86a' }) }));
+      sign.position.set(103.4, 4.8, 105);
+      sign.rotation.y = -Math.PI / 2;
+      group.add(sign);
+      this.scene.add(group);
+      this.fitzroyGardens = group;
+    }
+
+    buildCarltonGardens() {
+      const group = new THREE.Group();
+      group.name = 'Carlton Gardens';
+      const lawn = new THREE.Mesh(new THREE.PlaneGeometry(48, 34), new THREE.MeshStandardMaterial({ color: 0x2a603b, roughness: 1 }));
+      lawn.rotation.x = -Math.PI / 2;
+      lawn.position.set(80, 0.03, 160);
+      group.add(lawn);
+      const stone = new THREE.MeshStandardMaterial({ color: 0xd9cba8, roughness: 0.82 });
+      const stoneLight = new THREE.MeshStandardMaterial({ color: 0xeadfbe, roughness: 0.76 });
+      const copper = new THREE.MeshStandardMaterial({ color: 0x3d8068, roughness: 0.42, metalness: 0.5 });
+      const hall = new THREE.Mesh(new THREE.BoxGeometry(26, 15, 19), stone);
+      hall.position.set(78, 7.5, 165);
+      hall.castShadow = true;
+      group.add(hall);
+      const wing = new THREE.Mesh(new THREE.BoxGeometry(16, 9, 22), stoneLight);
+      wing.position.set(78, 4.5, 165);
+      group.add(wing);
+      const drum = new THREE.Mesh(new THREE.CylinderGeometry(5, 5.6, 4, 18), stoneLight);
+      drum.position.set(78, 17, 165);
+      group.add(drum);
+      const dome = new THREE.Mesh(new THREE.SphereGeometry(5, 18, 12, 0, Math.PI * 2, 0, Math.PI / 2), copper);
+      dome.position.set(78, 19, 165);
+      group.add(dome);
+      const sign = new THREE.Mesh(new THREE.PlaneGeometry(22, 2.4), new THREE.MeshBasicMaterial({ map: makeSignTexture('ROYAL EXHIBITION BUILDING', 'CARLTON GARDENS · 1880', { fontSize: 36 }) }));
+      sign.position.set(78, 6, 155.3);
+      sign.rotation.y = Math.PI;
+      group.add(sign);
+      const museum = new THREE.Mesh(new THREE.BoxGeometry(17, 11, 18), new THREE.MeshStandardMaterial({ color: 0x314b4a, roughness: 0.24, metalness: 0.55, emissive: 0x0b2929, emissiveIntensity: 0.5 }));
+      museum.position.set(102, 5.5, 157);
+      group.add(museum);
+      const museumSign = new THREE.Mesh(new THREE.PlaneGeometry(13, 2), new THREE.MeshBasicMaterial({ map: makeSignTexture('MELBOURNE MUSEUM', 'ROYAL EXHIBITION BUILDING', { fontSize: 38, fg: '#46ffd3' }) }));
+      museumSign.position.set(102, 4.2, 147.8);
+      museumSign.rotation.y = Math.PI;
+      group.add(museumSign);
+      const treeMat = new THREE.MeshStandardMaterial({ color: 0x285b38, roughness: 1, flatShading: true });
+      [[58, 150], [100, 174], [59, 172], [110, 150]].forEach(([x, z]) => {
+        const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.3, 2.8, 7), new THREE.MeshStandardMaterial({ color: 0x423222, roughness: 1 }));
+        trunk.position.set(x, 1.4, z);
+        group.add(trunk);
+        const leaf = new THREE.Mesh(new THREE.IcosahedronGeometry(1.8, 0), treeMat);
+        leaf.position.set(x, 4.3, z);
+        group.add(leaf);
+      });
+      this.scene.add(group);
+      this.carltonGardens = group;
+    }
+
+    buildPrincessTheatre() {
+      const group = new THREE.Group();
+      group.name = 'Princess Theatre';
+      const cream = new THREE.MeshStandardMaterial({ color: 0xd8c8a4, roughness: 0.82 });
+      const creamLight = new THREE.MeshStandardMaterial({ color: 0xebdfc0, roughness: 0.76 });
+      const red = new THREE.MeshStandardMaterial({ color: 0x7a1d2b, roughness: 0.65, metalness: 0.15 });
+      const gold = new THREE.MeshStandardMaterial({ color: 0xf6c800, emissive: 0x4a3400, emissiveIntensity: 0.4, roughness: 0.3, metalness: 0.6 });
+
+      const hall = new THREE.Mesh(new THREE.BoxGeometry(16, 15, 22), cream);
+      hall.position.set(117, 7.5, 85);
+      hall.castShadow = true;
+      group.add(hall);
+      const roof = new THREE.Mesh(new THREE.ConeGeometry(12, 5, 4), red);
+      roof.rotation.y = Math.PI / 4;
+      roof.position.set(117, 17, 85);
+      group.add(roof);
+
+      const facade = new THREE.Mesh(new THREE.PlaneGeometry(22, 15), creamLight);
+      facade.position.set(108.9, 7.5, 85);
+      facade.rotation.y = -Math.PI / 2;
+      group.add(facade);
+      for (let i = 0; i < 5; i++) {
+        const arch = new THREE.Mesh(new THREE.TorusGeometry(1.45, 0.18, 6, 16, Math.PI), red);
+        arch.position.set(108.75, 5.2, 77 + i * 4);
+        arch.rotation.y = Math.PI / 2;
+        group.add(arch);
+        const window = new THREE.Mesh(new THREE.PlaneGeometry(2.1, 3.2), new THREE.MeshStandardMaterial({ color: 0x17241f, roughness: 0.2, metalness: 0.4 }));
+        window.position.set(108.8, 2.2, 77 + i * 4);
+        window.rotation.y = -Math.PI / 2;
+        group.add(window);
+      }
+      const sign = new THREE.Mesh(new THREE.PlaneGeometry(15, 2.4), new THREE.MeshBasicMaterial({ map: makeSignTexture('PRINCESS THEATRE', 'SPRING STREET · EST. 1886', { fontSize: 36, fg: '#f6c800', accent: '#ff7aa8' }) }));
+      sign.position.set(108.72, 11, 85);
+      sign.rotation.y = -Math.PI / 2;
+      group.add(sign);
+      const marquee = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.6, 13), red);
+      marquee.position.set(107.6, 7.2, 85);
+      group.add(marquee);
+      const lampMat = new THREE.MeshStandardMaterial({ color: 0xffd070, emissive: 0xffb340, emissiveIntensity: 1.7 });
+      for (let i = 0; i < 7; i++) {
+        const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 8), lampMat);
+        bulb.position.set(106.3, 7.2, 79 + i * 2);
+        group.add(bulb);
+      }
+      this.scene.add(group);
+      this.princessTheatre = group;
     }
 
     addBuilding(x, z, w, d, h, rng, index, isTower) {
@@ -4224,12 +4515,37 @@
       }
 
       const next = this.getNextStop();
-      if (next && !doorsLocked && this.started) {
+      if (next && this.started) {
         const ahead = this.distanceAhead(next);
-        if (ahead > 10 && ahead < 38 && this.announcedStopId !== next.id && this.time - this.lastAnnouncementAt > 6) {
-          this.announcedStopId = next.id;
-          const nearby = this.formatNearby(next);
-          this.announce('Next stop, ' + next.speechName + '.' + (nearby ? ' Get off here for ' + nearby + '.' : ''), 'stop');
+        if (this.lastNextStopId !== next.id) {
+          this.onboard.forEach((p) => { p.requested = false; });
+          this.stopRequest = null;
+          this.lastNextStopId = next.id;
+          this.documentClearStopRequest();
+          this.updateHud(true);
+        }
+        if (!doorsLocked) {
+          if (ahead > 2 && ahead < 32) {
+            const asking = this.onboard.filter((p) => p.destinationId === next.id && !p.requested);
+            if (asking.length) {
+              asking.forEach((p) => { p.requested = true; });
+              this.stopRequest = { stopId: next.id, count: asking.length };
+              this.audio.chime('request');
+              this.toast('🔔 <b>Stop requested</b> · ' + asking.length + (asking.length === 1 ? ' passenger' : ' passengers') + ' alighting at ' + next.short, 3200);
+              document.body.classList.add('stop-requested');
+              const chip = this.dom.requestChip;
+              if (chip) {
+                chip.classList.add('is-pulling');
+                setTimeout(() => chip.classList.remove('is-pulling'), 900);
+              }
+              this.updateHud(true);
+            }
+          }
+          if (ahead > 10 && ahead < 38 && this.announcedStopId !== next.id && this.time - this.lastAnnouncementAt > 6) {
+            this.announcedStopId = next.id;
+            const nearby = this.formatNearby(next);
+            this.announce('Next stop, ' + next.speechName + '.' + (nearby ? ' Get off here for ' + nearby + '.' : ''), 'stop');
+          }
         }
       }
 
@@ -4417,14 +4733,92 @@
       this.updateHud(true);
     }
 
+    seedOnboardPassengers() {
+      if (!this.stops.length) return;
+      const offsets = [1, 2, 3, 6, 0];
+      this.onboard = offsets.map((offset, index) => ({
+        id: 'seed-' + index,
+        destinationId: this.stops[offset % this.stops.length].id,
+        requested: false
+      }));
+    }
+
+    assignDestination(stop) {
+      const index = this.stops.findIndex((s) => s.id === stop.id);
+      if (index < 0) return this.stops[1] || this.stops[0];
+      const hop = 1 + Math.floor(Math.random() * 3);
+      return this.stops[(index + hop) % this.stops.length];
+    }
+
+    serviceStop(stop) {
+      if (!stop) return;
+      const alighting = this.onboard.filter((p) => p.destinationId === stop.id);
+      const waiting = stop.riders.filter((r) => r.state === 'waiting');
+      if (!alighting.length && !waiting.length) {
+        this.toast('🚏 ' + stop.name + ' · no passengers waiting', 2200);
+      }
+      if (alighting.length) {
+        this.onboard = this.onboard.filter((p) => p.destinationId !== stop.id);
+        this.alightPassengers(stop, alighting);
+        this.toast('🚪 <b>' + alighting.length + ' alighted</b> at ' + stop.short, 2800);
+      }
+      if (waiting.length) this.boardPassengers(stop);
+      this.stopRequest = null;
+      this.documentClearStopRequest();
+      this.updateHud(true);
+    }
+
+    alightPassengers(stop, passengers) {
+      passengers.forEach((passenger, i) => {
+        const seed = 15000 + Math.floor(Math.random() * 20000);
+        const person = this.makePerson(seed);
+        const tangent = stop.tangent;
+        const outward = stop.outward;
+        const along = Math.random() * 2 - 1;
+        const start = new THREE.Vector3(
+          stop.platform.x - outward.x * 1.3 + tangent.x * along,
+          0.34,
+          stop.platform.z - outward.z * 1.3 + tangent.z * along
+        );
+        const end = new THREE.Vector3(
+          stop.platform.x + outward.x * (1.4 + Math.random() * 1.4) + tangent.x * (Math.random() * 8 - 4),
+          0.34,
+          stop.platform.z + outward.z * (1.4 + Math.random() * 1.4) + tangent.z * (Math.random() * 8 - 4)
+        );
+        person.position.copy(start);
+        person.rotation.y = Math.atan2(end.x - start.x, end.z - start.z);
+        this.scene.add(person);
+        this.alighting.push({ mesh: person, t: -i * 0.12, start, end, life: 0 });
+      });
+    }
+
+    updateAlighting(dt) {
+      for (let i = this.alighting.length - 1; i >= 0; i--) {
+        const entry = this.alighting[i];
+        entry.t += dt;
+        if (entry.t < 0) continue;
+        entry.life += dt;
+        const progress = clamp(entry.t / 1.55, 0, 1);
+        entry.mesh.position.x = lerp(entry.start.x, entry.end.x, progress);
+        entry.mesh.position.z = lerp(entry.start.z, entry.end.z, progress);
+        entry.mesh.position.y = 0.34 + Math.abs(Math.sin(progress * Math.PI * 5)) * 0.028;
+        entry.mesh.rotation.y = Math.atan2(entry.end.x - entry.start.x, entry.end.z - entry.start.z);
+        if (entry.t > 2.2) {
+          this.scene.remove(entry.mesh);
+          entry.mesh.traverse((o) => {
+            if (o.geometry) o.geometry.dispose();
+            if (o.material && o.material.dispose) o.material.dispose();
+          });
+          this.alighting.splice(i, 1);
+        }
+      }
+    }
+
     boardPassengers(stop) {
       if (!stop) return;
       const waiting = stop.riders.filter((r) => r.state === 'waiting');
       const perfect = this.trip.perfectStopPending || this.distanceAhead(stop) < 4.2;
-      if (!waiting.length) {
-        this.toast('🚏 ' + stop.name + ' · no passengers waiting', 2200);
-        return;
-      }
+      if (!waiting.length) return;
 
       let earned = waiting.length * 15;
       if (perfect) earned += 40;
@@ -4433,6 +4827,9 @@
       this.career.stats.totalPassengers += waiting.length;
 
       waiting.forEach((rider, i) => {
+        const destination = this.assignDestination(stop);
+        rider.destinationId = destination.id;
+        this.onboard.push({ destinationId: destination.id, requested: false });
         rider.state = 'boarding';
         rider.t = -i * 0.14;
         rider.start = rider.mesh.position.clone();
@@ -4451,6 +4848,11 @@
       this.drawMinimap();
     }
 
+    documentClearStopRequest() {
+      document.body.classList.remove('stop-requested');
+      if (this.dom && this.dom.requestChip) this.dom.requestChip.classList.remove('show');
+    }
+
     updateDoors(dt) {
       if (!this.tramDoors) this.tramDoors = [];
       const state = this.trip.doorState;
@@ -4465,7 +4867,7 @@
         if (this.trip.doorTimer <= 0) {
           this.trip.doorState = 'open';
           this.trip.doorTimer = 0;
-          this.boardPassengers(this.trip.doorStop);
+          this.serviceStop(this.trip.doorStop);
           this.career.stats.bestScore = Math.max(this.career.stats.bestScore, Math.floor(this.trip.score));
           this.updateHud(true);
         }
@@ -4804,8 +5206,9 @@
       ctx.fillStyle = '#ff5577';
       ctx.fillRect(mx(0) - 3, mz(0) - 3, 6, 6);
 
-      // Stops.
-      this.stops.forEach((stop) => {
+      // Stops (labels are collision-managed because the CBD loop is dense).
+      const labelBoxes = [];
+      this.stops.forEach((stop, index) => {
         const X = mx(stop.platform.x);
         const Y = mz(stop.platform.z);
         ctx.beginPath();
@@ -4815,10 +5218,17 @@
         ctx.strokeStyle = 'rgba(255,255,255,0.55)';
         ctx.lineWidth = 1;
         ctx.stroke();
-        ctx.fillStyle = 'rgba(220,255,246,0.72)';
-        ctx.font = '600 7px Rajdhani, sans-serif';
+        ctx.font = '600 6.5px Rajdhani, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText(stop.short, X, Y - 8);
+        const labelY = Y + (index % 2 === 0 ? -8 : 12);
+        const width = ctx.measureText(stop.short).width;
+        const box = { x0: X - width / 2 - 2, x1: X + width / 2 + 2, y0: labelY - 7, y1: labelY + 2 };
+        const collides = labelBoxes.some((b) => box.x0 < b.x1 && box.x1 > b.x0 && box.y0 < b.y1 && box.y1 > b.y0);
+        if (!collides) {
+          labelBoxes.push(box);
+          ctx.fillStyle = 'rgba(220,255,246,0.72)';
+          ctx.fillText(stop.short, X, labelY);
+        }
       });
 
       // Tram marker.
@@ -4872,6 +5282,7 @@
         this.updateClouds(dt);
         this.updateTraffic(dt);
         this.updatePassengers(dt);
+        this.updateAlighting(dt);
         this.updateSignalCycle();
         if (this.started && !this.paused) {
           this.updateDoors(dt);
@@ -4942,7 +5353,7 @@
       add('WebGL renderer created', !!(this.renderer && this.renderer.domElement), this.renderer ? 'canvas' : 'none');
       add('Scene populated', this.scene && this.scene.children.length > 80, this.scene ? this.scene.children.length + ' objects' : 'none');
       add('CBD loop built', !!(this.tram.curve && this.tram.length > 500), Math.round(this.tram.length) + ' m');
-      add('Seven named tram stops', this.stops.length === 7, this.stops.map((s) => s.short).join(', '));
+      add('Twelve named tram stops', this.stops.length === 12, this.stops.map((s) => s.short).join(', '));
       add('Waiting passengers spawned', this.stops.reduce((n, s) => n + s.riders.length, 0) >= 12, this.stops.reduce((n, s) => n + s.riders.length, 0) + ' riders');
       add('Tram mesh assembled', !!(this.tramGroup && this.tramGroup.children.length > 40), this.tramGroup ? this.tramGroup.children.length + ' parts' : 'none');
       add('Cannon tram body', !!(this.tramBody && this.tramBody.mass > 1000), this.tramBody ? Math.round(this.tramBody.mass) + ' kg' : 'none');
@@ -4993,6 +5404,35 @@
       }
       add('Manual doors open, board and close', doorOK && paxOK, paxOK ? boarded + ' tapped on' : 'no boarding');
 
+      const requestStop = this.stops[1];
+      const savedOnboard = this.onboard;
+      const savedRequest = this.stopRequest;
+      const savedLastNext = this.lastNextStopId;
+      const savedRequestS = this.tram.s;
+      this.onboard = [{ destinationId: requestStop.id, requested: false }];
+      this.stopRequest = null;
+      this.lastNextStopId = null;
+      this.trip.doorState = 'closed';
+      this.trip.doors = false;
+      this.tram.s = mod(requestStop.s - 20, this.tram.length);
+      this.tram.speed = 2;
+      this.time = 20;
+      this.updateTram(1 / 60);
+      const requestOK = !!(this.stopRequest
+        && this.stopRequest.stopId === requestStop.id
+        && this.stopRequest.count === 1
+        && this.onboard[0].requested
+        && Array.isArray(this.alighting)
+        && typeof this.updateAlighting === 'function');
+      add('Passenger destinations & stop requests', requestOK, 'onboard manifest + cord request + alighting');
+      this.stopRequest = null;
+      this.documentClearStopRequest();
+      this.onboard = savedOnboard;
+      this.stopRequest = savedRequest;
+      this.lastNextStopId = savedLastNext;
+      this.tram.s = savedRequestS;
+      this.tram.speed = 0;
+
       this.showAnnouncement('Now arriving at Flinders Street Station.');
       const annOK = typeof this.audio.speak === 'function'
         && typeof this.audio.chime === 'function'
@@ -5023,6 +5463,7 @@
       add('Driver cab view', cabOK, 'first-person cab, drag-to-look and rain wipers');
 
       add('CBD extension landmarks', !!(this.parliament && this.rmit && this.collins), 'Parliament · RMIT · Collins Street');
+      add('Five more tourist stops', !!(this.princessTheatre && this.bourkeMall && this.chinatown && this.fitzroyGardens && this.carltonGardens), 'Princess Theatre · Bourke Mall · Chinatown · Fitzroy Gardens · Carlton Gardens');
 
       add('Hook turn scene ready', !!(this.hook && this.hook.ready && this.hook.carGroup), this.hook && this.hook.ready ? '60 s challenge' : 'unavailable');
       add('Minimap canvas', !!this.dom.minimap, '440 × 320');

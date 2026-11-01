@@ -6,7 +6,7 @@
 
 **Melbourne Yarra Trams · 3D Simulator**
 
-Drive a retro-futuristic W-Class cyber tram around an extended Hoddle Grid CBD loop, collect Myki passengers, survive four seasons in one day, and master the famous Melbourne hook turn — from the chase camera or the driver's cab.
+Drive a retro-futuristic W-Class cyber tram around an extended Hoddle Grid CBD loop with twelve stops, collect Myki passengers, survive four seasons in one day, and master the famous Melbourne hook turn — from the chase camera or the driver's cab.
 
 [![Live demo](https://img.shields.io/badge/live_demo-online-46ffd3?style=flat-square)](https://somphol.github.io/tramtracker-2088/)
 [![Self-tests](https://img.shields.io/badge/self--tests-29%2F29-00b85c?style=flat-square)](#verification)
@@ -93,6 +93,22 @@ The city itself is mixed from procedural layers: a low CBD rumble, traffic swell
 
 ---
 
+## Five more tourist stops
+
+<img src="screenshot-chinatown.png" alt="Chinatown gate and stop on the extended tourist loop" width="100%" />
+
+The loop now carries twelve stops. The five new tourist-heavy calls are:
+
+- **Princess Theatre** — the 1886 Spring Street playhouse, beside Parliament.
+- **Fitzroy Gardens** — Cook's Cottage, the conservatory and the elm avenues.
+- **Carlton Gardens** — the Royal Exhibition Building and Melbourne Museum.
+- **Bourke Street Mall** — the pedestrian retail heart and arcades.
+- **Chinatown** — the Little Bourke Street gate, lanterns and laneway restaurants.
+
+Each has its own shelter, stop guide card, Wikipedia link and announced "get off here for" highlights.
+
+---
+
 ## Features
 
 ### 3D world and tram
@@ -108,14 +124,18 @@ The city itself is mixed from procedural layers: a low CBD rumble, traffic swell
 - **Stop guide cards** — approaching each stop raises a background card with nearby landmarks and a Wikipedia link; the ℹ button in the next-stop panel reopens it.
 - **Richer city soundscape** — layered low rumble, traffic pass-bys, crowd swells, birds, distant tram bells, horns and wind, mixed by weather.
 - **Extended Hoddle Grid CBD loop** — 518 m through Swanston, Flinders, Spring/Exhibition, Collins, Spring North and La Trobe/Queensberry, with new stops at Collins Street, Parliament and RMIT.
-- **Parliament House, RMIT and Collins Street landmarks** — a classical dome and portico, a brick-and-glass campus tower, and a Paris-end Collins canyon.
+- **Twelve-stop tourist loop** — adds Princess Theatre, Fitzroy Gardens, Carlton Gardens, Bourke Street Mall and Chinatown to the existing CBD landmarks.
+- **Parliament House, RMIT, Princess Theatre and parkland landmarks** — classical domes, a brick-and-glass campus tower, a Victorian playhouse and the Fitzroy/Carlton gardens.
 - Follow camera with **mouse orbit and zoom**, plus a recentre key.
 
 ### Passengers and Myki
 
-- Seven named stops with shelters, benches, Myki validators, platform markers and waiting passengers (complete with umbrellas when it rains).
+- Twelve named stops with shelters, benches, Myki validators, platform markers and waiting passengers (complete with umbrellas when it rains).
 - **Manual door release** with `O` or the pulsing **Doors** button once stopped in the platform zone below 2 km/h; the doors slide open, the icon turns cyan and changes to **Close**.
 - **Melbourne-style announcements** — a two-tone chime then an en-AU spoken "Next stop…", "Now arriving at… Doors opening" and "Doors closing. Please stand clear", mirrored in an on-screen subtitle bar.
+- **Destination manifests** — every passenger who boards is assigned a later stop; the onboard count is shown in the telemetry.
+- **Pull-the-cord stop requests** — as a passenger's destination approaches, they request the stop, the cord indicator tugs, a chime sounds and the HUD/cab shows **STOP REQUESTED** until you open the doors.
+- **Alighting animations** — when you open the doors, passengers leave the tram, step onto the platform and walk away; boarding passengers then tap on.
 - A **synthesised Myki tap-on beep** for each boarding passenger, a staggered boarding animation and a perfect-stop bonus.
 - Passenger counts, best score, loops, shift score and career totals update live.
 
@@ -193,9 +213,13 @@ The route is modelled on Melbourne's [Hoddle Grid](https://en.wikipedia.org/wiki
 | 3 | **Federation Square** | East edge of the loop | Plaza-side shelter |
 | 4 | **Collins Street** | Collins St East, near Fed Square | Paris-end shelter |
 | 5 | **Parliament** | Spring Street, by Parliament House | Parliament-side shelter |
-| 6 | **RMIT University** | Spring/La Trobe, by the RMIT campus | Campus-side shelter |
-| 7 | **Melbourne University** | North end of Swanston St | University-side shelter |
-
+| 6 | **Princess Theatre** | Spring Street, by the theatre | Theatre-side shelter |
+| 7 | **Fitzroy Gardens** | Spring Street, by the gardens | Garden-side shelter |
+| 8 | **Carlton Gardens** | North edge, by the Royal Exhibition Building | Museum-side shelter |
+| 9 | **RMIT University** | Spring/La Trobe, by the RMIT campus | Campus-side shelter |
+| 10 | **Melbourne University** | North end of Swanston St | University-side shelter |
+| 11 | **Bourke Street Mall** | Swanston St, at Bourke | Mall-side shelter |
+| 12 | **Chinatown** | Swanston St, at Little Bourke | Laneway-side shelter |
 The route follows the Hoddle Grid’s parallel streets: Flinders, Collins and La Trobe run east–west, while Swanston, Spring/Exhibition and the northern edge close the loop. Stops are placed by arc length on the closed Catmull-Rom loop, so the next-stop HUD and minimap always agree with the rails.
 
 ---
@@ -312,6 +336,11 @@ tramtracker-2088/
 ├── screenshot-mobile.png
 ├── screenshot-start.png
 ├── screenshot-stop-guide.png
+├── screenshot-stop-request.png
+├── screenshot-bourke.png
+├── screenshot-chinatown.png
+├── screenshot-princess.png
+├── screenshot-tour.png
 ├── screenshot-driver.png
 ├── screenshot-driver-rain.png
 ├── screenshot-doors.png
@@ -338,11 +367,11 @@ Build duration, token usage and full credits are recorded in [STATE.md](STATE.md
 
 ## Verification
 
-The built-in harness reports **29/29 PASS**, covering:
+The built-in harness reports **31/31 PASS**, covering:
 
 - Three.js r128 and Cannon.js 0.6.2 runtime availability;
-- WebGL renderer, 400+ object scene and the 518 m seven-stop CBD loop;
-- seven named stops and 28 waiting passengers;
+- WebGL renderer, 400+ object scene and the 518 m twelve-stop CBD loop;
+- twelve named stops, tourist landmarks and waiting passengers;
 - tram mesh, 12,000 kg Cannon body, catenary, station, Federation Square and Yarra geometry;
 - Web Audio voices and three weather presets;
 - save schema validation and the export/import path;
@@ -353,8 +382,9 @@ The built-in harness reports **29/29 PASS**, covering:
 - hook-turn scene readiness;
 - driver's cab view switching, FOV and orbit-control handoff;
 - manual door open/close, boarding and announcement wiring;
-- the 518 m seven-stop CBD loop and the Parliament/RMIT/Collins landmarks;
+- the 518 m twelve-stop CBD loop and the Parliament/RMIT/Princess/Fitzroy/Carlton landmarks;
 - stop-guide cards, nearby places and Wikipedia links;
+- passenger destination manifests, stop requests and alighting animations;
 - the layered city ambience and Thai-style stop announcements;
 - zero uncaught errors.
 

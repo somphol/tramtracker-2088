@@ -4,8 +4,8 @@
 | --- | --- |
 | Project | TramTracker 2088 — Melbourne Yarra Trams 3D Simulator (`tramtracker-2088`) |
 | Started | 2026-11-01 16:59:53 UTC |
-| Packaged | 2026-11-01 20:17:46 UTC |
-| Duration | **3h 17m 53s** (11,873 seconds) |
+| Packaged | 2026-11-01 21:00:52 UTC |
+| Duration | **4h 0m 52s** (14,452 seconds) |
 | Harness | OpenCode 2.2.5 |
 | Model | DeepSeek V4.1 Flash (`opencode-go/deepseek-v4.1-flash`) |
 | Session | `ses_e67f25924ffeV87ZCfDRsei45y` |
@@ -16,15 +16,15 @@
 
 | Metric | Tokens |
 | --- | ---: |
-| Input | 882,635 |
-| Output | 218,794 |
-| Reasoning | 310,011 |
-| **Total (input + output + reasoning)** | **1,411,440** |
-| Cache read | 131,062,016 |
+| Input | 993,333 |
+| Output | 246,290 |
+| Reasoning | 358,215 |
+| **Total (input + output + reasoning)** | **1,597,838** |
+| Cache read | 177,526,528 |
 | Cache write | 1,190 |
-| Total including cache | 132,474,646 |
+| Total including cache | 179,125,556 |
 
-> Snapshot taken from the OpenCode session record when the project was packaged at 2026-11-01 20:17:46 UTC. It includes the original build, the track-spin fix, the first-person driver's cab view, manual doors/announcements, the extended CBD loop, stop guides, a layered city soundscape and real stop names. The final state-file commit, push, Pages re-verification and closing response happen outside this snapshot, so the live session totals will be marginally higher. Total cost reported by the session: **$0.00**.
+> Snapshot taken from the OpenCode session record when the project was packaged at 2026-11-01 21:00:52 UTC. It includes the original build, track/cab/doors/announcement/CBD work, stop guides, city ambience, passenger destination manifests, stop requests, alighting animations and five more tourist stops. The final state-file commit, push, Pages re-verification and closing response happen outside this snapshot, so the live session totals will be marginally higher. Total cost reported by the session: **$0.00**.
 
 ## Revisions after the first package
 
@@ -51,7 +51,7 @@ A complete, self-contained 3D tram simulator in three modular source files plus 
 - **First-person driver's cab** — `V` toggles between chase and cab views, with a cockpit dashboard, drag-to-look, speed FOV, head sway, curve lean and rain wipers.
 - **Manual doors and announcements** — `O` or **Doors** opens/closes the sliding doors at a platform, with chimes, hiss, a safety interlock and spoken Melbourne-style stop/arrival/door announcements and subtitles.
 - **Tram bell** — `B` synthesises the double-ding bell.
-- **Passenger pickup** — seven named stops with shelters, waiting commuters, umbrellas in rain, animated boarding, Myki beeps and scoring.
+- **Passenger pickup** — twelve named stops with shelters, waiting commuters, destination manifests, stop requests, alighting animations, Myki beeps and scoring.
 - **Hook Turn Challenge** — a separate 60-second top-down intersection with active trams, bikes, traffic signals, a hook-turn box, three attempts, collision detection, violations and a result card.
 - **Weather presets** — instant sunny, sudden-rain and twilight transitions across sky shader, fog, sun, exposure, windows, lamps, water, rain, stars, thunder and lightning.
 - **Web Audio synthesis** — bell, Myki, wheel screech, rail clatter, city hum, rain, thunder, UI clicks, success and failure stings.
@@ -68,7 +68,7 @@ A complete, self-contained 3D tram simulator in three modular source files plus 
 ## Verification
 
 - **29/29** self-tests pass in headless Chrome against the live GitHub Pages build.
-- Checks include Three.js/Cannon.js runtimes, renderer, 400+ object scene, 518 m loop, seven stops, 28 riders, tram mesh, 12,000 kg physics body, landmarks, catenary, audio voices, three weather presets, save schema, badge count, minimap/HUD wiring, traction simulation, live Myki boarding, weather switching, driver-cab switching/FOV/handoff, manual door open/close with live Myki boarding, stop/door announcement wiring, stop-guide/Wikipedia cards, CBD extension landmarks, layered city ambience, hook-turn readiness and zero uncaught errors.
+- Checks include Three.js/Cannon.js runtimes, renderer, 400+ object scene, 518 m loop, twelve stops, tram mesh, 12,000 kg physics body, landmarks, catenary, audio voices, three weather presets, save schema, badge count, minimap/HUD wiring, traction simulation, live Myki boarding, weather switching, driver-cab switching/FOV/handoff, manual door open/close with live Myki boarding, stop/door announcement wiring, stop-guide/Wikipedia cards, CBD landmarks, five tourist landmarks, destination manifests, stop requests, alighting animations, layered city ambience, hook-turn readiness and zero uncaught errors.
 - Screenshots verified at **1600×1000** desktop and **390×844** mobile with no layout overflow (`scrollWidth === innerWidth`).
 - Live URLs return HTTP 200 for HTML, CSS, JS, screenshots and favicon.
 
@@ -76,10 +76,10 @@ A complete, self-contained 3D tram simulator in three modular source files plus 
 
 | File | Size |
 | --- | ---: |
-| `index.html` | 18,381 bytes · 360 lines |
-| `style.css` | 52,154 bytes · 2,006 lines |
-| `script.js` | 244,929 bytes · 5,843 lines |
-| `README.md` | 18,561 bytes · 378 lines |
+| `index.html` | 18,737 bytes · 368 lines |
+| `style.css` | 55,256 bytes · 2,141 lines |
+| `script.js` | 267,826 bytes · 6,284 lines |
+| `README.md` | 21,534 bytes · 419 lines |
 | `screenshot.png` | 1.16 MB |
 | `screenshot-rain.png` | 1.16 MB |
 | `screenshot-twilight.png` | 1.09 MB |
@@ -95,6 +95,11 @@ A complete, self-contained 3D tram simulator in three modular source files plus 
 | `screenshot-doors.png` | 910 KB |
 | `screenshot-cbd.png` | 1.31 MB |
 | `screenshot-stop-guide.png` | 1.0 MB |
+| `screenshot-stop-request.png` | 1.0 MB |
+| `screenshot-bourke.png` | 732 KB |
+| `screenshot-chinatown.png` | 704 KB |
+| `screenshot-princess.png` | 935 KB |
+| `screenshot-tour.png` | 1.2 MB |
 | `screenshot-collins.png` | 842 KB |
 | `screenshot-parliament.png` | 988 KB |
 | `screenshot-rmit.png` | 1.05 MB |
