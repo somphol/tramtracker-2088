@@ -1,26 +1,26 @@
 {
   "project": "tramtracker-2088",
-  "title": "TramTracker 2088 \u2014 Melbourne Yarra Trams 3D Simulator",
-  "description": "A complete, production-ready interactive 3D Melbourne tram simulator in vanilla HTML/CSS/ES6, rendered with Three.js r128 and simulated with Cannon.js 0.6.2. It features an extended 518 m Hoddle Grid CBD loop, seven stops, manual doors with announcements, first-person cab and chase views, weather and the Hook Turn Challenge.",
+  "title": "TramTracker 2088 — Melbourne Yarra Trams 3D Simulator",
+  "description": "A complete, production-ready interactive 3D Melbourne tram simulator in vanilla HTML/CSS/ES6, rendered with Three.js r128 and simulated with Cannon.js 0.6.2. It features a 1.35 km twenty-one-stop Hoddle Grid loop from the CBD to the Shrine of Remembrance, manual doors with announcements, a door interlock, minimizable mobile panels, first-person cab and chase views, weather and the Hook Turn Challenge.",
   "repository": "https://github.com/somphol/tramtracker-2088",
   "liveDemo": "https://somphol.github.io/tramtracker-2088/",
   "build": {
     "startedAt": "2026-11-01T16:59:53Z",
-    "packagedAt": "2026-11-01T21:00:52Z",
-    "durationSeconds": 14452,
-    "durationHuman": "4h 0m 52s",
+    "packagedAt": "2026-11-01T22:11:00Z",
+    "durationSeconds": 18637,
+    "durationHuman": "5h 10m 37s",
     "timezone": "UTC",
-    "includes": "Initial build, track/cab/doors/announcement/CBD extension work, stop guides, city ambience, passenger destination manifests, stop requests and five more tourist stops"
+    "includes": "Initial build, track/cab/doors/announcement/CBD work, stop guides, city ambience, passenger manifests, stop requests, tourist stops, a 1.35 km St Kilda Road/Shrine extension with 21 spaced stops, mobile panel controls and a door interlock."
   },
   "tokens": {
-    "input": 993333,
-    "output": 246290,
-    "reasoning": 358215,
-    "cacheRead": 177526528,
+    "input": 1289744,
+    "output": 305607,
+    "reasoning": 451714,
+    "cacheRead": 219630976,
     "cacheWrite": 1190,
-    "total": 1597838,
-    "totalWithCache": 179125556,
-    "note": "Snapshot from the OpenCode session record at 2026-11-01T21:00:52Z. total = input + output + reasoning. Cache reads/writes are context-usage figures and are reported separately."
+    "total": 2047065,
+    "totalWithCache": 221678041,
+    "note": "Snapshot from the OpenCode session record at 2026-11-01T22:11:00Z. total = input + output + reasoning. Cache reads/writes are context-usage figures and are reported separately."
   },
   "cost": {
     "usd": 0.0,
@@ -65,23 +65,23 @@
   "files": [
     {
       "path": "index.html",
-      "bytes": 18737,
-      "lines": 368
+      "bytes": 19181,
+      "lines": 373
     },
     {
       "path": "style.css",
-      "bytes": 55256,
-      "lines": 2141
+      "bytes": 58950,
+      "lines": 2286
     },
     {
       "path": "script.js",
-      "bytes": 267826,
-      "lines": 6284
+      "bytes": 295161,
+      "lines": 6808
     },
     {
       "path": "README.md",
-      "bytes": 21534,
-      "lines": 419
+      "bytes": 25771,
+      "lines": 474
     }
   ],
   "screenshots": [
@@ -107,20 +107,27 @@
     "screenshot-bourke.png",
     "screenshot-chinatown.png",
     "screenshot-princess.png",
-    "screenshot-tour.png"
+    "screenshot-tour.png",
+    "screenshot-door-warning.png",
+    "screenshot-mobile-guide.png",
+    "screenshot-shrine.png",
+    "screenshot-qvm.png",
+    "screenshot-southbank.png"
   ],
   "features": [
-    "Procedural Melbourne city grid with Swanston Street and Flinders Street",
-    "Flinders Street Station fa\u00e7ade with copper dome and clock tower",
+    "Procedural extended Melbourne city grid with St Kilda Road, the Domain, Swanston, Flinders, Spring/Exhibition, Victoria and La Trobe streets",
+    "Flinders Street Station façade with copper dome and clock tower",
     "Federation Square deconstructivist shards, plaza, screen and amphitheatre",
-    "Yarra River, Princes Bridge, Southbank skyline and Melbourne University",
-    "Embedded steel rails, concrete sleepers and full overhead catenary",
+    "Yarra River, two tram bridges, Southbank skyline and Melbourne University",
+    "Shrine of Remembrance in Kings Domain at the end of the St Kilda Road extension",
+    "Embedded steel rails, concrete sleepers and full overhead catenary on a 1.35 km loop",
     "W-Class / Cyber-Tram 2088 with Cannon.js rigid body and rail physics",
     "First-person driver's cab view with drag-to-look, speed FOV, head sway and rain wipers",
     "Keyboard and touch traction/brake controls, orbit camera and recentre",
     "Double-ding Web Audio tram bell",
-    "Four stops with waiting passengers and animated Myki boarding",
-    "Manual door control (O / Doors button) with sliding 3D doors, hiss, chimes and a traction safety interlock",
+    "Twenty-one named stops with waiting passengers and animated Myki boarding",
+    "Stop spacing enforced by self-test: minimum 30 m between platforms",
+    "Manual door control (O / Doors button) with sliding 3D doors, hiss, chimes and a persistent door interlock warning",
     "Melbourne-style next-stop/current-stop/door announcements with en-AU speech, chimes and subtitles",
     "Synthesised Myki beeps, wheel screech, rail clatter, rain and thunder",
     "Hook Turn Challenge mini-game with live trams, bikes, signals and collisions",
@@ -128,21 +135,17 @@
     "localStorage career save plus tramtracker_save.json export/import",
     "Nine route badges and career statistics",
     "Responsive glassmorphic Yarra green/gold + neon UI",
-    "Built-in 26-check self-test harness",
-    "Extended 518 m Hoddle Grid CBD loop with seven stops",
-    "Collins Street, Parliament House and RMIT University landmarks",
-    "CBD loop via Flinders, Spring/Exhibition, Collins, La Trobe/Queensberry and Swanston",
+    "Built-in 32-check self-test harness",
+    "Minimizable telemetry and stop-guide panels on mobile",
     "Stop guide cards with nearby landmarks and Wikipedia links",
     "Layered city soundscape with traffic, crowd, birds, horns and distant tram bells",
-    "Real Melbourne stop names including Arts Precinct, Flinders Street Station and Melbourne University",
-    "Passenger destination manifests and alighting animations",
-    "Pull-the-cord stop requests with a cab/HUD indicator",
-    "Five more tourist stops: Princess Theatre, Fitzroy Gardens, Carlton Gardens, Bourke Street Mall and Chinatown"
+    "Passenger destination manifests, pull-the-cord stop requests and alighting animations",
+    "Tourist landmarks including Princess Theatre, Fitzroy and Carlton gardens, Old Treasury, Melbourne Museum, Queen Victoria Market, Melbourne Central, Town Hall, Hosier Lane, St Paul’s and the Shrine"
   ],
   "revisions": [
     {
       "date": "2026-11-01",
-      "change": "Fixed a 360\u00b0 tram spin at track corners by removing duplicate straight/arc control points and stabilising heading sampling with a short chord."
+      "change": "Fixed a 360° tram spin at track corners by removing duplicate straight/arc control points and stabilising heading sampling with a short chord."
     },
     {
       "date": "2026-11-01",
@@ -163,30 +166,42 @@
     {
       "date": "2026-11-01",
       "change": "Added passenger destination manifests, onboard stop requests with cord animation/cab indication, alighting animations, and five more tourist stops with landmarks, guides and announcements."
+    },
+    {
+      "date": "2026-11-01",
+      "change": "Rebuilt the loop as a 1.35 km twenty-one-stop route with a St Kilda Road/Domain extension to the Shrine of Remembrance, respaced every stop to at least 30 m, added the Shrine landmark and two tram bridges, and kept the route clear of buildings."
+    },
+    {
+      "date": "2026-11-01",
+      "change": "Added minimizable telemetry and stop-guide panels for mobile, plus a persistent door interlock warning in the HUD and driver cab when traction is requested with the doors open."
     }
   ],
   "verification": {
-    "selfTest": "31/31 PASS",
+    "selfTest": "32/32 PASS",
     "selfTestUrl": "https://somphol.github.io/tramtracker-2088/?selftest=1",
     "checked": [
       "Three.js r128 and Cannon.js 0.6.2 loaded",
-      "WebGL renderer and 400+ object scene",
-      "518 m twelve-stop CBD loop with waiting passengers",
-      "49-part tram mesh and 12,000 kg Cannon body",
-      "Flinders Street Station, Federation Square, Yarra River and catenary",
+      "WebGL renderer and 600+ object scene",
+      "1.35 km twenty-one-stop CBD and Shrine loop",
+      "21 named stops with a minimum 30 m spacing check",
+      "55-part tram mesh and 12,000 kg Cannon body",
+      "Flinders Street Station, Federation Square, Yarra River, two bridges and catenary",
       "Parliament House, RMIT University and Collins Street landmarks",
-      "Princess Theatre, Fitzroy Gardens, Carlton Gardens, Bourke Street Mall and Chinatown",
+      "Princess Theatre, Fitzroy Gardens, Carlton Gardens, Queen Victoria Market, Melbourne Central, Town Hall, Hosier Lane and St Paul’s",
+      "Shrine of Remembrance, Kings Domain and the St Kilda Road boulevard",
       "Web Audio voices, layered city ambience and three weather presets",
       "Save schema validation and export/import",
       "Nine badges, minimap, HUD and save/load wiring",
       "Traction simulation and live Myki boarding",
       "Driver's cab view switching, camera FOV and orbit-control handoff",
       "Manual door open/close and stop/door announcements",
+      "Persistent door interlock warning and blocked traction",
       "Passenger destination manifests, stop requests and alighting animations",
+      "Minimizable telemetry and stop-guide panels",
       "Hook Turn scene readiness",
       "Zero uncaught errors"
     ],
-    "screenshots": "Desktop 1600\u00d71000 and mobile 390\u00d7844 captured from the live build with headless Chrome (SwiftShader WebGL)."
+    "screenshots": "Desktop 1600×1000 and mobile 390×844 captured from the live build with headless Chrome (SwiftShader WebGL)."
   },
   "credits": {
     "builtWith": "OpenCode v2.2.5 + DeepSeek V4.1 Flash (opencode-go/deepseek-v4.1-flash)",

@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=1.0.8" />
+  <link rel="stylesheet" href="style.css?v=1.1.0" />
 </head>
 <body>
   <div id="app">
@@ -48,6 +48,7 @@
         </div>
       </div>
       <div class="cab-request" id="cabRequest">🔔 STOP REQUESTED</div>
+      <div class="cab-door-warning" id="cabDoorWarning">🔒 CLOSE DOORS TO DEPART</div>
       <div class="cab-hint">DRAG TO LOOK · <kbd>V</kbd> FOR CHASE</div>
     </div>
 
@@ -93,6 +94,7 @@
         <span class="live-dot"></span>
         <span>CBD LOOP</span>
         <span class="route-chip">ROUTE 2088</span>
+        <button id="telemetryToggle" class="panel-toggle" aria-label="Minimize telemetry" aria-expanded="true">−</button>
       </div>
 
       <div class="speed-block">
@@ -168,6 +170,7 @@
 
     <aside id="stopInfo" class="stop-info glass" aria-live="polite" aria-hidden="true">
       <button class="stop-info-close" id="stopInfoClose" aria-label="Close stop guide">×</button>
+      <button class="stop-info-toggle" id="stopInfoToggle" aria-label="Minimize stop guide" aria-expanded="true">−</button>
       <span class="eyebrow">STOP GUIDE · CBD LOOP</span>
       <h2 id="stopInfoName">Flinders Street Station</h2>
       <p id="stopInfoBlurb"></p>
@@ -177,6 +180,8 @@
       </div>
       <a class="stop-info-link" id="stopInfoLink" href="https://en.wikipedia.org/wiki/Flinders_Street_railway_station" target="_blank" rel="noopener noreferrer">Read on Wikipedia <span>↗</span></a>
     </aside>
+
+    <div id="doorWarning" class="door-warning" role="alert">🔒 CLOSE THE DOORS BEFORE DEPARTING</div>
 
     <div id="announcementBar" class="announcement glass" aria-live="polite">
       <span class="announcement-icon" aria-hidden="true">📢</span>
@@ -363,6 +368,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
-  <script src="script.js?v=1.0.8"></script>
+  <script src="script.js?v=1.1.0"></script>
 </body>
 </html>

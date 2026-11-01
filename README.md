@@ -1,15 +1,15 @@
 <div align="center">
 
-<img src="screenshot.png" alt="TramTracker 2088 — a green and gold cyber tram on Swanston Street with Flinders Street Station behind it" width="100%" />
+<img src="screenshot.png" alt="TramTracker 2088 — a green and gold cyber tram at Queen Victoria Market with the extended city loop behind it" width="100%" />
 
 # TRAMTRACKER 2088
 
 **Melbourne Yarra Trams · 3D Simulator**
 
-Drive a retro-futuristic W-Class cyber tram around an extended Hoddle Grid CBD loop with twelve stops, collect Myki passengers, survive four seasons in one day, and master the famous Melbourne hook turn — from the chase camera or the driver's cab.
+Drive a retro-futuristic W-Class cyber tram around an extended Hoddle Grid CBD loop with twenty-one stops, collect Myki passengers, survive four seasons in one day, and master the famous Melbourne hook turn — from the chase camera or the driver's cab.
 
 [![Live demo](https://img.shields.io/badge/live_demo-online-46ffd3?style=flat-square)](https://somphol.github.io/tramtracker-2088/)
-[![Self-tests](https://img.shields.io/badge/self--tests-29%2F29-00b85c?style=flat-square)](#verification)
+[![Self-tests](https://img.shields.io/badge/self--tests-32%2F32-00b85c?style=flat-square)](#verification)
 [![License: MIT](https://img.shields.io/badge/license-MIT-f6c800?style=flat-square)](LICENSE)
 
 **[Play it live →](https://somphol.github.io/tramtracker-2088/)**
@@ -33,7 +33,9 @@ The whole thing runs from three files — `index.html`, `style.css` and `script.
 
 - [The sim](#the-sim)
 - [Doors and announcements](#doors-and-announcements)
+- [Door interlock](#door-interlock)
 - [Stop guides and city sound](#stop-guides-and-city-sound)
+- [Mobile panels](#mobile-panels)
 - [Features](#features)
 - [Controls](#controls)
 - [The CBD Loop](#the-cbd-loop)
@@ -52,15 +54,18 @@ The whole thing runs from three files — `index.html`, `style.css` and `script.
 
 ## The sim
 
-You clock on at the north end of Swanston Street in a green-and-gold cyber tram. The tram is rail-guided — the computer handles steering, you handle traction and braking. Roll into a platform below 2 km/h, open the doors with `O`, and Myki validators beep as passengers board. The loop now runs out of Swanston into Collins Street, Spring Street, Parliament and RMIT, following the real Hoddle Grid street pattern.
+You clock on at the north end of Swanston Street in a green-and-gold cyber tram. The tram is rail-guided — the computer handles steering, you handle traction and braking. Roll into a platform below 2 km/h, open the doors with `O`, and Myki validators beep as passengers board. The loop now runs out of Swanston into Collins Street, Spring Street, Parliament, RMIT and the northern CBD, following the real Hoddle Grid street pattern.
 
-The extended loop is roughly 518 metres and takes you past:
+The extended loop is roughly 1.35 kilometres and carries **twenty-one stops**, taking you past:
 
 - the cream façade, copper dome and clock tower of **Flinders Street Station**;
+- the **Arts Precinct**, **Southbank Promenade** and the **Yarra River**, then south down **St Kilda Road**;
 - the angular zinc-and-glass shards, plaza screen and amphitheatre of **Federation Square**;
-- the **Yarra River**, Princes Bridge and the Southbank skyline;
-- the classical portico of **Melbourne University**, the **Parliament of Victoria** and **RMIT University**;
-- the new Collins Street canyon and Spring Street/Parliament platforms.
+- the Collins Street canyon, the **Old Treasury Building** and the **Parliament of Victoria**;
+- **Princess Theatre**, **Fitzroy Gardens**, **Carlton Gardens** and **Melbourne Museum**;
+- **RMIT University**, **Queen Victoria Market**, **Melbourne Central** and **Melbourne University**;
+- **Bourke Street Mall**, **Chinatown**, **Melbourne Town Hall**, **Hosier Lane** and **St Paul's Cathedral**;
+- the **Shrine of Remembrance** in Kings Domain, at the end of the St Kilda Road extension;
 - a full cast of low-poly commuters, bikes, taxis, trams, street trees, traffic lights and overhead catenary.
 
 A Cannon.js rigid body follows the rails and collides with street furniture, while the Three.js scene supplies the follow camera, orbit controls and a live HUD.
@@ -83,6 +88,21 @@ Automatic **next stop** announcements call the upcoming platform while you appro
 
 ---
 
+## Door interlock
+
+<img src="screenshot-door-warning.png" alt="The close-the-doors warning shown when trying to depart with the doors open" width="100%" />
+
+The tram will not move with the doors open. If you press the throttle while they are still open or closing:
+
+- the speed stays at **0 km/h**;
+- a pulsing **🔒 CLOSE THE DOORS BEFORE DEPARTING** bar appears above the toolbar;
+- the driver's cab shows **CLOSE DOORS TO DEPART**;
+- the close-door warning chime sounds and a toast repeats the instruction.
+
+The warning clears as soon as the doors finish closing. This applies to both the chase camera and the first-person cab.
+
+---
+
 ## Stop guides and city sound
 
 <img src="screenshot-stop-guide.png" alt="A stop guide card for Flinders Street Station with nearby places and a Wikipedia link" width="100%" />
@@ -93,19 +113,36 @@ The city itself is mixed from procedural layers: a low CBD rumble, traffic swell
 
 ---
 
-## Five more tourist stops
+## Twenty-one stops from the CBD to the Shrine
 
-<img src="screenshot-chinatown.png" alt="Chinatown gate and stop on the extended tourist loop" width="100%" />
+<img src="screenshot-shrine.png" alt="The Shrine of Remembrance at the end of the St Kilda Road tram extension" width="100%" />
 
-The loop now carries twelve stops. The five new tourist-heavy calls are:
+The loop now carries **twenty-one stops** and runs for roughly **1.35 km**. The new Shrine extension follows St Kilda Road south across the Yarra and turns around the Domain, so the CBD stops are no longer packed together: the closest pair is still about **30 m** apart.
 
-- **Princess Theatre** — the 1886 Spring Street playhouse, beside Parliament.
-- **Fitzroy Gardens** — Cook's Cottage, the conservatory and the elm avenues.
-- **Carlton Gardens** — the Royal Exhibition Building and Melbourne Museum.
-- **Bourke Street Mall** — the pedestrian retail heart and arcades.
-- **Chinatown** — the Little Bourke Street gate, lanterns and laneway restaurants.
+- **Shrine of Remembrance** — the 1934 war memorial in Kings Domain, at the end of the St Kilda Road extension.
+- **Southbank Promenade** — the riverside walk beneath Eureka Tower and beside Southgate.
+- **Old Treasury Building** — the 1850s gold-era treasury facing Treasury Gardens.
+- **Melbourne Museum** — natural history and First Peoples collections in Carlton Gardens.
+- **Queen Victoria Market** — the 1878 market sheds, food hall and night market.
+- **Melbourne Central** — the shopping and transport hub built around Coop's Shot Tower.
+- **Melbourne Town Hall** — the 1867 civic hall and clock tower on Swanston Street.
+- **Hosier Lane** — the ever-changing street-art laneway opposite Federation Square.
+- **St Paul's Cathedral** — the Gothic Revival cathedral at Flinders and Swanston.
 
-Each has its own shelter, stop guide card, Wikipedia link and announced "get off here for" highlights.
+Together with Princess Theatre, Fitzroy Gardens, Carlton Gardens, Bourke Street Mall and Chinatown, every stop has its own shelter, platform sign, stop guide card, Wikipedia link and announced "get off here for" highlights.
+
+---
+
+## Mobile panels
+
+<img src="screenshot-mobile.png" alt="The mobile layout with minimizable telemetry and stop guide panels" width="49%" />
+<img src="screenshot-mobile-guide.png" alt="The expanded mobile stop guide at Queen Victoria Market" width="49%" />
+
+On a phone the telemetry panel and stop guide can cover a lot of the road. Both now collapse:
+
+- The telemetry header has a **− / +** button that folds the panel down to its title bar.
+- The stop guide opens **minimized** on small screens, showing just the stop name and a **+** button; tap it to read the full card and **−** to fold it back.
+- On desktop the guide still opens in full, and the same buttons work there too.
 
 ---
 
@@ -123,14 +160,16 @@ Each has its own shelter, stop guide card, Wikipedia link and announced "get off
 - **First-person driver's cab view** with a glass cockpit, dashboard, speed-reactive FOV, head sway and curve lean; drag to look around and let go to ease back to the road. Rain triggers animated wipers and droplets on the glass.
 - **Stop guide cards** — approaching each stop raises a background card with nearby landmarks and a Wikipedia link; the ℹ button in the next-stop panel reopens it.
 - **Richer city soundscape** — layered low rumble, traffic pass-bys, crowd swells, birds, distant tram bells, horns and wind, mixed by weather.
-- **Extended Hoddle Grid CBD loop** — 518 m through Swanston, Flinders, Spring/Exhibition, Collins, Spring North and La Trobe/Queensberry, with new stops at Collins Street, Parliament and RMIT.
-- **Twelve-stop tourist loop** — adds Princess Theatre, Fitzroy Gardens, Carlton Gardens, Bourke Street Mall and Chinatown to the existing CBD landmarks.
-- **Parliament House, RMIT, Princess Theatre and parkland landmarks** — classical domes, a brick-and-glass campus tower, a Victorian playhouse and the Fitzroy/Carlton gardens.
+- **Extended Hoddle Grid CBD loop** — 1.35 km through Swanston, Flinders, St Kilda Road, the Domain, Spring/Exhibition, Victoria Street and La Trobe/Queensberry.
+- **Twenty-one-stop tourist loop** — Flinders Street, St Paul's, Hosier Lane, Arts Precinct, Shrine of Remembrance, Southbank, Federation Square, Collins Street, Old Treasury, Parliament, Princess Theatre, Fitzroy Gardens, RMIT, Carlton Gardens, Melbourne Museum, Melbourne University, Melbourne Central, Queen Victoria Market, Bourke Street Mall, Chinatown and Town Hall.
+- **Tourist landmarks** — Parliament House, RMIT, the Princess Theatre, Fitzroy and Carlton gardens, the Old Treasury, Melbourne Museum, Queen Victoria Market, Melbourne Central's shot tower, Town Hall, Hosier Lane, St Paul's Cathedral and the Shrine of Remembrance.
+- **Door interlock** — traction is blocked with a pulsing warning until the doors are fully closed.
+- **Minimizable mobile panels** — collapse the telemetry and stop guide to see the road.
 - Follow camera with **mouse orbit and zoom**, plus a recentre key.
 
 ### Passengers and Myki
 
-- Twelve named stops with shelters, benches, Myki validators, platform markers and waiting passengers (complete with umbrellas when it rains).
+- Twenty-one named stops with shelters, benches, Myki validators, platform markers and waiting passengers (complete with umbrellas when it rains). Compact 8 m platforms at the dense CBD calls.
 - **Manual door release** with `O` or the pulsing **Doors** button once stopped in the platform zone below 2 km/h; the doors slide open, the icon turns cyan and changes to **Close**.
 - **Melbourne-style announcements** — a two-tone chime then an en-AU spoken "Next stop…", "Now arriving at… Doors opening" and "Doors closing. Please stand clear", mirrored in an on-screen subtitle bar.
 - **Destination manifests** — every passenger who boards is assigned a later stop; the onboard count is shown in the telemetry.
@@ -204,22 +243,32 @@ In the Hook Turn Challenge: `W`/`↑` throttle, `S`/`↓` brake, `A`/`D` or `←
 
 <img src="screenshot-cbd.png" alt="Extended CBD tram loop through Collins Street, Parliament and RMIT" width="100%" />
 
-The route is modelled on Melbourne's [Hoddle Grid](https://en.wikipedia.org/wiki/Hoddle_Grid): Flinders, Collins and La Trobe run east–west, while Swanston and Spring/Exhibition run north–south. Stop names follow the real Melbourne tram network — Flinders Street Station, Federation Square, Arts Precinct, Collins Street, Parliament, RMIT University and Melbourne University.
+The route is modelled on Melbourne's [Hoddle Grid](https://en.wikipedia.org/wiki/Hoddle_Grid): Flinders, Collins and La Trobe run east–west, while Swanston and Spring/Exhibition run north–south. All twenty-one stop names follow the real Melbourne tram network and the landmarks around them.
 
 | # | Stop | Where it is | Platform detail |
 | --- | --- | --- | --- |
-| 1 | **Flinders Street Station** | Swanston St, in front of the station | Shelter, bench, Myki validator |
-| 2 | **Arts Precinct** | South edge of the loop, by the Yarra | River-facing shelter |
-| 3 | **Federation Square** | East edge of the loop | Plaza-side shelter |
-| 4 | **Collins Street** | Collins St East, near Fed Square | Paris-end shelter |
-| 5 | **Parliament** | Spring Street, by Parliament House | Parliament-side shelter |
-| 6 | **Princess Theatre** | Spring Street, by the theatre | Theatre-side shelter |
-| 7 | **Fitzroy Gardens** | Spring Street, by the gardens | Garden-side shelter |
-| 8 | **Carlton Gardens** | North edge, by the Royal Exhibition Building | Museum-side shelter |
-| 9 | **RMIT University** | Spring/La Trobe, by the RMIT campus | Campus-side shelter |
-| 10 | **Melbourne University** | North end of Swanston St | University-side shelter |
-| 11 | **Bourke Street Mall** | Swanston St, at Bourke | Mall-side shelter |
-| 12 | **Chinatown** | Swanston St, at Little Bourke | Laneway-side shelter |
+| 1 | **Flinders Street Station** | Flinders St, west of Swanston | Shelter, bench, Myki validator |
+| 2 | **St Paul's Cathedral** | Flinders and Swanston | Compact heritage platform |
+| 3 | **Hosier Lane** | St Kilda Road approach, by the lane | Compact laneway platform |
+| 4 | **Arts Precinct** | St Kilda Road, by the Arts Centre | River-facing shelter |
+| 5 | **Shrine of Remembrance** | St Kilda Road, Kings Domain | Domain forecourt platform |
+| 6 | **Southbank Promenade** | Domain return boulevard, by the Yarra | Riverside shelter |
+| 7 | **Federation Square** | Flinders St, east of Swanston | Plaza-side shelter |
+| 8 | **Collins Street** | Collins St East, by the Paris End | Compact Paris-end platform |
+| 9 | **Old Treasury Building** | Spring St, by Treasury Gardens | Compact heritage platform |
+| 10 | **Parliament** | Spring Street, by Parliament House | Compact Parliament platform |
+| 11 | **Princess Theatre** | Spring Street, by the theatre | Compact theatre platform |
+| 12 | **Fitzroy Gardens** | Spring Street, by the gardens | Compact garden platform |
+| 13 | **RMIT University** | Victoria Street, by the campus | Campus-side shelter |
+| 14 | **Carlton Gardens** | Victoria Street, by the Exhibition Building | Garden-side shelter |
+| 15 | **Melbourne Museum** | Victoria Street, by the museum | Museum-side shelter |
+| 16 | **Melbourne University** | Swanston St, by the Parkville campus | University-side shelter |
+| 17 | **Melbourne Central** | Swanston St, by the shot tower | Compact CBD platform |
+| 18 | **Queen Victoria Market** | La Trobe St, by the market | Compact market platform |
+| 19 | **Bourke Street Mall** | Queen St, at Bourke | Compact mall platform |
+| 20 | **Chinatown** | Queen St, at Little Bourke | Compact laneway platform |
+| 21 | **Melbourne Town Hall** | Queen St, by the Town Hall | Compact civic platform |
+
 The route follows the Hoddle Grid’s parallel streets: Flinders, Collins and La Trobe run east–west, while Swanston, Spring/Exhibition and the northern edge close the loop. Stops are placed by arc length on the closed Catmull-Rom loop, so the next-stop HUD and minimap always agree with the rails.
 
 ---
@@ -337,6 +386,11 @@ tramtracker-2088/
 ├── screenshot-start.png
 ├── screenshot-stop-guide.png
 ├── screenshot-stop-request.png
+├── screenshot-door-warning.png
+├── screenshot-mobile-guide.png
+├── screenshot-shrine.png
+├── screenshot-qvm.png
+├── screenshot-southbank.png
 ├── screenshot-bourke.png
 ├── screenshot-chinatown.png
 ├── screenshot-princess.png
@@ -367,11 +421,11 @@ Build duration, token usage and full credits are recorded in [STATE.md](STATE.md
 
 ## Verification
 
-The built-in harness reports **31/31 PASS**, covering:
+The built-in harness reports **32/32 PASS**, covering:
 
 - Three.js r128 and Cannon.js 0.6.2 runtime availability;
-- WebGL renderer, 400+ object scene and the 518 m twelve-stop CBD loop;
-- twelve named stops, tourist landmarks and waiting passengers;
+- WebGL renderer, 400+ object scene and the 1.35 km twenty-one-stop CBD loop;
+- twenty-one named stops, a minimum 30 m spacing check, tourist landmarks and waiting passengers;
 - tram mesh, 12,000 kg Cannon body, catenary, station, Federation Square and Yarra geometry;
 - Web Audio voices and three weather presets;
 - save schema validation and the export/import path;
@@ -382,9 +436,10 @@ The built-in harness reports **31/31 PASS**, covering:
 - hook-turn scene readiness;
 - driver's cab view switching, FOV and orbit-control handoff;
 - manual door open/close, boarding and announcement wiring;
-- the 518 m twelve-stop CBD loop and the Parliament/RMIT/Princess/Fitzroy/Carlton landmarks;
+- the 1.35 km twenty-one-stop loop and the Parliament/RMIT/Princess/Fitzroy/Carlton/Old Treasury/Museum/Queen Vic/Melbourne Central/Town Hall/Hosier/St Paul's/Shrine landmarks;
 - stop-guide cards, nearby places and Wikipedia links;
 - passenger destination manifests, stop requests and alighting animations;
+- the door interlock warning and the minimizable telemetry/stop-guide panels;
 - the layered city ambience and Thai-style stop announcements;
 - zero uncaught errors.
 

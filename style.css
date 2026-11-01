@@ -2139,3 +2139,148 @@ body.stop-requested .cab-request {
   .request-chip { font-size: 6px; padding: 2px 5px; }
   .cab-request { bottom: calc(20vh + 18px); }
 }
+
+/* --------------------------------------------------------------------------
+   Mobile panel controls and door interlock
+   -------------------------------------------------------------------------- */
+
+.panel-toggle {
+  position: absolute;
+  right: 7px;
+  top: 6px;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(70, 255, 211, 0.22);
+  border-radius: 5px;
+  background: rgba(70, 255, 211, 0.06);
+  color: var(--muted);
+  font-family: var(--font-display);
+  font-size: 12px;
+  line-height: 1;
+  z-index: 2;
+}
+
+.panel-toggle:hover { color: var(--ice); border-color: var(--line-strong); }
+.tel-head { position: relative; padding-right: 24px; }
+.tel-head .route-chip { margin-right: 18px; }
+
+body.telemetry-min .telemetry > *:not(.tel-head) { display: none; }
+body.telemetry-min .telemetry { gap: 0; }
+body.telemetry-min .telemetry .route-chip { margin-left: auto; }
+
+.stop-info-toggle {
+  position: absolute;
+  top: 10px;
+  right: 43px;
+  width: 27px;
+  height: 27px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(70, 255, 211, 0.25);
+  border-radius: 7px;
+  background: rgba(70, 255, 211, 0.05);
+  color: var(--muted);
+  font-family: var(--font-display);
+  font-size: 14px;
+  line-height: 1;
+  z-index: 2;
+}
+
+.stop-info-toggle:hover { color: var(--ice); border-color: var(--line-strong); }
+
+.stop-info.minimized {
+  width: min(270px, calc(100vw - 24px));
+  max-height: none;
+  padding: 12px 74px 12px 16px;
+}
+
+.stop-info.minimized h2 {
+  margin: 2px 0 0;
+  padding: 0;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stop-info.minimized .eyebrow { font-size: 7px; }
+.stop-info.minimized p,
+.stop-info.minimized .stop-info-nearby,
+.stop-info.minimized .stop-info-link { display: none; }
+
+.door-warning {
+  position: fixed;
+  left: 50%;
+  bottom: 174px;
+  transform: translate(-50%, 8px);
+  z-index: 30;
+  padding: 8px 15px;
+  border: 1px solid rgba(255, 179, 64, 0.6);
+  border-radius: 999px;
+  background: rgba(34, 17, 3, 0.9);
+  color: var(--amber);
+  font-family: var(--font-display);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+  box-shadow: 0 0 28px rgba(255, 179, 64, 0.22);
+  backdrop-filter: blur(8px);
+  white-space: nowrap;
+}
+
+.door-warning.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  animation: doorWarnPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes doorWarnPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 179, 64, 0.25); }
+  50% { box-shadow: 0 0 0 7px rgba(255, 179, 64, 0); }
+}
+
+.cab-door-warning {
+  position: absolute;
+  left: 50%;
+  bottom: calc(23vh + 58px);
+  transform: translate(-50%, 6px);
+  z-index: 7;
+  padding: 7px 14px;
+  border: 1px solid rgba(255, 179, 64, 0.7);
+  border-radius: 999px;
+  background: rgba(36, 17, 2, 0.82);
+  color: var(--amber);
+  font-family: var(--font-display);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+  backdrop-filter: blur(6px);
+}
+
+body.door-blocked .cab-door-warning {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@media (max-width: 640px) {
+  .stop-info.minimized {
+    left: 12px;
+    right: auto;
+    width: min(270px, calc(100vw - 24px));
+    bottom: 238px;
+  }
+  .door-warning { bottom: 224px; font-size: 7.5px; max-width: calc(100vw - 24px); white-space: normal; text-align: center; }
+  .panel-toggle { right: 6px; top: 5px; }
+  .tel-head { padding-right: 22px; }
+}
+
+/* In the cab the dedicated cab warning is enough; avoid a duplicate bar. */
+body.view-driver .door-warning { display: none; }

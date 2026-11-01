@@ -11,11 +11,11 @@
      Constants
      ------------------------------------------------------------------------ */
 
-  const VERSION = '1.0.8';
+  const VERSION = '1.1.0';
   const SAVE_KEY = 'tramtracker_2088_v1';
   const SAVE_FILE = 'tramtracker_save.json';
   const APP_NAME = 'TramTracker 2088';
-  const LOOP_CENTER = { x: 30, z: 30 };
+  const LOOP_CENTER = { x: 50, z: 90 };
   const Y_AXIS = new THREE.Vector3(0, 1, 0);
 
   const WEATHERS = {
@@ -57,91 +57,154 @@
   const STOP_DEFS = [
     {
       id: 'flinders', name: 'Flinders Street Station', speechName: 'Flinders Street Station', short: 'Flinders St',
-      point: { x: 0, z: -8 }, hue: 0xf6c800,
+      point: { x: -45, z: 0 }, hue: 0xf6c800,
       wiki: 'https://en.wikipedia.org/wiki/Flinders_Street_railway_station',
       blurb: "Melbourne's grand 1854 railway station and one of the city's best-loved landmarks, with its green copper dome, clock tower and long cream façade.",
       nearby: ['Federation Square', "St Paul's Cathedral", 'the Yarra River']
     },
     {
+      id: 'stpaul', name: 'St Paul’s Cathedral', speechName: 'Saint Paul’s Cathedral', short: 'St Paul’s',
+      point: { x: 0, z: -15 }, hue: 0xd9a6ff, compact: true,
+      wiki: 'https://en.wikipedia.org/wiki/St_Paul%27s_Cathedral,_Melbourne',
+      blurb: 'The Gothic Revival cathedral on the corner of Flinders and Swanston, with twin spires, stained glass and a famous organ.',
+      nearby: ['St Paul’s Cathedral', 'Federation Square', 'Flinders Street Station']
+    },
+    {
+      id: 'hosier', name: 'Hosier Lane', speechName: 'Hosier Lane', short: 'Hosier Lane',
+      point: { x: 0, z: -45 }, hue: 0xff5c7e, compact: true,
+      wiki: 'https://en.wikipedia.org/wiki/Hosier_Lane',
+      blurb: 'Melbourne’s most famous street-art laneway, a constantly changing gallery of paste-ups, murals and stencil work.',
+      nearby: ['Hosier Lane', 'AC/DC Lane', 'Federation Square']
+    },
+    {
       id: 'arts', name: 'Arts Precinct', speechName: 'Arts Precinct', short: 'Arts Precinct',
-      point: { x: 30, z: -40 }, hue: 0x46ffd3,
+      point: { x: 0, z: -120 }, hue: 0x46ffd3,
       wiki: 'https://en.wikipedia.org/wiki/Melbourne_Arts_Precinct',
       blurb: 'The riverside cultural heart of Melbourne, home to the National Gallery of Victoria, Arts Centre Melbourne and Hamer Hall.',
       nearby: ['the National Gallery of Victoria', 'Arts Centre Melbourne', 'Southbank Promenade']
     },
     {
+      id: 'shrine', name: 'Shrine of Remembrance', speechName: 'Shrine of Remembrance', short: 'Shrine',
+      point: { x: 40, z: -300 }, hue: 0xffd27a,
+      wiki: 'https://en.wikipedia.org/wiki/Shrine_of_Remembrance',
+      blurb: 'Victoria’s solemn war memorial in Kings Domain, opened in 1934, with a stepped pyramid, colonnade and the Ray of Light ceremony.',
+      nearby: ['the Shrine of Remembrance', 'the Royal Botanic Gardens', 'Kings Domain']
+    },
+    {
+      id: 'southbank', name: 'Southbank Promenade', speechName: 'Southbank Promenade', short: 'Southbank',
+      point: { x: 80, z: -180 }, hue: 0x46d6ff,
+      wiki: 'https://en.wikipedia.org/wiki/Southbank,_Victoria',
+      blurb: 'The riverside promenade across Princes Bridge, beneath the Eureka Tower and beside Southgate and the Arts Precinct.',
+      nearby: ['Eureka Skydeck', 'Southgate', 'the Yarra River']
+    },
+    {
       id: 'fed', name: 'Federation Square', speechName: 'Federation Square', short: 'Fed Square',
-      point: { x: 60, z: 25 }, hue: 0xff7a4d,
+      point: { x: 80, z: 0 }, hue: 0xff7a4d,
       wiki: 'https://en.wikipedia.org/wiki/Federation_Square',
       blurb: 'A deconstructivist civic square opened in 2002, hosting ACMI, the Ian Potter Centre and a packed calendar of events.',
       nearby: ['NGV Australia', 'ACMI', 'Flinders Street Station']
     },
     {
       id: 'collins', name: 'Collins Street', speechName: 'Collins Street', short: 'Collins St',
-      point: { x: 80, z: 25 }, hue: 0xffb340,
+      point: { x: 140, z: 0 }, hue: 0xffb340, compact: true,
       wiki: 'https://en.wikipedia.org/wiki/Collins_Street,_Melbourne',
       blurb: "Melbourne's historic Paris End, lined with Victorian-era arcades, luxury boutiques, theatres and the Town Hall.",
       nearby: ['the Block Arcade', 'Melbourne Town Hall', 'Parliament House']
     },
     {
+      id: 'oldtreasury', name: 'Old Treasury Building', speechName: 'Old Treasury Building', short: 'Old Treasury',
+      point: { x: 160, z: 35 }, hue: 0xd9b76a, compact: true,
+      wiki: 'https://en.wikipedia.org/wiki/Old_Treasury_Building',
+      blurb: 'The Renaissance-style treasury built in the 1850s to store Victoria’s gold, now a museum facing Treasury Gardens.',
+      nearby: ['the Old Treasury Building', 'Treasury Gardens', 'Parliament House']
+    },
+    {
       id: 'parliament', name: 'Parliament', speechName: 'Parliament Station', short: 'Parliament',
-      point: { x: 100, z: 65 }, hue: 0x9d7bff,
+      point: { x: 160, z: 65 }, hue: 0x9d7bff, compact: true,
       wiki: 'https://en.wikipedia.org/wiki/Parliament_House,_Melbourne',
       blurb: "The seat of Victoria's Parliament since 1856, with a grand colonnade, dome and formal gardens on Spring Street.",
       nearby: ['Parliament Station', 'the Old Treasury Building', 'Fitzroy Gardens']
     },
     {
-      id: 'fitzroy', name: 'Fitzroy Gardens', speechName: 'Fitzroy Gardens', short: 'Fitzroy Gdns',
-      point: { x: 100, z: 105 }, hue: 0x64d68f,
-      wiki: 'https://en.wikipedia.org/wiki/Fitzroy_Gardens',
-      blurb: "One of Melbourne's oldest public gardens, with elm avenues, the Fairies' Tree, Cook's Cottage and the glass Fitzroy Gardens Conservatory.",
-      nearby: ["Cook's Cottage", 'the Fitzroy Gardens Conservatory', 'the Old Treasury Building']
-    },
-    {
-      id: 'carlton', name: 'Carlton Gardens', speechName: 'Carlton Gardens', short: 'Carlton Gdns',
-      point: { x: 80, z: 140 }, hue: 0xa8d86a,
-      wiki: 'https://en.wikipedia.org/wiki/Carlton_Gardens',
-      blurb: 'A World Heritage-listed Victorian garden surrounding the Royal Exhibition Building and the Melbourne Museum.',
-      nearby: ['the Royal Exhibition Building', 'Melbourne Museum', 'the Carlton Gardens']
-    },
-    {
-      id: 'rmit', name: 'RMIT University', speechName: 'RMIT University', short: 'RMIT',
-      point: { x: 60, z: 120 }, hue: 0xff5577,
-      wiki: 'https://en.wikipedia.org/wiki/RMIT_University',
-      blurb: 'A globally ranked design and technology university founded in 1887, whose city campus spills into the surrounding laneways.',
-      nearby: ['State Library Victoria', 'Melbourne Central', 'the Old Melbourne Gaol']
-    },
-    {
       id: 'princess', name: 'Princess Theatre', speechName: 'Princess Theatre', short: 'Princess',
-      point: { x: 100, z: 85 }, hue: 0xff7aa8,
+      point: { x: 160, z: 95 }, hue: 0xff7aa8, compact: true,
       wiki: 'https://en.wikipedia.org/wiki/Princess_Theatre_(Melbourne)',
       blurb: 'A Melbourne landmark since 1886, the Princess Theatre is a grand Victorian playhouse famous for its frescoed auditorium and long-running productions.',
       nearby: ['the Princess Theatre', 'Parliament House', 'Fitzroy Gardens']
     },
     {
+      id: 'fitzroy', name: 'Fitzroy Gardens', speechName: 'Fitzroy Gardens', short: 'Fitzroy Gdns',
+      point: { x: 160, z: 125 }, hue: 0x64d68f, compact: true,
+      wiki: 'https://en.wikipedia.org/wiki/Fitzroy_Gardens',
+      blurb: "One of Melbourne's oldest public gardens, with elm avenues, the Fairies' Tree, Cook's Cottage and the glass Fitzroy Gardens Conservatory.",
+      nearby: ["Cook's Cottage", 'the Fitzroy Gardens Conservatory', 'the Old Treasury Building']
+    },
+    {
+      id: 'rmit', name: 'RMIT University', speechName: 'RMIT University', short: 'RMIT',
+      point: { x: 120, z: 180 }, hue: 0xff5577,
+      wiki: 'https://en.wikipedia.org/wiki/RMIT_University',
+      blurb: 'A globally ranked design and technology university founded in 1887, whose city campus spills into the surrounding laneways.',
+      nearby: ['State Library Victoria', 'Melbourne Central', 'the Old Melbourne Gaol']
+    },
+    {
+      id: 'carlton', name: 'Carlton Gardens', speechName: 'Carlton Gardens', short: 'Carlton Gdns',
+      point: { x: 80, z: 180 }, hue: 0xa8d86a,
+      wiki: 'https://en.wikipedia.org/wiki/Carlton_Gardens',
+      blurb: 'A World Heritage-listed Victorian garden surrounding the Royal Exhibition Building and the Melbourne Museum.',
+      nearby: ['the Royal Exhibition Building', 'Melbourne Museum', 'the Carlton Gardens']
+    },
+    {
+      id: 'museum', name: 'Melbourne Museum', speechName: 'Melbourne Museum', short: 'Museum',
+      point: { x: 40, z: 180 }, hue: 0x6fd6c0,
+      wiki: 'https://en.wikipedia.org/wiki/Melbourne_Museum',
+      blurb: 'A modern museum of natural history, First Peoples culture and science in Carlton Gardens, next to the Royal Exhibition Building.',
+      nearby: ['Melbourne Museum', 'the Royal Exhibition Building', 'Carlton Gardens']
+    },
+    {
       id: 'uni', name: 'Melbourne University', speechName: 'Melbourne University', short: 'Melbourne Uni',
-      point: { x: 0, z: 80 }, hue: 0x68a8ff,
+      point: { x: 0, z: 150 }, hue: 0x68a8ff,
       wiki: 'https://en.wikipedia.org/wiki/University_of_Melbourne',
       blurb: "Australia's second-oldest university, founded in 1853, with a historic Parkville campus and cultural collections.",
       nearby: ['the Grainger Museum', 'the Royal Melbourne Hospital', 'Carlton Gardens']
     },
     {
+      id: 'melbcentral', name: 'Melbourne Central', speechName: 'Melbourne Central', short: 'Melb Central',
+      point: { x: 0, z: 110 }, hue: 0xff7ad9, compact: true,
+      wiki: 'https://en.wikipedia.org/wiki/Melbourne_Central',
+      blurb: 'A city shopping and transport hub built around the historic Coop’s Shot Tower under a giant glass cone.',
+      nearby: ['Melbourne Central', 'the Coop’s Shot Tower', 'State Library Victoria']
+    },
+    {
+      id: 'queenvic', name: 'Queen Victoria Market', speechName: 'Queen Victoria Market', short: 'Queen Vic',
+      point: { x: -30, z: 100 }, hue: 0xffb35c, compact: true,
+      wiki: 'https://en.wikipedia.org/wiki/Queen_Victoria_Market',
+      blurb: 'Melbourne’s original market since 1878, with heritage sheds, fresh produce, coffee, night markets and a lively food hall.',
+      nearby: ['Queen Victoria Market', 'Flagstaff Gardens', 'Melbourne Central']
+    },
+    {
       id: 'bourke', name: 'Bourke Street Mall', speechName: 'Bourke Street Mall', short: 'Bourke Mall',
-      point: { x: 0, z: 55 }, hue: 0xff9b5c,
+      point: { x: -60, z: 90 }, hue: 0xff9b5c, compact: true,
       wiki: 'https://en.wikipedia.org/wiki/Bourke_Street_Mall',
       blurb: 'The heart of Melbourne retail: a pedestrian mall of department stores, arcades, buskers and the historic General Post Office.',
       nearby: ['the Bourke Street Mall', 'the Block Arcade', 'the Royal Arcade']
     },
     {
       id: 'chinatown', name: 'Chinatown', speechName: 'Chinatown', short: 'Chinatown',
-      point: { x: 0, z: 40 }, hue: 0xff5b6e,
+      point: { x: -60, z: 60 }, hue: 0xff5b6e, compact: true,
       wiki: 'https://en.wikipedia.org/wiki/Chinatown,_Melbourne',
       blurb: "Australia's oldest continuous Chinatown, centred on Little Bourke Street with laneway restaurants, the Chinese Museum and a ceremonial gate.",
       nearby: ['Little Bourke Street', 'the Chinese Museum', 'Her Majesty’s Theatre']
+    },
+    {
+      id: 'townhall', name: 'Melbourne Town Hall', speechName: 'Melbourne Town Hall', short: 'Town Hall',
+      point: { x: -60, z: 30 }, hue: 0xffcf8a, compact: true,
+      wiki: 'https://en.wikipedia.org/wiki/Melbourne_Town_Hall',
+      blurb: 'The 1867 civic hall on Swanston Street, with a grand portico, clock tower, organ and a long history of public events.',
+      nearby: ['Melbourne Town Hall', 'the Block Arcade', 'Collins Street']
     }
   ];
 
-  const STOP_ROUTE_ORDER = ['flinders', 'arts', 'fed', 'collins', 'parliament', 'princess', 'fitzroy', 'carlton', 'rmit', 'uni', 'bourke', 'chinatown'];
+  const STOP_ROUTE_ORDER = ['flinders', 'stpaul', 'hosier', 'arts', 'shrine', 'southbank', 'fed', 'collins', 'oldtreasury', 'parliament', 'princess', 'fitzroy', 'rmit', 'carlton', 'museum', 'uni', 'melbcentral', 'queenvic', 'bourke', 'chinatown', 'townhall'];
   STOP_DEFS.sort((a, b) => STOP_ROUTE_ORDER.indexOf(a.id) - STOP_ROUTE_ORDER.indexOf(b.id));
 
   const PALETTE = {
@@ -1136,6 +1199,7 @@
         badgeGrid: $('#badgeGrid'),
         badgeSummary: $('#badgeSummary'),
         careerStats: $('#careerStats'),
+        telemetryToggle: $('#telemetryToggle'),
         speedRing: $('#speedRing'),
         speedValue: $('#speedValue'),
         gearValue: $('#gearValue'),
@@ -1166,6 +1230,9 @@
         stopInfoLink: $('#stopInfoLink'),
         stopInfoBtn: $('#stopInfoBtn'),
         stopInfoClose: $('#stopInfoClose'),
+        stopInfoToggle: $('#stopInfoToggle'),
+        doorWarning: $('#doorWarning'),
+        cabDoorWarning: $('#cabDoorWarning'),
         minimap: $('#minimap'),
         toasts: $('#toasts'),
         muteBtn: $('#muteBtn'),
@@ -1258,6 +1325,8 @@
       if (d.viewBtn) d.viewBtn.addEventListener('click', () => this.toggleView());
       if (d.stopInfoBtn) d.stopInfoBtn.addEventListener('click', () => this.showStopGuide(this.getNextStop(), true));
       if (d.stopInfoClose) d.stopInfoClose.addEventListener('click', () => this.hideStopGuide());
+      if (d.stopInfoToggle) d.stopInfoToggle.addEventListener('click', () => this.toggleStopInfo());
+      if (d.telemetryToggle) d.telemetryToggle.addEventListener('click', () => this.toggleTelemetry());
       if (d.hookBtn) d.hookBtn.addEventListener('click', () => this.openHookGame());
       if (d.badgesBtn) d.badgesBtn.addEventListener('click', () => this.openBadges());
       if (d.saveBtn) d.saveBtn.addEventListener('click', () => this.exportSave());
@@ -1851,14 +1920,16 @@
       // Swanston St → Flinders St → Exhibition/Spring North → Collins St →
       // La Trobe/Queensberry → RMIT → Swanston St.
       const vertices = [
-        { x: 0, z: -40 },     // Flinders / river corner
-        { x: 60, z: -40 },    // east river corner
-        { x: 60, z: 25 },     // Federation Square / Collins corner
-        { x: 100, z: 25 },    // Collins Street east
-        { x: 100, z: 140 },   // Spring / Parliament north
-        { x: 60, z: 140 },    // RMIT north-west
-        { x: 60, z: 100 },    // RMIT / La Trobe corner
-        { x: 0, z: 100 }      // Swanston / La Trobe
+        { x: -60, z: 0 },     // Flinders / Spencer corner
+        { x: 0, z: 0 },       // Swanston / Flinders
+        { x: 0, z: -300 },    // St Kilda Road / Shrine west
+        { x: 80, z: -300 },   // Shrine / Domain east
+        { x: 80, z: 0 },      // Southbank / Federation Square
+        { x: 160, z: 0 },     // Flinders / Spring corner
+        { x: 160, z: 180 },   // Spring / Victoria corner
+        { x: 0, z: 180 },     // Swanston / Victoria corner
+        { x: 0, z: 100 },     // Swanston / La Trobe
+        { x: -60, z: 100 }    // Queen / La Trobe corner
       ];
       const pts = this.roundedLoopPoints(vertices, 12, 3);
       this.tram.curve = new THREE.CatmullRomCurve3(pts, true, 'catmullrom', 0.2);
@@ -1889,6 +1960,7 @@
           blurb: def.blurb || '',
           nearby: def.nearby || [],
           wiki: def.wiki || '',
+          compact: !!def.compact,
           s: s,
           point: new THREE.Vector3(p.x, 0.16, p.z),
           tangent: tan,
@@ -2033,12 +2105,12 @@
       sun.position.set(-60, 110, 70);
       sun.castShadow = true;
       sun.shadow.mapSize.set(2048, 2048);
-      sun.shadow.camera.left = -125;
-      sun.shadow.camera.right = 165;
-      sun.shadow.camera.top = 205;
-      sun.shadow.camera.bottom = -125;
+      sun.shadow.camera.left = -180;
+      sun.shadow.camera.right = 235;
+      sun.shadow.camera.top = 250;
+      sun.shadow.camera.bottom = -390;
       sun.shadow.camera.near = 1;
-      sun.shadow.camera.far = 420;
+      sun.shadow.camera.far = 560;
       sun.shadow.bias = -0.0005;
       sun.shadow.normalBias = 0.03;
       this.scene.add(sun);
@@ -2119,7 +2191,7 @@
       };
 
       road(22, 190, 0, 30);        // Swanston Street
-      road(280, 22, 0, 0);         // Flinders Street
+      road(340, 22, 20, 0);        // Flinders Street
       road(18, 210, 60, 55);       // Spring / Exhibition Street (extended north)
       road(86, 18, 30, -40);       // Yarra Street
       road(86, 18, 30, 100);       // La Trobe / University Street
@@ -2128,6 +2200,16 @@
       road(90, 18, 105, 25);       // Collins Street east
       road(18, 150, 100, 80);      // Spring Street north / Parliament
       road(100, 18, 80, 140);      // La Trobe / Queensberry north
+      // Extended circuit: St Kilda Road, the Shrine, Spring/Victoria and Queen Street.
+      road(24, 140, 0, -240);      // St Kilda Road south of the Yarra
+      road(20, 140, 80, -240);     // Domain return boulevard
+      road(20, 62, 80, -31);       // Southbank / Fed Square return
+      road(80, 24, 40, -300);      // Shrine forecourt
+      road(22, 180, 160, 90);      // Spring / Exhibition north extension
+      road(160, 18, 80, 180);      // Victoria Street / Carlton north edge
+      road(18, 100, -60, 50);      // Queen Street west edge
+      road(60, 18, -30, 100);      // La Trobe west extension
+      road(22, 70, 160, 205);      // Victoria / Nicholson link
 
       const walk = (w, d, x, z, h) => {
         const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h || 0.22, d), this.sidewalkMat);
@@ -2143,6 +2225,15 @@
       walk(3.4, 92, 12.7, 28);
       walk(3.4, 44, -12.7, -60);
       walk(3.4, 44, 12.7, -60);
+      // Extended edge sidewalks.
+      walk(3.4, 180, 147.7, 90);
+      walk(3.4, 180, 172.3, 90);
+      walk(160, 3.4, 80, 167.7);
+      walk(160, 3.4, 80, 192.3);
+      walk(3.4, 100, -72.7, 50);
+      walk(3.4, 100, -47.3, 50);
+      walk(60, 3.4, -30, 87.7);
+      walk(80, 3.4, 40, -312.3);
       // Flinders sidewalks
       walk(150, 3.4, -96, -12.7);
       walk(150, 3.4, 96, -12.7);
@@ -2879,6 +2970,7 @@
         group.add(bulb);
       });
 
+      group.position.z = 48;
       this.uni = group;
       this.scene.add(group);
     }
@@ -2921,41 +3013,49 @@
       bankB.position.set(0, 0.1, -164);
       group.add(bankB);
 
-      // Princes Bridge.
+      // Princes Bridge and the Domain tram bridge.
       const bridgeMat = new THREE.MeshStandardMaterial({ color: 0x737a70, roughness: 0.88 });
-      const deck = new THREE.Mesh(new THREE.BoxGeometry(20, 1.4, 112), bridgeMat);
-      deck.position.set(0, 1.4, -112);
-      deck.castShadow = true;
-      group.add(deck);
-      for (let i = 0; i < 4; i++) {
-        const arch = new THREE.Mesh(new THREE.TorusGeometry(7, 1, 8, 20, Math.PI), bridgeMat);
-        arch.rotation.y = Math.PI / 2;
-        arch.position.set(0, -5.6, -81 - i * 19);
-        group.add(arch);
-      }
       const railMat = new THREE.MeshStandardMaterial({ color: 0x2c3a34, roughness: 0.6, metalness: 0.6 });
-      [-9.6, 9.6].forEach((x) => {
-        const rail = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.2, 112), railMat);
-        rail.position.set(x, 2.4, -112);
-        group.add(rail);
+      [0, 80].forEach((bridgeX) => {
+        const deck = new THREE.Mesh(new THREE.BoxGeometry(22, 0.3, 116), bridgeMat);
+        deck.position.set(bridgeX, -0.12, -112);
+        deck.castShadow = true;
+        group.add(deck);
+        const deckRoad = new THREE.Mesh(new THREE.PlaneGeometry(20.4, 114), this.asphaltMat);
+        deckRoad.rotation.x = -Math.PI / 2;
+        deckRoad.position.set(bridgeX, 0.06, -112);
+        group.add(deckRoad);
+        for (let i = 0; i < 4; i++) {
+          const arch = new THREE.Mesh(new THREE.TorusGeometry(7, 1, 8, 20, Math.PI), bridgeMat);
+          arch.rotation.y = Math.PI / 2;
+          arch.position.set(bridgeX, -5.6, -81 - i * 19);
+          group.add(arch);
+        }
+        [-10.4, 10.4].forEach((offset) => {
+          const rail = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.0, 116), railMat);
+          rail.position.set(bridgeX + offset, 1.1, -112);
+          group.add(rail);
+        });
+        for (let i = 0; i < 10; i++) {
+          const lamp = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.16, 4.2, 8), railMat);
+          lamp.position.set(bridgeX + 10.4, 2.8, -62 - i * 11);
+          group.add(lamp);
+          const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.28, 8, 8), new THREE.MeshStandardMaterial({ color: 0xffe2a8, emissive: 0xffc46b, emissiveIntensity: 1.4 }));
+          bulb.position.set(bridgeX + 10.4, 5.1, -62 - i * 11);
+          group.add(bulb);
+        }
       });
-      for (let i = 0; i < 10; i++) {
-        const lamp = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.16, 5.5, 8), railMat);
-        lamp.position.set(9.6, 5, -62 - i * 11);
-        group.add(lamp);
-        const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.28, 8, 8), new THREE.MeshStandardMaterial({ color: 0xffe2a8, emissive: 0xffc46b, emissiveIntensity: 1.4 }));
-        bulb.position.set(9.6, 7.8, -62 - i * 11);
-        group.add(bulb);
-      }
 
       // Southbank skyline silhouettes.
       const rng = mulberry32(2088);
       const skylineMat = new THREE.MeshStandardMaterial({ color: 0x1a2b2a, roughness: 0.8, metalness: 0.25, emissive: 0x07110f, emissiveIntensity: 0.5 });
-      for (let i = 0; i < 24; i++) {
+      for (let i = 0; i < 26; i++) {
+        const x = -200 + i * 18 + rng() * 6;
+        if (x > -34 && x < 116) continue; // keep St Kilda Road and the Domain clear
         const w = 8 + rng() * 16;
         const h = 18 + rng() * 58;
         const tower = new THREE.Mesh(new THREE.BoxGeometry(w, h, 9 + rng() * 8), skylineMat);
-        tower.position.set(-200 + i * 18 + rng() * 6, h / 2, -186 - rng() * 26);
+        tower.position.set(x, h / 2, -186 - rng() * 26);
         group.add(tower);
       }
 
@@ -2984,7 +3084,7 @@
 
       const exclude = [
         { x0: -66, x1: -2, z0: -52, z1: -18 }, // station
-        { x0: -52, x1: -8, z0: 74, z1: 108 }, // university
+        { x0: -46, x1: -4, z0: 126, z1: 158 }, // university
         { x0: 16, x1: 64, z0: 10, z1: 60 },    // federation square
         { x0: -18, x1: 74, z0: -14, z1: 14 },  // Flinders/Swanston junction
         { x0: -16, x1: 76, z0: -56, z1: -24 },
@@ -2999,7 +3099,23 @@
         { x0: 62, x1: 98, z0: 0, z1: 16 },     // Collins south landmark
         { x0: 108, x1: 132, z0: 72, z1: 98 },  // Princess Theatre
         { x0: 85, x1: 175, z0: 55, z1: 155 },  // Fitzroy Gardens
-        { x0: 30, x1: 145, z0: 128, z1: 205 }  // Carlton Gardens
+        { x0: 30, x1: 145, z0: 128, z1: 205 }, // Carlton Gardens
+        { x0: 58, x1: 96, z0: -92, z1: -50 },  // Southbank
+        { x0: 108, x1: 140, z0: 33, z1: 62 },  // Old Treasury
+        { x0: 104, x1: 134, z0: 118, z1: 144 }, // Melbourne Museum
+        { x0: -94, x1: -64, z0: 108, z1: 156 }, // Queen Victoria Market
+        { x0: 8, x1: 38, z0: 78, z1: 102 },    // Melbourne Central
+        { x0: -40, x1: -8, z0: 16, z1: 36 },   // Town Hall
+        { x0: 8, x1: 30, z0: 8, z1: 24 },      // Hosier Lane
+        { x0: 8, x1: 38, z0: -8, z1: 10 },     // St Paul's
+        { x0: -10, x1: 95, z0: -366, z1: -260 }, // Shrine and forecourt
+        { x0: -18, x1: 98, z0: -260, z1: -60 },  // St Kilda Road / Domain corridor
+        { x0: 150, x1: 172, z0: -5, z1: 185 },   // Spring / Exhibition north
+        { x0: -8, x1: 168, z0: 168, z1: 194 },   // Victoria Street
+        { x0: -74, x1: -46, z0: -5, z1: 105 },   // Queen Street west edge
+        { x0: -62, x1: -2, z0: 88, z1: 112 },    // La Trobe west
+        { x0: 102, x1: 140, z0: 18, z1: 42 },    // Collins south block
+        { x0: 14, x1: 68, z0: -174, z1: -132 }   // Southbank promenade
       ];
       const overlaps = (r) => exclude.some((e) => r.x0 < e.x1 && r.x1 > e.x0 && r.z0 < e.z1 && r.z1 > e.z0);
       const roadCorridors = [
@@ -3011,9 +3127,19 @@
         { x0: 91, x1: 109, z0: 5, z1: 150 },       // Spring North / Parliament
         { x0: 52, x1: 150, z0: 16, z1: 34 },       // Collins Street East
         { x0: 30, x1: 132, z0: 130, z1: 150 },     // La Trobe / Queensberry
-        { x0: -82, x1: -62, z0: -60, z1: 150 }     // West / Spencer
+        { x0: -82, x1: -62, z0: -60, z1: 150 },    // West / Spencer
+        { x0: -14, x1: 14, z0: -312, z1: 0 },       // St Kilda Road
+        { x0: 68, x1: 92, z0: -312, z1: 0 },        // Domain return boulevard
+        { x0: 148, x1: 172, z0: -5, z1: 190 },      // Spring / Exhibition north
+        { x0: -10, x1: 170, z0: 170, z1: 192 },     // Victoria Street
+        { x0: -72, x1: -48, z0: -5, z1: 105 },      // Queen Street west edge
+        { x0: -62, x1: -2, z0: 90, z1: 110 },       // La Trobe west
+        { x0: 0, x1: 80, z0: -314, z1: -286 },      // Shrine forecourt
+        { x0: -220, x1: 220, z0: -170, z1: -56 }    // Yarra River
       ];
       const nearRoad = (r) => roadCorridors.some((e) => r.x0 < e.x1 && r.x1 > e.x0 && r.z0 < e.z1 && r.z1 > e.z0);
+      const trackSamples = this.tram.curve.getSpacedPoints(420);
+      const nearTrack = (r) => trackSamples.some((p) => p.x > r.x0 - 20 && p.x < r.x1 + 20 && p.z > r.z0 - 20 && p.z < r.z1 + 20);
 
       const cells = [];
       for (let x = -116; x < -20; x += 26) {
@@ -3028,6 +3154,28 @@
       for (let x = 2; x < 56; x += 26) {
         for (let z = 102; z < 140; z += 28) cells.push({ x, z });
       }
+      // Extended southern boulevard and Domain edges.
+      for (let x = -116; x < -24; x += 27) {
+        for (let z = -260; z < -170; z += 30) cells.push({ x, z });
+      }
+      for (let x = 112; x < 190; x += 27) {
+        for (let z = -260; z < -170; z += 30) cells.push({ x, z });
+      }
+      // Spring / Exhibition and Victoria Street frontages.
+      for (let x = 168; x < 232; x += 27) {
+        for (let z = 2; z < 212; z += 30) cells.push({ x, z });
+      }
+      for (let x = -72; x < 160; x += 27) {
+        for (let z = 196; z < 248; z += 28) cells.push({ x, z });
+      }
+      // Queen Street / Flagstaff frontages.
+      for (let x = -124; x < -68; x += 27) {
+        for (let z = 2; z < 188; z += 30) cells.push({ x, z });
+      }
+      // Fill the inner north-west block.
+      for (let x = -44; x < 0; x += 25) {
+        for (let z = 112; z < 170; z += 28) cells.push({ x, z });
+      }
 
       cells.forEach((cell, i) => {
         const w = 12 + rng() * 9;
@@ -3036,7 +3184,7 @@
         const x = cell.x + (rng() - 0.5) * 5;
         const z = cell.z + (rng() - 0.5) * 5;
         const rect = { x0: x - w / 2, x1: x + w / 2, z0: z - d / 2, z1: z + d / 2 };
-        if (overlaps(rect) || nearRoad(rect)) return;
+        if (overlaps(rect) || nearRoad(rect) || nearTrack(rect)) return;
         this.addBuilding(x, z, w, d, h, rng, i);
       });
 
@@ -3052,7 +3200,7 @@
       ];
       towerSpots.forEach((t, i) => {
         const rect = { x0: t.x - t.w / 2, x1: t.x + t.w / 2, z0: t.z - t.d / 2, z1: t.z + t.d / 2 };
-        if (overlaps(rect) || nearRoad(rect)) return;
+        if (overlaps(rect) || nearRoad(rect) || nearTrack(rect)) return;
         this.addBuilding(t.x, t.z, t.w, t.d, t.h, rng, 900 + i, true);
       });
     }
@@ -3066,6 +3214,15 @@
       this.buildChinatown();
       this.buildFitzroyGardens();
       this.buildCarltonGardens();
+      this.buildSouthbankPromenade();
+      this.buildOldTreasury();
+      this.buildMelbourneMuseum();
+      this.buildQueenVictoriaMarket();
+      this.buildMelbourneCentral();
+      this.buildTownHall();
+      this.buildHosierLane();
+      this.buildStPauls();
+      this.buildShrine();
     }
 
     buildParliamentHouse() {
@@ -3295,11 +3452,11 @@
       }
 
       const south = new THREE.Mesh(new THREE.BoxGeometry(30, 15, 13), stone);
-      south.position.set(80, 7.5, 2);
+      south.position.set(120, 7.5, 30);
       south.castShadow = true;
       group.add(south);
       const southSign = new THREE.Mesh(new THREE.PlaneGeometry(14, 2), new THREE.MeshBasicMaterial({ map: makeSignTexture('PARIS END', 'COLLINS STREET', { fontSize: 44, fg: '#46ffd3' }) }));
-      southSign.position.set(80, 4, 8.56);
+      southSign.position.set(120, 4, 36.56);
       group.add(southSign);
 
       this.scene.add(group);
@@ -3472,6 +3629,7 @@
         leaf.position.set(x, 4.3, z);
         group.add(leaf);
       });
+      group.position.z = -12;
       this.scene.add(group);
       this.carltonGardens = group;
     }
@@ -3522,6 +3680,301 @@
       }
       this.scene.add(group);
       this.princessTheatre = group;
+    }
+
+    buildSouthbankPromenade() {
+      const group = new THREE.Group();
+      group.name = 'Southbank Promenade';
+      const glass = new THREE.MeshStandardMaterial({ color: 0x315b72, roughness: 0.18, metalness: 0.55, emissive: 0x0a202b, emissiveIntensity: 0.5 });
+      const silver = new THREE.MeshStandardMaterial({ color: 0xaab8bd, roughness: 0.3, metalness: 0.8 });
+      const tower = new THREE.Mesh(new THREE.BoxGeometry(10, 46, 12), glass);
+      tower.position.set(78, 23, -76);
+      tower.castShadow = true;
+      group.add(tower);
+      const tip = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.35, 14, 8), silver);
+      tip.position.set(78, 52, -76);
+      group.add(tip);
+      const promenade = new THREE.Mesh(new THREE.PlaneGeometry(46, 16), new THREE.MeshStandardMaterial({ color: 0x8f8a78, roughness: 0.95 }));
+      promenade.rotation.x = -Math.PI / 2;
+      promenade.position.set(78, 0.06, -58);
+      group.add(promenade);
+      const sign = new THREE.Mesh(new THREE.PlaneGeometry(14, 2.2), new THREE.MeshBasicMaterial({ map: makeSignTexture('SOUTHBANK PROMENADE', 'EUREKA SKYDECK · YARRA RIVER', { fontSize: 38, fg: '#46d6ff' }) }));
+      sign.position.set(60, 3.4, -50);
+      group.add(sign);
+      const railing = new THREE.Mesh(new THREE.BoxGeometry(44, 0.12, 0.15), silver);
+      railing.position.set(78, 1.1, -51);
+      group.add(railing);
+      group.position.set(-40, 0, -80);
+      this.scene.add(group);
+      this.southbank = group;
+    }
+
+    buildOldTreasury() {
+      const group = new THREE.Group();
+      group.name = 'Old Treasury Building';
+      const stone = new THREE.MeshStandardMaterial({ color: 0xd8c8a4, roughness: 0.84 });
+      const stoneLight = new THREE.MeshStandardMaterial({ color: 0xe9ddbd, roughness: 0.78 });
+      const roof = new THREE.MeshStandardMaterial({ color: 0x4d6b59, roughness: 0.6 });
+      const hall = new THREE.Mesh(new THREE.BoxGeometry(16, 10, 22), stone);
+      hall.position.set(121, 5, 38);
+      hall.castShadow = true;
+      group.add(hall);
+      const top = new THREE.Mesh(new THREE.BoxGeometry(17, 1, 23), roof);
+      top.position.set(121, 10.5, 38);
+      group.add(top);
+      const portico = new THREE.Mesh(new THREE.BoxGeometry(2.5, 8, 15), stoneLight);
+      portico.position.set(112, 4, 38);
+      group.add(portico);
+      for (let i = 0; i < 5; i++) {
+        const col = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.42, 7.5, 8), stoneLight);
+        col.position.set(110.8, 3.75, 32 + i * 3);
+        group.add(col);
+      }
+      const sign = new THREE.Mesh(new THREE.PlaneGeometry(12, 1.7), new THREE.MeshBasicMaterial({ map: makeSignTexture('OLD TREASURY', 'GOLD · 1850s', { fontSize: 42 }) }));
+      sign.position.set(110.7, 8, 38);
+      sign.rotation.y = -Math.PI / 2;
+      group.add(sign);
+      this.scene.add(group);
+      this.oldTreasury = group;
+    }
+
+    buildMelbourneMuseum() {
+      const group = new THREE.Group();
+      group.name = 'Melbourne Museum';
+      const dark = new THREE.MeshStandardMaterial({ color: 0x304b4a, roughness: 0.23, metalness: 0.55, emissive: 0x0a2929, emissiveIntensity: 0.45 });
+      const wood = new THREE.MeshStandardMaterial({ color: 0x7d5533, roughness: 0.7 });
+      const hall = new THREE.Mesh(new THREE.BoxGeometry(18, 12, 22), dark);
+      hall.position.set(118, 6, 130);
+      hall.castShadow = true;
+      group.add(hall);
+      const wing = new THREE.Mesh(new THREE.BoxGeometry(8, 7, 26), wood);
+      wing.position.set(107, 3.5, 130);
+      group.add(wing);
+      const sign = new THREE.Mesh(new THREE.PlaneGeometry(14, 2.1), new THREE.MeshBasicMaterial({ map: makeSignTexture('MELBOURNE MUSEUM', 'CARLTON GARDENS', { fontSize: 40, fg: '#6fd6c0' }) }));
+      sign.position.set(104.8, 7, 130);
+      sign.rotation.y = -Math.PI / 2;
+      group.add(sign);
+      this.scene.add(group);
+      this.museum = group;
+    }
+
+    buildQueenVictoriaMarket() {
+      const group = new THREE.Group();
+      group.name = 'Queen Victoria Market';
+      const shed = new THREE.MeshStandardMaterial({ color: 0x8b6b4a, roughness: 0.82 });
+      const cream = new THREE.MeshStandardMaterial({ color: 0xe1d3af, roughness: 0.82 });
+      for (let i = 0; i < 3; i++) {
+        const hall = new THREE.Mesh(new THREE.BoxGeometry(18, 5, 9), shed);
+        hall.position.set(-80, 2.5, 120 + i * 11);
+        group.add(hall);
+        const roof = new THREE.Mesh(new THREE.BoxGeometry(19, 0.6, 10.5), cream);
+        roof.position.set(-80, 5.4, 120 + i * 11);
+        group.add(roof);
+      }
+      const sign = new THREE.Mesh(new THREE.PlaneGeometry(16, 2.2), new THREE.MeshBasicMaterial({ map: makeSignTexture('QUEEN VICTORIA MARKET', 'SINCE 1878 · FRESH & LOCAL', { fontSize: 38, fg: '#ffb35c' }) }));
+      sign.position.set(-67, 4.8, 130);
+      sign.rotation.y = Math.PI / 2;
+      group.add(sign);
+      const stalls = new THREE.Mesh(new THREE.PlaneGeometry(36, 26), new THREE.MeshStandardMaterial({ color: 0x6d6252, roughness: 1 }));
+      stalls.rotation.x = -Math.PI / 2;
+      stalls.position.set(-80, 0.04, 130);
+      group.add(stalls);
+      this.scene.add(group);
+      this.queenVic = group;
+    }
+
+    buildMelbourneCentral() {
+      const group = new THREE.Group();
+      group.name = 'Melbourne Central';
+      const brick = new THREE.MeshStandardMaterial({ color: 0x9a5538, roughness: 0.8 });
+      const glass = new THREE.MeshStandardMaterial({ color: 0xaadfe8, roughness: 0.12, metalness: 0.4, transparent: true, opacity: 0.55 });
+      const shot = new THREE.Mesh(new THREE.CylinderGeometry(2, 2.4, 16, 12), brick);
+      shot.position.set(24, 8, 90);
+      group.add(shot);
+      const cone = new THREE.Mesh(new THREE.ConeGeometry(10, 20, 24, 1, true), glass);
+      cone.position.set(24, 12, 90);
+      group.add(cone);
+      const sign = new THREE.Mesh(new THREE.PlaneGeometry(12, 2), new THREE.MeshBasicMaterial({ map: makeSignTexture('MELBOURNE CENTRAL', 'COOP’S SHOT TOWER', { fontSize: 38, fg: '#ff7ad9' }) }));
+      sign.position.set(19.8, 7, 90);
+      sign.rotation.y = -Math.PI / 2;
+      group.add(sign);
+      this.scene.add(group);
+      this.melbourneCentral = group;
+    }
+
+    buildTownHall() {
+      const group = new THREE.Group();
+      group.name = 'Melbourne Town Hall';
+      const stone = new THREE.MeshStandardMaterial({ color: 0xd7c6a3, roughness: 0.84 });
+      const stoneLight = new THREE.MeshStandardMaterial({ color: 0xe9ddbd, roughness: 0.78 });
+      const hall = new THREE.Mesh(new THREE.BoxGeometry(18, 14, 18), stone);
+      hall.position.set(-27, 7, 25);
+      hall.castShadow = true;
+      group.add(hall);
+      const tower = new THREE.Mesh(new THREE.BoxGeometry(5, 8, 5), stoneLight);
+      tower.position.set(-27, 18, 25);
+      group.add(tower);
+      const cap = new THREE.Mesh(new THREE.ConeGeometry(4, 5, 4), new THREE.MeshStandardMaterial({ color: 0x3c6652, roughness: 0.6 }));
+      cap.rotation.y = Math.PI / 4;
+      cap.position.set(-27, 24.5, 25);
+      group.add(cap);
+      for (let i = 0; i < 6; i++) {
+        const col = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.5, 8, 8), stoneLight);
+        col.position.set(-18.2, 4, 18 + i * 2.8);
+        group.add(col);
+      }
+      const sign = new THREE.Mesh(new THREE.PlaneGeometry(13, 1.9), new THREE.MeshBasicMaterial({ map: makeSignTexture('MELBOURNE TOWN HALL', 'SWANSTON STREET', { fontSize: 38, fg: '#ffcf8a' }) }));
+      sign.position.set(-17.8, 9.5, 25);
+      sign.rotation.y = Math.PI / 2;
+      group.add(sign);
+      this.scene.add(group);
+      this.townHall = group;
+    }
+
+    buildHosierLane() {
+      const group = new THREE.Group();
+      group.name = 'Hosier Lane';
+      const wall = new THREE.MeshStandardMaterial({ color: 0x4d3d3a, roughness: 0.95 });
+      const canvases = [0xff5c7e, 0x46ffd3, 0xf6c800, 0x7a9bff, 0xff9b5c, 0xd8a8ff];
+      const block = new THREE.Mesh(new THREE.BoxGeometry(7, 9, 18), wall);
+      block.position.set(11, 4.5, 16);
+      group.add(block);
+      for (let i = 0; i < 12; i++) {
+        const panel = new THREE.Mesh(new THREE.PlaneGeometry(2 + Math.random() * 2.5, 1.4 + Math.random() * 2), new THREE.MeshBasicMaterial({ color: canvases[i % canvases.length], transparent: true, opacity: 0.7 }));
+        panel.position.set(7.45, 1.5 + Math.random() * 6.5, 8 + Math.random() * 16);
+        panel.rotation.y = -Math.PI / 2;
+        group.add(panel);
+      }
+      const sign = new THREE.Mesh(new THREE.PlaneGeometry(8, 1.6), new THREE.MeshBasicMaterial({ map: makeSignTexture('HOSIER LANE', 'STREET ART', { fontSize: 42, fg: '#ff5c7e' }) }));
+      sign.position.set(7.4, 3.4, 16);
+      sign.rotation.y = -Math.PI / 2;
+      group.add(sign);
+      this.scene.add(group);
+      this.hosierLane = group;
+    }
+
+    buildStPauls() {
+      const group = new THREE.Group();
+      group.name = "St Paul's Cathedral";
+      const stone = new THREE.MeshStandardMaterial({ color: 0x6f6b63, roughness: 0.88 });
+      const dark = new THREE.MeshStandardMaterial({ color: 0x3f3c37, roughness: 0.75 });
+      const hall = new THREE.Mesh(new THREE.BoxGeometry(15, 12, 24), stone);
+      hall.position.set(24, 6, -2);
+      hall.castShadow = true;
+      group.add(hall);
+      const roof = new THREE.Mesh(new THREE.ConeGeometry(10, 7, 4), dark);
+      roof.rotation.y = Math.PI / 4;
+      roof.position.set(24, 15.5, -2);
+      group.add(roof);
+      [[16, -10], [32, 8]].forEach(([x, z]) => {
+        const spire = new THREE.Mesh(new THREE.ConeGeometry(2.2, 15, 8), stone);
+        spire.position.set(x, 20, z);
+        group.add(spire);
+      });
+      const rose = new THREE.Mesh(new THREE.CircleGeometry(2.4, 20), new THREE.MeshBasicMaterial({ color: 0x7e5a9a }));
+      rose.position.set(16.45, 8, -2);
+      rose.rotation.y = -Math.PI / 2;
+      group.add(rose);
+      const sign = new THREE.Mesh(new THREE.PlaneGeometry(12, 1.7), new THREE.MeshBasicMaterial({ map: makeSignTexture("ST PAUL'S CATHEDRAL", 'FLINDERS & SWANSTON', { fontSize: 38, fg: '#d9a6ff' }) }));
+      sign.position.set(16.4, 4.5, -2);
+      sign.rotation.y = -Math.PI / 2;
+      group.add(sign);
+      this.scene.add(group);
+      this.stPauls = group;
+    }
+
+    buildShrine() {
+      const group = new THREE.Group();
+      group.name = 'Shrine of Remembrance';
+      const stone = new THREE.MeshStandardMaterial({ color: 0xb9b3a2, roughness: 0.9 });
+      const stoneLight = new THREE.MeshStandardMaterial({ color: 0xd8d2c0, roughness: 0.84 });
+      const dark = new THREE.MeshStandardMaterial({ color: 0x4e5a50, roughness: 0.7, metalness: 0.2 });
+      const flameMat = new THREE.MeshStandardMaterial({ color: 0xffc46b, emissive: 0xff8a2a, emissiveIntensity: 1.8, roughness: 0.3 });
+      const lawnMat = new THREE.MeshStandardMaterial({ color: 0x2b5d39, roughness: 1 });
+
+      const lawn = new THREE.Mesh(new THREE.PlaneGeometry(130, 110), lawnMat);
+      lawn.rotation.x = -Math.PI / 2;
+      lawn.position.set(40, 0.03, -345);
+      group.add(lawn);
+
+      // Wide stepped base.
+      [[64, 2, 44, 1], [54, 2, 36, 3], [44, 2, 30, 5]].forEach(([w, h, d, y]) => {
+        const step = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), stone);
+        step.position.set(40, y, -345);
+        step.castShadow = true;
+        group.add(step);
+      });
+
+      // Central sanctuary and stepped pyramidal roof.
+      const core = new THREE.Mesh(new THREE.BoxGeometry(26, 12, 22), stoneLight);
+      core.position.set(40, 13, -345);
+      core.castShadow = true;
+      group.add(core);
+      [[22, 3, 18, 20.5], [16, 3, 13, 23.5], [10, 3, 8, 26.5]].forEach(([w, h, d, y]) => {
+        const tier = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), stone);
+        tier.position.set(40, y, -345);
+        group.add(tier);
+      });
+      const cap = new THREE.Mesh(new THREE.ConeGeometry(5, 5, 4), dark);
+      cap.rotation.y = Math.PI / 4;
+      cap.position.set(40, 30.5, -345);
+      group.add(cap);
+
+      // Colonnade around the sanctuary.
+      for (let i = 0; i < 8; i++) {
+        [-1, 1].forEach((side) => {
+          const col = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.25, 12, 12), stoneLight);
+          col.position.set(40 + side * 18, 13, -357 + i * 3.4);
+          col.castShadow = true;
+          group.add(col);
+        });
+        const colZ = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.25, 12, 12), stoneLight);
+        colZ.position.set(40 - 18 + i * 5.1, 13, -330);
+        group.add(colZ);
+      }
+      const entablature = new THREE.Mesh(new THREE.BoxGeometry(42, 2, 32), stone);
+      entablature.position.set(40, 19.5, -345);
+      group.add(entablature);
+      const sanctuary = new THREE.Mesh(new THREE.PlaneGeometry(12, 9), new THREE.MeshStandardMaterial({ color: 0x20261f, roughness: 0.9 }));
+      sanctuary.position.set(40, 9, -333.9);
+      group.add(sanctuary);
+
+      // Eternal flame and forecourt.
+      const plinth = new THREE.Mesh(new THREE.BoxGeometry(5, 1.2, 5), dark);
+      plinth.position.set(40, 7.2, -318);
+      group.add(plinth);
+      const flame = new THREE.Mesh(new THREE.SphereGeometry(0.9, 12, 10), flameMat);
+      flame.position.set(40, 8.6, -318);
+      group.add(flame);
+      this.shrineFlame = flame;
+
+      const sign = new THREE.Mesh(new THREE.PlaneGeometry(20, 2.6), new THREE.MeshBasicMaterial({ map: makeSignTexture('SHRINE OF REMEMBRANCE', 'KINGS DOMAIN · 1934', { fontSize: 38, fg: '#ffd27a' }) }));
+      sign.position.set(40, 5.2, -322.4);
+      sign.rotation.y = 0;
+      group.add(sign);
+
+      // Boulevard trees and Domain plantings.
+      const trunkMat = new THREE.MeshStandardMaterial({ color: 0x443222, roughness: 1 });
+      const leafMat = new THREE.MeshStandardMaterial({ color: 0x2a5f3b, roughness: 1, flatShading: true });
+      for (let i = 0; i < 14; i++) {
+        [-18, 18].forEach((offset) => {
+          const z = -80 - i * 15;
+          const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.3, 3, 7), trunkMat);
+          trunk.position.set(40 + offset, 1.5, z);
+          group.add(trunk);
+          const leaf = new THREE.Mesh(new THREE.IcosahedronGeometry(1.8, 0), leafMat);
+          leaf.position.set(40 + offset, 4.4, z);
+          group.add(leaf);
+        });
+      }
+      for (let i = 0; i < 10; i++) {
+        const leaf = new THREE.Mesh(new THREE.IcosahedronGeometry(2 + Math.random() * 1.5, 0), leafMat);
+        leaf.position.set(-20 + Math.random() * 120, 3.5, -270 - Math.random() * 40);
+        group.add(leaf);
+      }
+
+      this.scene.add(group);
+      this.shrine = group;
     }
 
     addBuilding(x, z, w, d, h, rng, index, isTower) {
@@ -3766,33 +4219,36 @@
         const heading = Math.atan2(stop.tangent.x, stop.tangent.z);
         const px = stop.platform.x;
         const pz = stop.platform.z;
+        const platformLength = stop.compact ? 8 : 16;
+        const shelterDepth = stop.compact ? 5 : 9;
+        const validatorOffset = stop.compact ? 4.2 : 5.8;
         const zinc = new THREE.MeshStandardMaterial({ color: 0x4f5a56, roughness: 0.5, metalness: 0.6 });
         const glass = new THREE.MeshStandardMaterial({ color: 0x183b38, roughness: 0.12, metalness: 0.7, transparent: true, opacity: 0.55 });
         const gold = new THREE.MeshStandardMaterial({ color: PALETTE.gold, emissive: PALETTE.gold, emissiveIntensity: 0.35, roughness: 0.5 });
 
-        const platform = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.26, 16), this.sidewalkMat);
+        const platform = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.26, platformLength), this.sidewalkMat);
         platform.position.set(px, 0.2, pz);
         platform.rotation.y = heading;
         platform.receiveShadow = true;
         group.add(platform);
 
-        const edge = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.05, 16), gold);
+        const edge = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.05, platformLength), gold);
         edge.position.set(px - stop.outward.x * 1.65, 0.34, pz - stop.outward.z * 1.65);
         edge.rotation.y = heading;
         group.add(edge);
 
         // Shelter.
-        const roof = new THREE.Mesh(new THREE.BoxGeometry(2.7, 0.16, 9), new THREE.MeshStandardMaterial({ color: 0x1b3d2e, roughness: 0.5, metalness: 0.5 }));
+        const roof = new THREE.Mesh(new THREE.BoxGeometry(2.7, 0.16, shelterDepth), new THREE.MeshStandardMaterial({ color: 0x1b3d2e, roughness: 0.5, metalness: 0.5 }));
         roof.position.set(px, 3.15, pz);
         roof.rotation.y = heading;
         roof.castShadow = true;
         group.add(roof);
-        [-3.6, 0, 3.6].forEach((off) => {
+        (stop.compact ? [-2, 0, 2] : [-3.6, 0, 3.6]).forEach((off) => {
           const post = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 2.95, 8), zinc);
           post.position.set(px + stop.tangent.x * off - stop.outward.x * 0.9, 1.75, pz + stop.tangent.z * off - stop.outward.z * 0.9);
           group.add(post);
         });
-        const backGlass = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.9, 8.4), glass);
+        const backGlass = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.9, shelterDepth - 0.6), glass);
         backGlass.position.set(px - stop.outward.x * 1.2, 1.9, pz - stop.outward.z * 1.2);
         backGlass.rotation.y = heading;
         group.add(backGlass);
@@ -3814,10 +4270,10 @@
 
         // Myki validator, screen facing the platform.
         const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 2.6, 6), zinc);
-        pole.position.set(px + stop.tangent.x * 5.8, 1.5, pz + stop.tangent.z * 5.8);
+        pole.position.set(px + stop.tangent.x * validatorOffset, 1.5, pz + stop.tangent.z * validatorOffset);
         group.add(pole);
         const validatorGroup = new THREE.Group();
-        validatorGroup.position.set(px + stop.tangent.x * 5.8, 1.75, pz + stop.tangent.z * 5.8);
+        validatorGroup.position.set(px + stop.tangent.x * validatorOffset, 1.75, pz + stop.tangent.z * validatorOffset);
         validatorGroup.rotation.y = Math.atan2(stop.outward.x, stop.outward.z);
         const validator = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.55, 0.22), new THREE.MeshStandardMaterial({ color: 0x0b1713, roughness: 0.4, metalness: 0.5 }));
         validatorGroup.add(validator);
@@ -3828,7 +4284,7 @@
 
         // Bench.
         const benchMat = new THREE.MeshStandardMaterial({ color: 0x5b3f28, roughness: 0.9 });
-        const bench = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.12, 3), benchMat);
+        const bench = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.12, stop.compact ? 2 : 3), benchMat);
         bench.position.set(px - stop.outward.x * 1.0, 0.95, pz - stop.outward.z * 1.0);
         bench.rotation.y = heading;
         group.add(bench);
@@ -4508,9 +4964,11 @@
       if (Math.abs(speed) < 0.02) speed = 0;
       if (doorsLocked) {
         speed = 0;
-        if ((this.keys.ArrowUp || this.keys.w || this.keys.W) && this.time - this.lastDoorHint > 5) {
+        if ((this.keys.ArrowUp || this.keys.w || this.keys.W) && this.time - this.lastDoorHint > 1.4) {
           this.lastDoorHint = this.time;
-          this.toast('Doors are open — press O or DOORS to close before departing.', 2400);
+          this.toast('⚠️ Close the doors before departing — press O or DOORS.', 3000);
+          this.audio.chime('close');
+          this.showDoorWarning();
         }
       }
 
@@ -4652,8 +5110,11 @@
         d.stopInfoLink.href = stop.wiki || 'https://en.wikipedia.org/wiki/Melbourne';
         d.stopInfoLink.setAttribute('aria-label', 'Read more about ' + stop.name + ' on Wikipedia');
       }
+      const mobile = window.matchMedia('(max-width: 640px)').matches;
+      d.stopInfo.classList.toggle('minimized', !force && mobile);
       d.stopInfo.classList.add('show');
       d.stopInfo.setAttribute('aria-hidden', 'false');
+      this.updateStopInfoToggle();
       clearTimeout(this.guideTimer);
       this.guideTimer = setTimeout(() => this.hideStopGuide(), 15000);
     }
@@ -4665,6 +5126,48 @@
         this.dom.stopInfo.classList.remove('show');
         this.dom.stopInfo.setAttribute('aria-hidden', 'true');
       }
+    }
+
+    toggleStopInfo() {
+      const card = this.dom.stopInfo;
+      if (!card) return;
+      card.classList.toggle('minimized');
+      this.updateStopInfoToggle();
+      this.audio.click();
+    }
+
+    updateStopInfoToggle() {
+      const card = this.dom.stopInfo;
+      const btn = this.dom.stopInfoToggle;
+      if (!card || !btn) return;
+      const minimized = card.classList.contains('minimized');
+      btn.textContent = minimized ? '+' : '−';
+      btn.setAttribute('aria-expanded', minimized ? 'false' : 'true');
+      btn.setAttribute('aria-label', minimized ? 'Expand stop guide' : 'Minimize stop guide');
+    }
+
+    toggleTelemetry() {
+      document.body.classList.toggle('telemetry-min');
+      const minimized = document.body.classList.contains('telemetry-min');
+      if (this.dom.telemetryToggle) {
+        this.dom.telemetryToggle.textContent = minimized ? '+' : '−';
+        this.dom.telemetryToggle.setAttribute('aria-expanded', minimized ? 'false' : 'true');
+        this.dom.telemetryToggle.setAttribute('aria-label', minimized ? 'Expand telemetry' : 'Minimize telemetry');
+      }
+      this.audio.click();
+    }
+
+    showDoorWarning() {
+      document.body.classList.add('door-blocked');
+      if (this.dom.doorWarning) this.dom.doorWarning.classList.add('show');
+      clearTimeout(this.doorWarningTimer);
+      this.doorWarningTimer = null;
+    }
+
+    hideDoorWarning() {
+      clearTimeout(this.doorWarningTimer);
+      document.body.classList.remove('door-blocked');
+      if (this.dom.doorWarning) this.dom.doorWarning.classList.remove('show');
     }
 
     showAnnouncement(text) {
@@ -4879,6 +5382,7 @@
           this.trip.doors = false;
           this.trip.doorStop = null;
           this.announcedStopId = null;
+          this.hideDoorWarning();
           this.toast('🚪 Doors closed — ready to depart', 2000);
           this.updateHud(true);
         }
@@ -5092,9 +5596,15 @@
         } else if (view === 'rmit') {
           this.camera.position.set(32, 22, 154);
           this.camera.lookAt(62, 5, 120);
+        } else if (view === 'shrine') {
+          this.camera.position.set(8, 20, -226);
+          this.camera.lookAt(40, 8, -332);
+        } else if (view === 'southbank') {
+          this.camera.position.set(-14, 20, -78);
+          this.camera.lookAt(58, 5, -186);
         } else if (view === 'cbd') {
-          this.camera.position.set(6, 66, 174);
-          this.camera.lookAt(55, 0, 58);
+          this.camera.position.set(105, 72, 235);
+          this.camera.lookAt(52, 0, 55);
         } else {
           const aspect = window.innerWidth / window.innerHeight;
           if (aspect < 0.8) {
@@ -5148,7 +5658,7 @@
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, w, h);
 
-      const bounds = { x0: -70, x1: 140, z0: -60, z1: 165 };
+      const bounds = { x0: -80, x1: 172, z0: -322, z1: 194 };
       const pad = 20;
       const scale = Math.min((w - pad * 2) / (bounds.x1 - bounds.x0), (h - pad * 2) / (bounds.z1 - bounds.z0));
       const ox = (w - (bounds.x1 - bounds.x0) * scale) / 2;
@@ -5157,8 +5667,10 @@
       const mz = (z) => h - (oy + (z - bounds.z0) * scale);
 
       // Yarra River.
+      const riverTop = mz(-58);
+      const riverBottom = mz(-164);
       ctx.fillStyle = 'rgba(56, 156, 164, 0.35)';
-      ctx.fillRect(0, mz(-58), w, Math.max(3, (mz(-70) - mz(-58))));
+      ctx.fillRect(0, riverTop, w, Math.max(3, riverBottom - riverTop));
       ctx.strokeStyle = 'rgba(120,255,235,0.35)';
       ctx.lineWidth = 1;
       ctx.beginPath();
@@ -5183,6 +5695,10 @@
       ctx.strokeStyle = 'rgba(255, 85, 119, 0.45)';
       ctx.fillRect(mx(68), mz(106), 30 * scale, 30 * scale);
       ctx.strokeRect(mx(68), mz(106), 30 * scale, 30 * scale);
+      ctx.fillStyle = 'rgba(255, 210, 122, 0.18)';
+      ctx.strokeStyle = 'rgba(255, 210, 122, 0.55)';
+      ctx.fillRect(mx(10), mz(-315), 60 * scale, 44 * scale);
+      ctx.strokeRect(mx(10), mz(-315), 60 * scale, 44 * scale);
 
       // Route line.
       ctx.lineCap = 'round';
@@ -5190,8 +5706,8 @@
       ctx.strokeStyle = 'rgba(0, 185, 92, 0.22)';
       ctx.lineWidth = 9;
       ctx.beginPath();
-      for (let i = 0; i <= 220; i++) {
-        const p = this.tram.curve.getPointAt(i / 220);
+      for (let i = 0; i <= 520; i++) {
+        const p = this.tram.curve.getPointAt(i / 520);
         const X = mx(p.x);
         const Y = mz(p.z);
         if (i === 0) ctx.moveTo(X, Y); else ctx.lineTo(X, Y);
@@ -5352,8 +5868,16 @@
       add('Cannon.js runtime loaded', typeof CANNON !== 'undefined' && !!CANNON.World, typeof CANNON !== 'undefined' ? '0.6.2' : 'missing');
       add('WebGL renderer created', !!(this.renderer && this.renderer.domElement), this.renderer ? 'canvas' : 'none');
       add('Scene populated', this.scene && this.scene.children.length > 80, this.scene ? this.scene.children.length + ' objects' : 'none');
-      add('CBD loop built', !!(this.tram.curve && this.tram.length > 500), Math.round(this.tram.length) + ' m');
-      add('Twelve named tram stops', this.stops.length === 12, this.stops.map((s) => s.short).join(', '));
+      add('CBD loop built', !!(this.tram.curve && this.tram.length > 1000), Math.round(this.tram.length) + ' m');
+      add('Twenty-one named tram stops', this.stops.length === 21, this.stops.map((s) => s.short).join(', '));
+      const stopGaps = this.stops.map((stop, i) => {
+        const next = this.stops[(i + 1) % this.stops.length];
+        let gap = next.s - stop.s;
+        if (gap < 0) gap += this.tram.length;
+        return gap;
+      });
+      const minGap = Math.min.apply(null, stopGaps);
+      add('Stops spaced along the loop', minGap >= 24, 'min ' + Math.round(minGap) + ' m between 21 stops on ' + Math.round(this.tram.length) + ' m');
       add('Waiting passengers spawned', this.stops.reduce((n, s) => n + s.riders.length, 0) >= 12, this.stops.reduce((n, s) => n + s.riders.length, 0) + ' riders');
       add('Tram mesh assembled', !!(this.tramGroup && this.tramGroup.children.length > 40), this.tramGroup ? this.tramGroup.children.length + ' parts' : 'none');
       add('Cannon tram body', !!(this.tramBody && this.tramBody.mass > 1000), this.tramBody ? Math.round(this.tramBody.mass) + ' kg' : 'none');
@@ -5463,7 +5987,7 @@
       add('Driver cab view', cabOK, 'first-person cab, drag-to-look and rain wipers');
 
       add('CBD extension landmarks', !!(this.parliament && this.rmit && this.collins), 'Parliament · RMIT · Collins Street');
-      add('Five more tourist stops', !!(this.princessTheatre && this.bourkeMall && this.chinatown && this.fitzroyGardens && this.carltonGardens), 'Princess Theatre · Bourke Mall · Chinatown · Fitzroy Gardens · Carlton Gardens');
+      add('Nine more tourist landmarks', !!(this.princessTheatre && this.bourkeMall && this.chinatown && this.fitzroyGardens && this.carltonGardens && this.southbank && this.oldTreasury && this.museum && this.queenVic && this.melbourneCentral && this.townHall && this.hosierLane && this.stPauls && this.shrine), '21-stop tourist loop including the Shrine');
 
       add('Hook turn scene ready', !!(this.hook && this.hook.ready && this.hook.carGroup), this.hook && this.hook.ready ? '60 s challenge' : 'unavailable');
       add('Minimap canvas', !!this.dom.minimap, '440 × 320');
