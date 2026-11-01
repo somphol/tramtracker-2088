@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#04110d" />
+  <title>TramTracker 2088 — Melbourne Yarra Trams 3D Simulator</title>
+  <meta name="description" content="Drive a retro-futuristic Melbourne tram through a stylised 3D Swanston Street, past Flinders Street Station and Federation Square. Pick up passengers, master the Hook Turn Challenge, and chase the weather." />
+  <meta property="og:title" content="TramTracker 2088 — Melbourne Yarra Trams 3D Simulator" />
+  <meta property="og:description" content="A 3D Melbourne tram simulator with authentic rail physics, Myki boarding, the Hook Turn Challenge and four-seasons-in-one-day weather." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://somphol.github.io/tramtracker-2088/" />
+  <meta property="og:image" content="https://somphol.github.io/tramtracker-2088/screenshot.png" />
+  <meta property="og:image:width" content="1600" />
+  <meta property="og:image:height" content="1000" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="TramTracker 2088 — Melbourne Yarra Trams 3D Simulator" />
+  <meta name="twitter:description" content="Drive a cyber tram around the Swanston Loop, collect Myki passengers and master Melbourne's hook turn." />
+  <meta name="twitter:image" content="https://somphol.github.io/tramtracker-2088/screenshot.png" />
+  <meta name="color-scheme" content="dark" />
+  <link rel="canonical" href="https://somphol.github.io/tramtracker-2088/" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="screenshot.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <div id="viewport" aria-hidden="true">
+      <canvas id="scene"></canvas>
+      <div class="vignette"></div>
+      <div class="scanlines"></div>
+    </div>
+
+    <div id="loadingScreen" class="loading-screen">
+      <div class="loading-inner">
+        <div class="loading-tram">🚋</div>
+        <div class="loading-title">TRAMTRACKER <span>2088</span></div>
+        <div class="loading-bar"><i id="loadingBar"></i></div>
+        <div class="loading-copy" id="loadingCopy">Wiring the overhead…</div>
+      </div>
+    </div>
+
+    <header class="topbar">
+      <div class="brand glass">
+        <div class="brand-mark" aria-hidden="true"><span>2088</span><i></i></div>
+        <div class="brand-text">
+          <h1>TRAMTRACKER <em>2088</em></h1>
+          <p>Melbourne Yarra Trams · 3D Simulator</p>
+        </div>
+      </div>
+
+      <div class="weather-switch glass" role="group" aria-label="Melbourne weather presets">
+        <button class="weather-btn is-active" data-weather="sunny" title="Classic Melbourne sun">
+          <span>☀️</span><b>Classic</b>
+        </button>
+        <button class="weather-btn" data-weather="rain" title="Four seasons in one day">
+          <span>🌧️</span><b>Rain</b>
+        </button>
+        <button class="weather-btn" data-weather="twilight" title="Twilight Yarra glow">
+          <span>🌆</span><b>Twilight</b>
+        </button>
+      </div>
+
+      <div class="top-actions glass">
+        <button id="muteBtn" class="icon-btn" aria-label="Toggle sound" title="Sound (M)">🔊</button>
+        <button id="helpBtn" class="icon-btn" aria-label="How to play" title="How to play (H)">?</button>
+        <button id="fullscreenBtn" class="icon-btn" aria-label="Toggle fullscreen" title="Fullscreen (F)">⛶</button>
+      </div>
+    </header>
+
+    <aside class="telemetry glass" aria-label="Tram telemetry">
+      <div class="tel-head">
+        <span class="live-dot"></span>
+        <span>SWANSTON LOOP</span>
+        <span class="route-chip">ROUTE 2088</span>
+      </div>
+
+      <div class="speed-block">
+        <div class="speed-ring" id="speedRing" style="--pct:0">
+          <div class="speed-inner">
+            <strong id="speedValue">0</strong>
+            <span>KM/H</span>
+          </div>
+        </div>
+        <div class="speed-meta">
+          <div class="gear" id="gearValue">N</div>
+          <div class="speed-label">TRACTION</div>
+          <div class="traction-bars" id="tractionBars"><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="door-state" id="doorState">DOORS CLOSED</div>
+        </div>
+      </div>
+
+      <div class="tel-grid">
+        <div class="tel-cell">
+          <span>SCORE</span>
+          <strong id="scoreValue">0</strong>
+        </div>
+        <div class="tel-cell">
+          <span>BEST</span>
+          <strong id="bestValue">0</strong>
+        </div>
+        <div class="tel-cell">
+          <span>PASSENGERS</span>
+          <strong id="passengerValue">0</strong>
+        </div>
+        <div class="tel-cell">
+          <span>LOOPS</span>
+          <strong id="loopValue">0</strong>
+        </div>
+      </div>
+
+      <div class="next-stop">
+        <div class="next-head"><span>NEXT STOP</span><b id="nextStopDistance">—</b></div>
+        <div class="next-name" id="nextStopName">Melbourne Uni</div>
+        <div class="stop-track"><i id="stopProgress"></i></div>
+        <div class="next-hint" id="stopHint">Roll up to the platform</div>
+      </div>
+    </aside>
+
+    <div class="minimap glass" aria-label="Route minimap">
+      <div class="minimap-head"><span>LIVE ROUTE</span><b>N ↑</b></div>
+      <canvas id="minimap" width="440" height="320"></canvas>
+      <div class="minimap-legend">
+        <span><i class="dot dot-tram"></i>Tram</span>
+        <span><i class="dot dot-stop"></i>Stop</span>
+        <span><i class="dot dot-hook"></i>Hook turn</span>
+      </div>
+    </div>
+
+    <div class="stop-prompt glass" id="stopPrompt" aria-live="polite">
+      <div class="prompt-icon">🚏</div>
+      <div class="prompt-copy">
+        <strong id="promptTitle">FLINDERS ST STATION</strong>
+        <span id="promptText">Stop within the platform zone to open doors</span>
+      </div>
+      <div class="prompt-dist" id="promptDist">0 m</div>
+    </div>
+
+    <div class="toolbar glass" role="toolbar" aria-label="Tram actions">
+      <button class="tool-btn" id="bellBtn" title="Tram bell (B)">
+        <span class="tool-icon">🔔</span><span class="tool-label">Bell<kbd>B</kbd></span>
+      </button>
+      <button class="tool-btn" id="hookBtn" title="Hook Turn Challenge">
+        <span class="tool-icon">↱</span><span class="tool-label">Hook Turn<kbd>G</kbd></span>
+      </button>
+      <button class="tool-btn" id="badgesBtn" title="Route badges">
+        <span class="tool-icon">🎖️</span><span class="tool-label">Badges<kbd id="badgeCount">0</kbd></span>
+      </button>
+      <button class="tool-btn" id="saveBtn" title="Save driver progress to a file">
+        <span class="tool-icon">💾</span><span class="tool-label">Save</span>
+      </button>
+      <button class="tool-btn" id="loadBtn" title="Load driver progress from a file">
+        <span class="tool-icon">📂</span><span class="tool-label">Load</span>
+      </button>
+    </div>
+
+    <div class="touch-controls" id="touchControls">
+      <div class="touch-pad" aria-label="Tram controls">
+        <button class="touch-btn touch-throttle" data-key="ArrowUp" aria-label="Throttle">▲<small>POWER</small></button>
+        <button class="touch-btn touch-brake" data-key="ArrowDown" aria-label="Brake">▼<small>BRAKE</small></button>
+      </div>
+      <div class="touch-side">
+        <button class="touch-btn touch-bell" data-action="bell" aria-label="Ring bell">🔔</button>
+        <button class="touch-btn touch-hook" data-action="hook" aria-label="Hook turn challenge">↱</button>
+      </div>
+    </div>
+
+    <div id="toasts" class="toasts" aria-live="polite"></div>
+
+    <div id="startScreen" class="overlay start-screen show">
+      <div class="start-card glass">
+        <div class="start-kicker"><span class="live-dot"></span> DEPOT ONLINE · 06:12 AEDT</div>
+        <h1 class="start-title">TRAMTRACKER <span>2088</span></h1>
+        <p class="start-sub">Melbourne Yarra Trams · 3D Simulator</p>
+        <p class="start-lead">Clock on for the Swanston Loop in a retro-futuristic W-Class cyber tram. Pick up passengers at four iconic stops, thread the Flinders Street intersection, and survive four seasons in one day.</p>
+
+        <div class="start-features">
+          <div><b>🚋</b><span>Rail physics</span></div>
+          <div><b>💳</b><span>Myki boarding</span></div>
+          <div><b>↱</b><span>Hook turns</span></div>
+          <div><b>🌦️</b><span>Weather</span></div>
+        </div>
+
+        <div class="start-controls">
+          <div><kbd>W</kbd><kbd>↑</kbd><span>Power</span></div>
+          <div><kbd>S</kbd><kbd>↓</kbd><span>Brake</span></div>
+          <div><kbd>B</kbd><span>Bell</span></div>
+          <div><kbd>G</kbd><span>Hook turn</span></div>
+          <div><kbd>C</kbd><span>Recentre camera</span></div>
+          <div><kbd>M</kbd><span>Mute</span></div>
+        </div>
+
+        <button id="startBtn" class="primary-btn">
+          <span>CLOCK ON</span><small>Enter the driver's cab</small>
+        </button>
+
+        <div class="start-foot">
+          <span>Built with <b>OpenCode</b> · <b>DeepSeek V4.1 Flash</b></span>
+          <span>Three.js r128 · Cannon.js 0.6.2</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="helpModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      <div class="modal-card glass">
+        <button class="modal-close" data-close="helpModal" aria-label="Close">×</button>
+        <span class="eyebrow">DRIVER'S MANUAL</span>
+        <h2 id="helpTitle">How to run the 2088</h2>
+        <div class="help-grid">
+          <section>
+            <h3>Drive</h3>
+            <p><kbd>W</kbd>/<kbd>↑</kbd> apply traction. <kbd>S</kbd>/<kbd>↓</kbd> brake, then reverse. The tram is rail-guided — it steers itself. Slow for curves or the wheels will sing.</p>
+            <h3>Serve stops</h3>
+            <p>Each stop has a glowing platform marker. Roll in below 2 km/h inside the zone and the doors open automatically. Every passenger taps on with a Myki beep and adds to your score.</p>
+            <h3>Bell</h3>
+            <p><kbd>B</kbd> rings the iconic double-ding. It is legally required to be delightful.</p>
+          </section>
+          <section>
+            <h3>Hook Turn Challenge</h3>
+            <p>Press <kbd>G</kbd> or the toolbar button. Drive the car into the painted hook turn box on the far-left corner, wait for the tram to clear, then complete the right turn across the tracks. Collisions end the attempt.</p>
+            <h3>Weather</h3>
+            <p>Switch between Classic Melbourne Sun, Four Seasons in One Day (sudden rain and lightning) and Twilight Yarra River Glow at any time.</p>
+            <h3>Progress</h3>
+            <p>Everything saves to this browser. Use <b>Save</b> to download <code>tramtracker_save.json</code>, and <b>Load</b> to restore a career on another device.</p>
+          </section>
+        </div>
+        <div class="modal-foot"><span>Tip: <kbd>C</kbd> recentres the chase camera behind the tram.</span><button class="ghost-btn" data-close="helpModal">Back to the cab</button></div>
+      </div>
+    </div>
+
+    <div id="badgesModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="badgesTitle">
+      <div class="modal-card glass wide">
+        <button class="modal-close" data-close="badgesModal" aria-label="Close">×</button>
+        <span class="eyebrow">CAREER RECORD</span>
+        <h2 id="badgesTitle">Route badges</h2>
+        <div class="career-stats" id="careerStats"></div>
+        <div class="badge-grid" id="badgeGrid"></div>
+        <div class="modal-foot"><span id="badgeSummary">0 of 9 badges earned</span><button class="ghost-btn" data-close="badgesModal">Close</button></div>
+      </div>
+    </div>
+
+    <div id="hookOverlay" class="hook-overlay" aria-hidden="true">
+      <canvas id="hookCanvas"></canvas>
+      <div class="hook-hud">
+        <div class="hook-top glass">
+          <div>
+            <span class="eyebrow">MINI-GAME · FLINDERS &amp; SWANSTON</span>
+            <h2>HOOK TURN CHALLENGE</h2>
+          </div>
+          <div class="hook-stats">
+            <div><span>TIME</span><b id="hookTime">60</b></div>
+            <div><span>ATTEMPTS</span><b id="hookLives">3</b></div>
+            <div><span>BEST</span><b id="hookBest">0</b></div>
+            <button class="modal-close inline" id="hookClose" aria-label="Close mini-game">×</button>
+          </div>
+        </div>
+
+        <div class="hook-phase glass" id="hookPhase">
+          <span class="phase-step" id="hookStep">1</span>
+          <div>
+            <strong id="hookPhaseTitle">ENTER THE HOOK TURN BOX</strong>
+            <p id="hookPhaseText">Drive east and pull into the painted box on the far-left corner.</p>
+          </div>
+        </div>
+
+        <div class="hook-signal glass">
+          <div class="signal-dot" id="hookSignal"></div>
+          <div><span>TURN SIGNAL</span><b id="hookSignalText">WAIT</b></div>
+          <div class="signal-timer"><i id="hookSignalBar"></i></div>
+        </div>
+
+        <div class="hook-tip glass" id="hookTip">
+          <kbd>W</kbd><kbd>↑</kbd> throttle · <kbd>S</kbd><kbd>↓</kbd> brake · <kbd>A</kbd><kbd>D</kbd> steer
+        </div>
+
+        <div class="hook-touch">
+          <button class="touch-btn" data-hook-key="ArrowLeft" aria-label="Steer left">◀</button>
+          <button class="touch-btn" data-hook-key="ArrowUp" aria-label="Throttle">▲</button>
+          <button class="touch-btn" data-hook-key="ArrowDown" aria-label="Brake">▼</button>
+          <button class="touch-btn" data-hook-key="ArrowRight" aria-label="Steer right">▶</button>
+        </div>
+
+        <div class="modal glass hook-result" id="hookResult">
+          <span class="eyebrow" id="hookResultKicker">ATTEMPT COMPLETE</span>
+          <h2 id="hookResultTitle">Hook turn nailed.</h2>
+          <p id="hookResultText">You waited for the tram and completed the turn legally.</p>
+          <div class="hook-score" id="hookResultScore">+0</div>
+          <div class="hook-actions">
+            <button class="primary-btn" id="hookRetry"><span>TRY AGAIN</span><small>Beat your best</small></button>
+            <button class="ghost-btn" id="hookExit">Back to the tram</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <input type="file" id="importFile" accept="application/json,.json" hidden />
+    <div class="screen-flash" id="screenFlash"></div>
+    <pre id="selftestOut" hidden></pre>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
