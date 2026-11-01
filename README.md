@@ -6,10 +6,10 @@
 
 **Melbourne Yarra Trams · 3D Simulator**
 
-Drive a retro-futuristic W-Class cyber tram around the Swanston Loop, collect Myki passengers, survive four seasons in one day, and master the famous Melbourne hook turn.
+Drive a retro-futuristic W-Class cyber tram around the Swanston Loop, collect Myki passengers, survive four seasons in one day, and master the famous Melbourne hook turn — from the chase camera or the driver's cab.
 
 [![Live demo](https://img.shields.io/badge/live_demo-online-46ffd3?style=flat-square)](https://somphol.github.io/tramtracker-2088/)
-[![Self-tests](https://img.shields.io/badge/self--tests-25%2F25-00b85c?style=flat-square)](#verification)
+[![Self-tests](https://img.shields.io/badge/self--tests-26%2F26-00b85c?style=flat-square)](#verification)
 [![License: MIT](https://img.shields.io/badge/license-MIT-f6c800?style=flat-square)](LICENSE)
 
 **[Play it live →](https://somphol.github.io/tramtracker-2088/)**
@@ -21,6 +21,11 @@ Drive a retro-futuristic W-Class cyber tram around the Swanston Loop, collect My
 TramTracker 2088 is a complete, self-contained 3D browser game built with **vanilla HTML5, CSS3 and ES6**, rendered with **Three.js r128** and simulated with **Cannon.js 0.6.2**. There is no build step, no framework and no generated asset bundle: every building, tram, passenger, texture and sound is created in the browser.
 
 The whole thing runs from three files — `index.html`, `style.css` and `script.js`.
+
+<div align="center">
+<img src="screenshot-driver.png" alt="First-person driver's cab view looking down Swanston Street towards Flinders Street Station" width="100%" />
+<sub><b>Driver's cab view</b> — press <kbd>V</kbd>, drag to look around, and watch the wipers in the rain.</sub>
+</div>
 
 ---
 
@@ -70,6 +75,7 @@ A Cannon.js rigid body follows the rails and collides with street furniture, whi
 - **Princes Bridge, the Yarra River, Southbank skyline and Melbourne University**, plus around eighty procedurally generated city buildings with lit window textures.
 - **W-Class / Cyber-Tram 2088**: green hull, cream roof, gold waistline, window band, destination signs, headlights, tail lights, bogies, pantograph, bell and neon underglow.
 - **Rail physics** with acceleration, braking, rolling resistance, curve drag, wheel screech, rail clatter and a Cannon.js tram body for impacts.
+- **First-person driver's cab view** with a glass cockpit, dashboard, speed-reactive FOV, head sway and curve lean; drag to look around and let go to ease back to the road. Rain triggers animated wipers and droplets on the glass.
 - Follow camera with **mouse orbit and zoom**, plus a recentre key.
 
 ### Passengers and Myki
@@ -126,11 +132,13 @@ Yarra Trams green and gold meets a cyberpunk neon HUD: glassmorphic telemetry, c
 | Brake / reverse | `S` / `↓` | **BRAKE** pad |
 | Ring bell | `B` | 🔔 |
 | Hook Turn Challenge | `G` | ↱ |
+| Driver / chase view | `V` | **VIEW** toolbar button |
 | Recentre camera | `C` | — |
 | Mute sound | `M` | speaker button |
 | Help | `H` | `?` button |
 | Fullscreen | `F` | ⛶ button |
 | Orbit / zoom camera | drag / wheel | drag / pinch |
+| Look around the cab | drag | drag |
 
 In the Hook Turn Challenge: `W`/`↑` throttle, `S`/`↓` brake, `A`/`D` or `←`/`→` steer.
 
@@ -231,7 +239,7 @@ Internet access is required for the Three.js and Cannon.js CDNs and the Google F
 
 ### Self-test surface
 
-Append `?selftest=1` (optionally with `&autostart=1`) to run the built-in 25-check harness. Results are written to `#selftestOut`, `document.body.dataset.selftest` and the console.
+Append `?selftest=1` (optionally with `&autostart=1`) to run the built-in 26-check harness. Results are written to `#selftestOut`, `document.body.dataset.selftest` and the console.
 
 Useful development params:
 
@@ -260,6 +268,8 @@ tramtracker-2088/
 ├── screenshot-hook.png
 ├── screenshot-mobile.png
 ├── screenshot-start.png
+├── screenshot-driver.png
+├── screenshot-driver-rain.png
 ├── STATE.md / state.json         # build duration, token usage, credits
 ├── THIRD_PARTY_NOTICES.md
 ├── LICENSE
@@ -279,7 +289,7 @@ Build duration, token usage and full credits are recorded in [STATE.md](STATE.md
 
 ## Verification
 
-The built-in harness reports **25/25 PASS**, covering:
+The built-in harness reports **26/26 PASS**, covering:
 
 - Three.js r128 and Cannon.js 0.6.2 runtime availability;
 - WebGL renderer, scene population (300+ objects), 377 m loop;
@@ -292,6 +302,7 @@ The built-in harness reports **25/25 PASS**, covering:
 - a live Myki boarding simulation that adds passengers and score;
 - weather switching;
 - hook-turn scene readiness;
+- driver's cab view switching, FOV and orbit-control handoff;
 - zero uncaught errors.
 
 Headless Chrome (SwiftShader WebGL) screenshots were used to verify desktop 1600×1000 and mobile 390×844 layouts, all three weather presets, the hook-turn challenge, and the start/result overlays.

@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=1.0.1" />
+  <link rel="stylesheet" href="style.css?v=1.0.2" />
 </head>
 <body>
   <div id="app">
@@ -32,6 +32,22 @@
       <canvas id="scene"></canvas>
       <div class="vignette"></div>
       <div class="scanlines"></div>
+    </div>
+
+    <div id="cabOverlay" class="cab-overlay" aria-hidden="true">
+      <div class="cab-glass"></div>
+      <div class="cab-rain"></div>
+      <div class="cab-wipers"><i></i><i></i></div>
+      <div class="cab-roof"></div>
+      <div class="cab-pillar cab-left"></div>
+      <div class="cab-pillar cab-right"></div>
+      <div class="cab-dash">
+        <div class="cab-dash-inner">
+          <div class="cab-brand"><span>W-CLASS</span><b>2088</b><em>DRIVER'S CAB</em></div>
+          <div class="cab-gauge"><i></i><span>TRACTION</span></div>
+        </div>
+      </div>
+      <div class="cab-hint">DRAG TO LOOK · <kbd>V</kbd> FOR CHASE</div>
     </div>
 
     <div id="loadingScreen" class="loading-screen">
@@ -143,6 +159,9 @@
       <button class="tool-btn" id="bellBtn" title="Tram bell (B)">
         <span class="tool-icon">🔔</span><span class="tool-label">Bell<kbd>B</kbd></span>
       </button>
+      <button class="tool-btn" id="viewBtn" title="Driver view (V)" aria-pressed="false">
+        <span class="tool-icon">🎥</span><span class="tool-label">View<kbd>V</kbd></span>
+      </button>
       <button class="tool-btn" id="hookBtn" title="Hook Turn Challenge">
         <span class="tool-icon">↱</span><span class="tool-label">Hook Turn<kbd>G</kbd></span>
       </button>
@@ -189,6 +208,7 @@
           <div><kbd>S</kbd><kbd>↓</kbd><span>Brake</span></div>
           <div><kbd>B</kbd><span>Bell</span></div>
           <div><kbd>G</kbd><span>Hook turn</span></div>
+          <div><kbd>V</kbd><span>Driver view</span></div>
           <div><kbd>C</kbd><span>Recentre camera</span></div>
           <div><kbd>M</kbd><span>Mute</span></div>
         </div>
@@ -217,6 +237,8 @@
             <p>Each stop has a glowing platform marker. Roll in below 2 km/h inside the zone and the doors open automatically. Every passenger taps on with a Myki beep and adds to your score.</p>
             <h3>Bell</h3>
             <p><kbd>B</kbd> rings the iconic double-ding. It is legally required to be delightful.</p>
+            <h3>Driver view</h3>
+            <p><kbd>V</kbd> switches between the chase camera and a first-person driver's cab. Drag the scene to look around; the view eases back to the road when you let go. In rain the wipers run.</p>
           </section>
           <section>
             <h3>Hook Turn Challenge</h3>
@@ -304,6 +326,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
-  <script src="script.js?v=1.0.1"></script>
+  <script src="script.js?v=1.0.2"></script>
 </body>
 </html>

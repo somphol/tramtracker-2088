@@ -11,7 +11,7 @@
      Constants
      ------------------------------------------------------------------------ */
 
-  const VERSION = '1.0.0';
+  const VERSION = '1.0.2';
   const SAVE_KEY = 'tramtracker_2088_v1';
   const SAVE_FILE = 'tramtracker_save.json';
   const APP_NAME = 'TramTracker 2088';
@@ -590,6 +590,12 @@
         bellCooldown: 0
       };
       this.hookBest = this.career.stats.hookBest || 0;
+      this.viewMode = 'chase';
+      this.driverYaw = 0;
+      this.driverPitch = 0;
+      this.driverDragging = false;
+      this.driverLookIdle = 0;
+      this.driverLast = null;
       this.expectedErrors = [];
       this.jsErrors = [];
       this.lastCameraPos = new THREE.Vector3();
@@ -651,6 +657,7 @@
         this.buildWeatherFX();
         this.applyWeather(this.currentWeather, true);
         this.setupCamera();
+        if (params.get('view') === 'driver') this.setViewMode('driver', true);
         this.buildHookGame();
         await this.frameBreak();
         this.setLoading(94, 'Syncing Myki validators…');
@@ -716,6 +723,7 @@
         helpBtn: $('#helpBtn'),
         fullscreenBtn: $('#fullscreenBtn'),
         bellBtn: $('#bellBtn'),
+        viewBtn: $('#viewBtn'),
         hookBtn: $('#hookBtn'),
         badgesBtn: $('#badgesBtn'),
         saveBtn: $('#saveBtn'),
@@ -796,6 +804,7 @@
       if (d.helpBtn) d.helpBtn.addEventListener('click', () => this.openModal('helpModal'));
       if (d.fullscreenBtn) d.fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
       if (d.bellBtn) d.bellBtn.addEventListener('click', () => this.ringBell());
+      if (d.viewBtn) d.viewBtn.addEventListener('click', () => this.toggleView());
       if (d.hookBtn) d.hookBtn.addEventListener('click', () => this.openHookGame());
       if (d.badgesBtn) d.badgesBtn.addEventListener('click', () => this.openBadges());
       if (d.saveBtn) d.saveBtn.addEventListener('click', () => this.exportSave());
@@ -892,6 +901,7 @@
 
       this.keys[key] = true;
       if (key === 'b' || key === 'B') this.ringBell();
+      if (key === 'v' || key === 'V') this.toggleView();
       if (key === 'g' || key === 'G') this.openHookGame();
       if (key === 'm' || key === 'M') this.toggleMute();
       if (key === 'h' || key === 'H') this.openModal('helpModal');
@@ -3161,6 +3171,7 @@
       const changed = name !== this.currentWeather;
       this.currentWeather = name;
       this.weatherTarget = WEATHERS[name];
+      document.body.dataset.weather = name;
       $$('.weather-btn').forEach((btn) => btn.classList.toggle('is-active', btn.dataset.weather === name));
       this.audio.setRain(this.weatherTarget.rain > 0.5);
       this.career.settings.weather = name;
@@ -3336,11 +3347,44 @@
       // Resume audio on first pointer interaction with the canvas (needed by Safari).
       const canvas = this.renderer && this.renderer.domElement;
       if (canvas) {
-        canvas.addEventListener('pointerdown', () => {
+        canvas.addEventListener('pointerdown', (e) => {
           if (this.started) this.audio.ensure();
+          if (this.viewMode !== 'driver') return;
+          this.driverDragging = true;
+          this.driverLookIdle = 0;
+          this.driverLast = { x: e.clientX, y: e.clientY };
+          document.body.classList.add('is-looking');
+          if (canvas.setPointerCapture) {
+            try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+          }
         });
+        canvas.addEventListener('pointermove', (e) => {
+          if (!this.driverDragging || this.viewMode !== 'driver' || !this.driverLast) return;
+          const dx = e.clientX - this.driverLast.x;
+          const dy = e.clientY - this.driverLast.y;
+          this.driverYaw = clamp(this.driverYaw + dx * 0.0035, -1.35, 1.35);
+          this.driverPitch = clamp(this.driverPitch - dy * 0.0028, -0.55, 0.5);
+          this.driverLast = { x: e.clientX, y: e.clientY };
+          this.driverLookIdle = 0;
+        });
+        const endLook = (e) => {
+          if (!this.driverDragging) return;
+          this.driverDragging = false;
+          this.driverLookIdle = 0;
+          this.driverLast = null;
+          document.body.classList.remove('is-looking');
+          if (canvas.releasePointerCapture && e && e.pointerId !== undefined) {
+            try { canvas.releasePointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+          }
+        };
+        canvas.addEventListener('pointerup', endLook);
+        canvas.addEventListener('pointercancel', endLook);
       }
-      window.addEventListener('blur', () => { this.keys = Object.create(null); });
+      window.addEventListener('blur', () => {
+        this.keys = Object.create(null);
+        this.driverDragging = false;
+        document.body.classList.remove('is-looking');
+      });
     }
 
     /* =======================================================================
@@ -3406,6 +3450,7 @@
       const delta = Math.atan2(Math.sin(yaw - this.tram.heading), Math.cos(yaw - this.tram.heading));
       const step = clamp(delta * Math.min(1, dt * 14), -0.32, 0.32);
       this.tram.heading += step;
+      this.tram.turnRate = step / Math.max(dt, 0.0001);
 
       this.tramGroup.position.set(p.x, 0.12, p.z);
       this.tramGroup.rotation.y = this.tram.heading;
@@ -3579,8 +3624,91 @@
       this.clouds.position.y = Math.sin(this.time * 0.03) * 2;
     }
 
+    toggleView() {
+      this.setViewMode(this.viewMode === 'driver' ? 'chase' : 'driver');
+    }
+
+    setViewMode(mode, silent) {
+      const next = mode === 'driver' ? 'driver' : 'chase';
+      if (this.viewMode === next) return;
+      this.viewMode = next;
+      const driver = next === 'driver';
+      document.body.classList.toggle('view-driver', driver);
+      if (this.controls) this.controls.enabled = !driver;
+      if (this.camera) {
+        this.camera.fov = driver ? 66 : 55;
+        this.camera.updateProjectionMatrix();
+      }
+      const btn = this.dom.viewBtn;
+      if (btn) {
+        btn.classList.toggle('is-active', driver);
+        btn.setAttribute('aria-pressed', driver ? 'true' : 'false');
+        const icon = btn.querySelector('.tool-icon');
+        if (icon) icon.textContent = driver ? '🚘' : '🎥';
+        btn.title = driver ? 'Chase view (V)' : 'Driver view (V)';
+      }
+      if (driver) {
+        this.driverYaw = 0;
+        this.driverPitch = 0;
+        this.driverDragging = false;
+        this.driverLookIdle = 0;
+        document.body.classList.remove('is-looking');
+      } else if (this.started) {
+        this.recenterRequested = true;
+      }
+      if (!silent) {
+        this.audio.click();
+        this.toast(driver
+          ? '🚘 <b>Driver\'s cab</b> · drag to look · V for chase'
+          : '🎥 Chase camera · V for the driver\'s cab', 3200);
+      }
+    }
+
+    updateDriverCamera(dt) {
+      if (!this.tramGroup) return;
+      const p = this.tramGroup.position;
+      const heading = this.tram.heading;
+      const fx = Math.sin(heading);
+      const fz = Math.cos(heading);
+      const speedRatio = clamp(Math.abs(this.tram.speed) / this.tram.maxSpeed, 0, 1);
+      const bob = Math.sin(this.time * 8.4) * 0.01 * speedRatio + Math.sin(this.time * 2.1) * 0.003;
+      const camX = p.x + fx * 5.55;
+      const camY = 2.86 + bob;
+      const camZ = p.z + fz * 5.55;
+
+      this.camera.position.set(camX, camY, camZ);
+
+      if (!this.driverDragging) {
+        this.driverLookIdle += dt;
+        if (this.driverLookIdle > 2.4) {
+          this.driverYaw = damp(this.driverYaw, 0, 1.6, dt);
+          this.driverPitch = damp(this.driverPitch, 0, 1.6, dt);
+        }
+      }
+
+      const yaw = heading + this.driverYaw;
+      const pitch = this.driverPitch - 0.055;
+      const cosP = Math.cos(pitch);
+      const dirX = Math.sin(yaw) * cosP;
+      const dirY = Math.sin(pitch);
+      const dirZ = Math.cos(yaw) * cosP;
+      this.camera.lookAt(camX + dirX * 60, camY + dirY * 60, camZ + dirZ * 60);
+      this.camera.rotateZ(clamp((this.tram.turnRate || 0) * 0.018, -0.03, 0.03));
+
+      const targetFov = 66 + speedRatio * 4;
+      if (Math.abs(this.camera.fov - targetFov) > 0.06) {
+        this.camera.fov = targetFov;
+        this.camera.updateProjectionMatrix();
+      }
+      this.controls.target.set(camX + fx * 24, 2.0, camZ + fz * 24);
+    }
+
     updateCamera(dt) {
       if (!this.camera || !this.controls) return;
+      if (this.started && this.viewMode === 'driver') {
+        this.updateDriverCamera(dt);
+        return;
+      }
       if (SHOT_MODE) {
         const p = this.tramGroup ? this.tramGroup.position : new THREE.Vector3(0, 0, 30);
         const u = mod(this.tram.s / this.tram.length, 1);
@@ -3876,6 +4004,11 @@
       const twilightOK = this.currentWeather === 'twilight';
       this.setWeather('sunny', true);
       add('Weather presets switch', rainOK && twilightOK && this.currentWeather === 'sunny', 'sunny → rain → twilight → sunny');
+
+      this.setViewMode('driver', true);
+      const cabOK = document.body.classList.contains('view-driver') && this.camera.fov === 66 && this.controls.enabled === false && !!document.querySelector('.cab-overlay');
+      this.setViewMode('chase', true);
+      add('Driver cab view', cabOK, 'first-person cab, drag-to-look and rain wipers');
 
       add('Hook turn scene ready', !!(this.hook && this.hook.ready && this.hook.carGroup), this.hook && this.hook.ready ? '60 s challenge' : 'unavailable');
       add('Minimap canvas', !!this.dom.minimap, '440 × 320');
