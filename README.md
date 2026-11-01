@@ -266,6 +266,8 @@ tramtracker-2088/
 └── .nojekyll                     # GitHub Pages
 ```
 
+Build duration, token usage and full credits are recorded in [STATE.md](STATE.md) and [state.json](state.json).
+
 `script.js` is organised into small classes and sections:
 
 - `TramApp` — scene bootstrap, world construction, driving, boarding, weather, HUD and persistence;

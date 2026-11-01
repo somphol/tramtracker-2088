@@ -1,0 +1,107 @@
+{
+  "project": "tramtracker-2088",
+  "title": "TramTracker 2088 — Melbourne Yarra Trams 3D Simulator",
+  "description": "A complete, production-ready interactive 3D Melbourne tram simulator in vanilla HTML/CSS/ES6, rendered with Three.js r128 and simulated with Cannon.js 0.6.2.",
+  "repository": "https://github.com/somphol/tramtracker-2088",
+  "liveDemo": "https://somphol.github.io/tramtracker-2088/",
+  "build": {
+    "startedAt": "2026-11-01T16:59:53Z",
+    "packagedAt": "2026-11-01T18:00:39Z",
+    "durationSeconds": 3646,
+    "durationHuman": "1h 0m 46s",
+    "timezone": "UTC"
+  },
+  "tokens": {
+    "input": 457812,
+    "output": 117521,
+    "reasoning": 106541,
+    "cacheRead": 23735168,
+    "cacheWrite": 1190,
+    "total": 681874,
+    "totalWithCache": 24418232,
+    "note": "Snapshot from the OpenCode session record at 2026-11-01T18:00:39Z. total = input + output + reasoning. Cache reads/writes are context-usage figures and are reported separately rather than added to the model-token total."
+  },
+  "cost": {
+    "usd": 0.0,
+    "note": "As reported by the OpenCode session record."
+  },
+  "sessionId": "ses_e67f25924ffeV87ZCfDRsei45y",
+  "model": {
+    "name": "DeepSeek V4.1 Flash",
+    "providerID": "opencode-go",
+    "modelID": "deepseek-v4.1-flash"
+  },
+  "harness": {
+    "name": "OpenCode",
+    "version": "2.2.5",
+    "url": "https://opencode.ai"
+  },
+  "stack": {
+    "runtime": ["HTML5", "CSS3", "ES6 JavaScript"],
+    "graphics": ["Three.js r128", "OrbitControls r128"],
+    "physics": ["Cannon.js 0.6.2"],
+    "audio": ["Web Audio API synthesis"],
+    "storage": ["localStorage", "JSON file export/import"],
+    "fonts": ["Orbitron", "Rajdhani"]
+  },
+  "files": [
+    { "path": "index.html", "bytes": 15353, "lines": 309 },
+    { "path": "style.css", "bytes": 38820, "lines": 1434 },
+    { "path": "script.js", "bytes": 195249, "lines": 4681 },
+    { "path": "README.md", "bytes": 13451, "lines": 323 }
+  ],
+  "screenshots": [
+    "screenshot.png",
+    "screenshot-rain.png",
+    "screenshot-twilight.png",
+    "screenshot-station.png",
+    "screenshot-fedsquare.png",
+    "screenshot-university.png",
+    "screenshot-yarra.png",
+    "screenshot-hook.png",
+    "screenshot-mobile.png",
+    "screenshot-start.png"
+  ],
+  "features": [
+    "Procedural Melbourne city grid with Swanston Street and Flinders Street",
+    "Flinders Street Station façade with copper dome and clock tower",
+    "Federation Square deconstructivist shards, plaza, screen and amphitheatre",
+    "Yarra River, Princes Bridge, Southbank skyline and Melbourne University",
+    "Embedded steel rails, concrete sleepers and full overhead catenary",
+    "W-Class / Cyber-Tram 2088 with Cannon.js rigid body and rail physics",
+    "Keyboard and touch traction/brake controls, orbit camera and recentre",
+    "Double-ding Web Audio tram bell",
+    "Four stops with waiting passengers and animated Myki boarding",
+    "Synthesised Myki beeps, wheel screech, rail clatter, rain and thunder",
+    "Hook Turn Challenge mini-game with live trams, bikes, signals and collisions",
+    "Instant sunny, rain and twilight weather presets",
+    "localStorage career save plus tramtracker_save.json export/import",
+    "Nine route badges and career statistics",
+    "Responsive glassmorphic Yarra green/gold + neon UI",
+    "Built-in 25-check self-test harness"
+  ],
+  "verification": {
+    "selfTest": "25/25 PASS",
+    "selfTestUrl": "https://somphol.github.io/tramtracker-2088/?selftest=1",
+    "checked": [
+      "Three.js r128 and Cannon.js 0.6.2 loaded",
+      "WebGL renderer and 321-object scene",
+      "377 m Swanston Loop with four named stops and 20 waiting passengers",
+      "49-part tram mesh and 12,000 kg Cannon body",
+      "Flinders Street Station, Federation Square, Yarra River and catenary",
+      "Web Audio voices and three weather presets",
+      "Save schema validation and export/import",
+      "Nine badges, minimap, HUD and save/load wiring",
+      "Traction simulation and live Myki boarding",
+      "Hook Turn scene readiness",
+      "Zero uncaught errors"
+    ],
+    "screenshots": "Desktop 1600×1000 and mobile 390×844 captured from the live build with headless Chrome (SwiftShader WebGL)."
+  },
+  "credits": {
+    "builtWith": "OpenCode v2.2.5 + DeepSeek V4.1 Flash (opencode-go/deepseek-v4.1-flash)",
+    "author": "Somphol Boonjing",
+    "license": "MIT",
+    "thirdParty": "Three.js r128 (MIT), OrbitControls (MIT), Cannon.js 0.6.2 (MIT), Orbitron & Rajdhani (SIL OFL 1.1)"
+  }
+}
