@@ -4,8 +4,8 @@
 | --- | --- |
 | Project | TramTracker 2088 — Melbourne Yarra Trams 3D Simulator (`tramtracker-2088`) |
 | Started | 2026-11-01 16:59:53 UTC |
-| Packaged | 2026-11-01 22:44:30 UTC |
-| Duration | **5h 44m 25s** (20,665 seconds) |
+| Packaged | 2026-11-01 22:59:30 UTC |
+| Duration | **5h 59m 20s** (21,560 seconds) |
 | Harness | OpenCode 2.2.5 |
 | Model | DeepSeek V4.1 Flash (`opencode-go/deepseek-v4.1-flash`) |
 | Session | `ses_e67f25924ffeV87ZCfDRsei45y` |
@@ -16,15 +16,15 @@
 
 | Metric | Tokens |
 | --- | ---: |
-| Input | 1,321,705 |
-| Output | 316,059 |
-| Reasoning | 456,698 |
-| **Total (input + output + reasoning)** | **2,094,462** |
-| Cache read | 227,545,472 |
+| Input | 1,371,224 |
+| Output | 329,783 |
+| Reasoning | 471,729 |
+| **Total (input + output + reasoning)** | **2,172,736** |
+| Cache read | 241,345,024 |
 | Cache write | 1,190 |
-| Total including cache | 229,639,934 |
+| Total including cache | 243,517,760 |
 
-> Snapshot taken from the OpenCode session record when the project was packaged at 2026-11-01 22:44:30 UTC. It includes the original build, track/cab/doors/announcement/CBD work, stop guides, city ambience, passenger manifests, stop requests, tourist stops, the 1.35 km St Kilda Road/Shrine extension with 21 respaced stops, mobile panel controls and the door interlock. The final state-file commit, push, Pages re-verification and closing response happen outside this snapshot, so the live session totals will be marginally higher. Total cost reported by the session: **$0.00**.
+> Snapshot taken from the OpenCode session record when the project was packaged at 2026-11-01 22:59:30 UTC. It includes the original build, track/cab/doors/announcement/CBD work, stop guides, city ambience, passenger manifests, stop requests, tourist stops, the 1.35 km St Kilda Road/Shrine extension with 21 respaced stops, mobile panel controls and the door interlock. The final state-file commit, push, Pages re-verification and closing response happen outside this snapshot, so the live session totals will be marginally higher. Total cost reported by the session: **$0.00**.
 
 ## Revisions after the first package
 
@@ -36,7 +36,8 @@
 6. **Passengers and tourist stops** — added destination manifests, pull-the-cord stop requests, alighting animations and more tourist stops.
 7. **1.35 km Shrine extension** — rebuilt the loop around St Kilda Road, Kings Domain and the Shrine of Remembrance, respaced all 21 stops to at least 30 m, added two tram bridges and kept buildings clear of the track.
 8. **Mobile panels and door interlock** — added minimizable telemetry/stop-guide panels and a persistent door warning that blocks traction until the doors close.
-9. **Separate brake and reverse** — braking now stops and holds at zero; reverse is its own `R`/REVERSE control, and the brake always takes priority over reverse. Self-tests remain at 32 checks.
+9. **Separate brake and reverse** — braking now stops and holds at zero; reverse is its own `R`/REVERSE control, and the brake always takes priority over reverse.
+10. **Auto driver** — `A` or the AUTO toolbar button drives the route, brakes into platforms, opens and closes the doors, dwells, departs and hands control back on any manual input. Self-tests increased to 33 checks.
 
 ## What was built
 
@@ -62,18 +63,19 @@ A complete, self-contained 3D tram simulator in three modular source files plus 
 - **Web Audio synthesis** — bell, Myki, wheel screech, rail clatter, city hum, rain, thunder, UI clicks, success and failure stings.
 - **Persistence** — automatic `localStorage` career save, `tramtracker_save.json` export, validated merge import, nine badges and best-score tracking.
 - **UI/UX** — Yarra green and gold with cyberpunk neon glass HUD, conic speedometer, live minimap, next-stop prompts, toasts, modals, touch controls and responsive desktop/mobile layouts with minimizable telemetry and stop-guide panels.
+- **Auto driver** — an optional computer driver that accelerates, brakes, serves platforms, operates the doors and departs, with instant manual takeover.
 
 ### Extras
 
-- 28 screenshots: hero, start, rain, twilight, station, Federation Square, university, Yarra, hook turn, mobile panels, doors, door interlock, driver/cab, CBD overview, Shrine, Southbank, Queen Victoria Market and the tourist stops.
+- 29 screenshots: hero, start, rain, twilight, station, Federation Square, university, Yarra, hook turn, mobile panels, doors, door interlock, auto driver, driver/cab, CBD overview, Shrine, Southbank, Queen Victoria Market and the tourist stops.
 - `README.md`, MIT `LICENSE`, `THIRD_PARTY_NOTICES.md`, `robots.txt`, `sitemap.xml`, `favicon.svg`, `.nojekyll` and `.gitignore`.
 - GitHub Pages deployment and repository topics.
 - Built-in `?selftest=1` harness.
 
 ## Verification
 
-- **32/32** self-tests pass in headless Chrome against the live GitHub Pages build.
-- Checks include Three.js/Cannon.js runtimes, renderer, 600+ object scene, the 1.35 km loop, 21 stops with a minimum 30 m spacing check, tram mesh, 12,000 kg physics body, landmarks, catenary, audio voices, three weather presets, save schema, badge count, minimap/HUD wiring, traction simulation, live Myki boarding, weather switching, driver-cab switching/FOV/handoff, manual door open/close, door interlock, stop/door announcement wiring, stop-guide/Wikipedia cards, CBD and Shrine landmarks, destination manifests, stop requests, alighting animations, minimizable panels, hook-turn readiness and zero uncaught errors.
+- **33/33** self-tests pass in headless Chrome against the live GitHub Pages build.
+- Checks include Three.js/Cannon.js runtimes, renderer, 600+ object scene, the 1.35 km loop, 21 stops with a minimum 30 m spacing check, tram mesh, 12,000 kg physics body, landmarks, catenary, audio voices, three weather presets, save schema, badge count, minimap/HUD wiring, traction simulation, live Myki boarding, weather switching, driver-cab switching/FOV/handoff, manual door open/close, door interlock, stop/door announcement wiring, stop-guide/Wikipedia cards, CBD and Shrine landmarks, destination manifests, stop requests, alighting animations, minimizable panels, the auto driver serving a platform, hook-turn readiness and zero uncaught errors.
 - Screenshots verified at **1600×1000** desktop and **390×844** mobile with no layout overflow (`scrollWidth === innerWidth`).
 - Live URLs return HTTP 200 for HTML, CSS, JS, screenshots and favicon.
 
@@ -81,10 +83,10 @@ A complete, self-contained 3D tram simulator in three modular source files plus 
 
 | File | Size |
 | --- | ---: |
-| `index.html` | 19,398 bytes · 374 lines |
-| `style.css` | 59,026 bytes · 2,287 lines |
-| `script.js` | 295,685 bytes · 6,819 lines |
-| `README.md` | 25,963 bytes · 476 lines |
+| `index.html` | 19,897 bytes · 379 lines |
+| `style.css` | 59,697 bytes · 2,312 lines |
+| `script.js` | 301,575 bytes · 6,973 lines |
+| `README.md` | 26,935 bytes · 496 lines |
 | `screenshot.png` | 893 KB |
 | `screenshot-rain.png` | 1.16 MB |
 | `screenshot-twilight.png` | 1.09 MB |
@@ -96,6 +98,7 @@ A complete, self-contained 3D tram simulator in three modular source files plus 
 | `screenshot-mobile.png` | 238 KB |
 | `screenshot-mobile-guide.png` | 257 KB |
 | `screenshot-door-warning.png` | 786 KB |
+| `screenshot-auto.png` | 565 KB |
 | `screenshot-shrine.png` | 525 KB |
 | `screenshot-qvm.png` | 893 KB |
 | `screenshot-southbank.png` | 736 KB |

@@ -9,7 +9,7 @@
 Drive a retro-futuristic W-Class cyber tram around an extended Hoddle Grid CBD loop with twenty-one stops, collect Myki passengers, survive four seasons in one day, and master the famous Melbourne hook turn — from the chase camera or the driver's cab.
 
 [![Live demo](https://img.shields.io/badge/live_demo-online-46ffd3?style=flat-square)](https://somphol.github.io/tramtracker-2088/)
-[![Self-tests](https://img.shields.io/badge/self--tests-32%2F32-00b85c?style=flat-square)](#verification)
+[![Self-tests](https://img.shields.io/badge/self--tests-33%2F33-00b85c?style=flat-square)](#verification)
 [![License: MIT](https://img.shields.io/badge/license-MIT-f6c800?style=flat-square)](LICENSE)
 
 **[Play it live →](https://somphol.github.io/tramtracker-2088/)**
@@ -34,6 +34,7 @@ The whole thing runs from three files — `index.html`, `style.css` and `script.
 - [The sim](#the-sim)
 - [Doors and announcements](#doors-and-announcements)
 - [Door interlock](#door-interlock)
+- [Auto driver](#auto-driver)
 - [Stop guides and city sound](#stop-guides-and-city-sound)
 - [Mobile panels](#mobile-panels)
 - [Features](#features)
@@ -103,6 +104,21 @@ The warning clears as soon as the doors finish closing. This applies to both the
 
 ---
 
+## Auto driver
+
+<img src="screenshot-auto.png" alt="Auto driver mode approaching the Shrine of Remembrance" width="100%" />
+
+Press **`A`** or the **AUTO** toolbar button and the driver computer takes the controller:
+
+- accelerates and brakes smoothly along the route;
+- slows for each platform and stops inside the zone;
+- opens the doors, waits for boarding and alighting, closes them and departs;
+- keeps the next-stop announcements, stop requests and guides running.
+
+Any manual throttle, brake or reverse input immediately returns control to you. The **AUTO** button and a cab badge show when the computer is driving.
+
+---
+
 ## Stop guides and city sound
 
 <img src="screenshot-stop-guide.png" alt="A stop guide card for Flinders Street Station with nearby places and a Wikipedia link" width="100%" />
@@ -164,6 +180,7 @@ On a phone the telemetry panel and stop guide can cover a lot of the road. Both 
 - **Twenty-one-stop tourist loop** — Flinders Street, St Paul's, Hosier Lane, Arts Precinct, Shrine of Remembrance, Southbank, Federation Square, Collins Street, Old Treasury, Parliament, Princess Theatre, Fitzroy Gardens, RMIT, Carlton Gardens, Melbourne Museum, Melbourne University, Melbourne Central, Queen Victoria Market, Bourke Street Mall, Chinatown and Town Hall.
 - **Tourist landmarks** — Parliament House, RMIT, the Princess Theatre, Fitzroy and Carlton gardens, the Old Treasury, Melbourne Museum, Queen Victoria Market, Melbourne Central's shot tower, Town Hall, Hosier Lane, St Paul's Cathedral and the Shrine of Remembrance.
 - **Door interlock** — traction is blocked with a pulsing warning until the doors are fully closed.
+- **Auto driver** — `A` or the AUTO button drives the route, serves every platform, works the doors and departs, with instant manual takeover.
 - **Separate brake and reverse** — the brake stops and holds at zero, while reverse is a dedicated `R` / REVERSE control; the brake overrides it.
 - **Minimizable mobile panels** — collapse the telemetry and stop guide to see the road.
 - Follow camera with **mouse orbit and zoom**, plus a recentre key.
@@ -230,6 +247,7 @@ Yarra Trams green and gold meets a cyberpunk neon HUD: glassmorphic telemetry, c
 | Hook Turn Challenge | `G` | ↱ |
 | Open / close doors | `O` | **DOORS** toolbar button |
 | Driver / chase view | `V` | **VIEW** toolbar button |
+| Auto driver on/off | `A` | **AUTO** toolbar button |
 | Recentre camera | `C` | — |
 | Mute sound | `M` | speaker button |
 | Help | `H` | `?` button |
@@ -389,6 +407,7 @@ tramtracker-2088/
 ├── screenshot-stop-guide.png
 ├── screenshot-stop-request.png
 ├── screenshot-door-warning.png
+├── screenshot-auto.png
 ├── screenshot-mobile-guide.png
 ├── screenshot-shrine.png
 ├── screenshot-qvm.png
@@ -423,7 +442,7 @@ Build duration, token usage and full credits are recorded in [STATE.md](STATE.md
 
 ## Verification
 
-The built-in harness reports **32/32 PASS**, covering:
+The built-in harness reports **33/33 PASS**, covering:
 
 - Three.js r128 and Cannon.js 0.6.2 runtime availability;
 - WebGL renderer, 400+ object scene and the 1.35 km twenty-one-stop CBD loop;
@@ -442,6 +461,7 @@ The built-in harness reports **32/32 PASS**, covering:
 - stop-guide cards, nearby places and Wikipedia links;
 - passenger destination manifests, stop requests and alighting animations;
 - the door interlock warning and the minimizable telemetry/stop-guide panels;
+- the auto driver approaching, serving a platform, working the doors and departing;
 - the layered city ambience and Thai-style stop announcements;
 - zero uncaught errors.
 

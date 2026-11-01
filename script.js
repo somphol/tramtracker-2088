@@ -11,7 +11,7 @@
      Constants
      ------------------------------------------------------------------------ */
 
-  const VERSION = '1.1.1';
+  const VERSION = '1.2.0';
   const SAVE_KEY = 'tramtracker_2088_v1';
   const SAVE_FILE = 'tramtracker_save.json';
   const APP_NAME = 'TramTracker 2088';
@@ -1033,6 +1033,9 @@
       this.started = false;
       this.hookActive = false;
       this.paused = false;
+      this.autoDrive = false;
+      this.autoPhase = 'drive';
+      this.autoTimer = 0;
       this.lastTime = performance.now();
       this.time = 0;
       this.hudTimer = 0;
@@ -1200,6 +1203,8 @@
         badgeSummary: $('#badgeSummary'),
         careerStats: $('#careerStats'),
         telemetryToggle: $('#telemetryToggle'),
+        autoBtn: $('#autoBtn'),
+        cabAuto: $('#cabAuto'),
         speedRing: $('#speedRing'),
         speedValue: $('#speedValue'),
         gearValue: $('#gearValue'),
@@ -1323,6 +1328,7 @@
       if (d.bellBtn) d.bellBtn.addEventListener('click', () => this.ringBell());
       if (d.doorBtn) d.doorBtn.addEventListener('click', () => this.toggleDoors());
       if (d.viewBtn) d.viewBtn.addEventListener('click', () => this.toggleView());
+      if (d.autoBtn) d.autoBtn.addEventListener('click', () => this.setAutoDrive(!this.autoDrive));
       if (d.stopInfoBtn) d.stopInfoBtn.addEventListener('click', () => this.showStopGuide(this.getNextStop(), true));
       if (d.stopInfoClose) d.stopInfoClose.addEventListener('click', () => this.hideStopGuide());
       if (d.stopInfoToggle) d.stopInfoToggle.addEventListener('click', () => this.toggleStopInfo());
@@ -1425,6 +1431,7 @@
       if (key === 'b' || key === 'B') this.ringBell();
       if (key === 'o' || key === 'O') this.toggleDoors();
       if (key === 'v' || key === 'V') this.toggleView();
+      if (key === 'a' || key === 'A') this.setAutoDrive(!this.autoDrive);
       if (key === 'g' || key === 'G') this.openHookGame();
       if (key === 'm' || key === 'M') this.toggleMute();
       if (key === 'h' || key === 'H') this.openModal('helpModal');
@@ -1743,6 +1750,11 @@
     startGame(silent) {
       if (this.started) return;
       this.started = true;
+      this.autoDrive = false;
+      this.autoPhase = 'drive';
+      this.autoTimer = 0;
+      document.body.classList.remove('auto-drive');
+      this.updateAutoButton();
       if (this.dom.startScreen) this.dom.startScreen.classList.remove('show');
       if (!silent) {
         this.audio.ensure();
@@ -4946,6 +4958,97 @@
        DRIVING, BOARDING, ANIMATION
        ===================================================================== */
 
+    setAutoDrive(on) {
+      const next = Boolean(on);
+      if (next && !this.started) {
+        this.toast('Clock on first — then engage the auto driver.', 2600);
+        return;
+      }
+      if (this.autoDrive === next) return;
+      this.autoDrive = next;
+      this.autoPhase = 'drive';
+      this.autoTimer = 0;
+      if (next) {
+        if (this.trip.doorState !== 'closed') {
+          this.autoPhase = 'dwell';
+          this.autoTimer = 3;
+        }
+        const stop = this.getNextStop();
+        this.toast('🤖 <b>Auto driver engaged</b>' + (stop ? ' — next stop ' + stop.short : ''), 3200);
+      } else {
+        this.toast('🤖 Auto driver off — manual control', 2400);
+      }
+      document.body.classList.toggle('auto-drive', this.autoDrive);
+      this.updateAutoButton();
+      this.audio.click();
+    }
+
+    updateAutoButton() {
+      const btn = this.dom && this.dom.autoBtn;
+      if (!btn) return;
+      btn.classList.toggle('is-active', this.autoDrive);
+      btn.setAttribute('aria-pressed', this.autoDrive ? 'true' : 'false');
+    }
+
+    autoTargetSpeed(ahead) {
+      const cruise = 8.8;
+      if (!Number.isFinite(ahead)) return cruise;
+      if (ahead < 9) return clamp((ahead - 1.5) / 2.2, 0, 1.2);
+      const stopSpeed = Math.sqrt(2 * 2.8 * Math.max(0, ahead - 6));
+      return clamp(Math.min(cruise, stopSpeed), 0, cruise);
+    }
+
+    updateAutoDriver(dt, next, ahead, speed) {
+      if (!next) return 0;
+      // If the doors were opened or closed by hand, fold them into the auto cycle.
+      if (this.autoPhase === 'drive') {
+        if (this.trip.doorState === 'opening' || this.trip.doorState === 'open') {
+          this.autoPhase = 'dwell';
+          this.autoTimer = 2.5;
+          return 0;
+        }
+        if (this.trip.doorState === 'closing') {
+          this.autoPhase = 'closing';
+          return 0;
+        }
+      }
+      if (this.autoPhase === 'dwell') {
+        if (this.autoTimer > 0) this.autoTimer -= dt;
+        if (this.autoTimer <= 0 && this.trip.doorState === 'open') {
+          this.closeDoors();
+          this.autoPhase = 'closing';
+        }
+        return 0;
+      }
+      if (this.autoPhase === 'closing') {
+        if (this.trip.doorState === 'closed') {
+          this.autoPhase = 'depart';
+          this.autoTimer = 1.2;
+        }
+        return 0;
+      }
+      if (this.autoPhase === 'depart') {
+        if (this.autoTimer > 0) this.autoTimer -= dt;
+        if (this.autoTimer <= 0) this.autoPhase = 'drive';
+        return 0;
+      }
+      // Drive phase: target a smooth cruise, then creep into the platform.
+      const target = this.autoTargetSpeed(ahead);
+      let out = speed;
+      if (out < target) out = Math.min(target, out + 1.5 * dt);
+      else out = Math.max(target, out - 3.2 * dt);
+      if (this.trip.doorState === 'closed' && ahead < 3.8 && out < 0.8) {
+        this.tram.speed = 0;
+        this.openDoors();
+        if (this.trip.doorState !== 'closed') {
+          this.autoPhase = 'dwell';
+          this.autoTimer = 6;
+          out = 0;
+        }
+      }
+      return out;
+    }
+
     updateTram(dt) {
       if (!this.tramGroup) return;
       this.tram.bellCooldown = Math.max(0, this.tram.bellCooldown - dt);
@@ -4956,21 +5059,30 @@
       const reverse = !doorsLocked && !braking && (this.keys.r || this.keys.R);
       const brake = braking || doorsLocked;
       const handbrake = this.keys[' '];
+      const manualInput = throttle || braking || reverse || handbrake;
+      if (this.autoDrive && manualInput) this.setAutoDrive(false);
+
+      const next = this.getNextStop();
+      const ahead = next ? this.distanceAhead(next) : Infinity;
 
       let speed = this.tram.speed;
-      if (throttle) speed += 1.95 * dt;
-      if (brake) {
-        // Brake toward zero from either direction; it never pushes into reverse.
-        const rate = Math.abs(speed) > 0.1 ? 4.6 : 1.7;
-        speed -= Math.sign(speed) * rate * dt;
-        if (Math.abs(speed) < 0.06) speed = 0;
-      } else if (reverse) {
-        // Reverse is a separate control: shed forward speed first, then back up.
-        if (speed > 0.05) speed -= 4.6 * dt;
-        else speed -= 1.45 * dt;
+      if (this.autoDrive) {
+        speed = this.updateAutoDriver(dt, next, ahead, speed);
+      } else {
+        if (throttle) speed += 1.95 * dt;
+        if (brake) {
+          // Brake toward zero from either direction; it never pushes into reverse.
+          const rate = Math.abs(speed) > 0.1 ? 4.6 : 1.7;
+          speed -= Math.sign(speed) * rate * dt;
+          if (Math.abs(speed) < 0.06) speed = 0;
+        } else if (reverse) {
+          // Reverse is a separate control: shed forward speed first, then back up.
+          if (speed > 0.05) speed -= 4.6 * dt;
+          else speed -= 1.45 * dt;
+        }
+        if (handbrake) speed *= Math.pow(0.015, dt);
+        if (!throttle && !brake && !reverse && !handbrake) speed *= Math.pow(0.55, dt);
       }
-      if (handbrake) speed *= Math.pow(0.015, dt);
-      if (!throttle && !brake && !reverse && !handbrake) speed *= Math.pow(0.55, dt);
       speed = clamp(speed, this.tram.maxReverse, this.tram.maxSpeed);
       if (Math.abs(speed) < 0.02) speed = 0;
       if (doorsLocked) {
@@ -4983,9 +5095,7 @@
         }
       }
 
-      const next = this.getNextStop();
       if (next && this.started) {
-        const ahead = this.distanceAhead(next);
         if (this.lastNextStopId !== next.id) {
           this.onboard.forEach((p) => { p.requested = false; });
           this.stopRequest = null;
@@ -5984,6 +6094,50 @@
         && this.stops.every((s) => s.blurb && s.nearby && s.nearby.length && s.wiki);
       add('Stop guide with Wikipedia links', guideOK, 'nearby places · background · external link');
       this.hideStopGuide();
+
+      // Auto driver: approach a platform, serve it, close the doors and depart.
+      const autoStop = this.stops.find((s) => s.id === 'queenvic') || this.stops[0];
+      const autoSave = {
+        auto: this.autoDrive, phase: this.autoPhase, timer: this.autoTimer,
+        s: this.tram.s, speed: this.tram.speed, doorState: this.trip.doorState,
+        doors: this.trip.doors, doorStop: this.trip.doorStop, doorAnim: this.trip.doorAnim,
+        lastNext: this.lastNextStopId, time: this.time, served: autoStop.servedAt,
+        onboard: this.onboard.slice(), request: this.stopRequest
+      };
+      this.autoDrive = true;
+      this.autoPhase = 'drive';
+      this.autoTimer = 0;
+      this.tram.s = mod(autoStop.s - 18, this.tram.length);
+      this.tram.speed = 6;
+      this.trip.doorState = 'closed';
+      this.trip.doors = false;
+      this.trip.doorStop = null;
+      this.trip.doorAnim = 0;
+      this.time = 60;
+      const autoT0 = this.time;
+      for (let i = 0; i < 720; i++) {
+        this.updateTram(1 / 60);
+        this.updateDoors(1 / 60);
+      }
+      const autoOK = autoStop.servedAt >= autoT0 && this.autoDrive;
+      add('Auto driver serves a platform', autoOK, 'approach · brake · doors · dwell · depart');
+      this.autoDrive = autoSave.auto;
+      this.autoPhase = autoSave.phase;
+      this.autoTimer = autoSave.timer;
+      this.tram.s = autoSave.s;
+      this.tram.speed = autoSave.speed;
+      this.trip.doorState = autoSave.doorState;
+      this.trip.doors = autoSave.doors;
+      this.trip.doorStop = autoSave.doorStop;
+      this.trip.doorAnim = autoSave.doorAnim;
+      this.lastNextStopId = autoSave.lastNext;
+      this.time = autoSave.time;
+      autoStop.servedAt = autoSave.served;
+      this.onboard = autoSave.onboard;
+      this.stopRequest = autoSave.request;
+      this.tramGroup.position.copy(this.tram.curve.getPointAt(this.tram.s / this.tram.length));
+      document.body.classList.toggle('auto-drive', this.autoDrive);
+      this.updateAutoButton();
 
       this.setWeather('rain', true);
       const rainOK = this.currentWeather === 'rain';

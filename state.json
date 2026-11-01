@@ -1,26 +1,26 @@
 {
   "project": "tramtracker-2088",
   "title": "TramTracker 2088 — Melbourne Yarra Trams 3D Simulator",
-  "description": "A complete, production-ready interactive 3D Melbourne tram simulator in vanilla HTML/CSS/ES6, rendered with Three.js r128 and simulated with Cannon.js 0.6.2. It features a 1.35 km twenty-one-stop Hoddle Grid loop from the CBD to the Shrine of Remembrance, manual doors with announcements, a door interlock, minimizable mobile panels, first-person cab and chase views, weather and the Hook Turn Challenge.",
+  "description": "A complete, production-ready interactive 3D Melbourne tram simulator in vanilla HTML/CSS/ES6, rendered with Three.js r128 and simulated with Cannon.js 0.6.2. It features a 1.35 km twenty-one-stop Hoddle Grid loop from the CBD to the Shrine of Remembrance, manual doors with a door interlock, an auto driver, minimizable mobile panels, first-person cab and chase views, weather and the Hook Turn Challenge.",
   "repository": "https://github.com/somphol/tramtracker-2088",
   "liveDemo": "https://somphol.github.io/tramtracker-2088/",
   "build": {
     "startedAt": "2026-11-01T16:59:53Z",
-    "packagedAt": "2026-11-01T22:44:30Z",
-    "durationSeconds": 20665,
-    "durationHuman": "5h 44m 25s",
+    "packagedAt": "2026-11-01T22:59:30Z",
+    "durationSeconds": 21560,
+    "durationHuman": "5h 59m 20s",
     "timezone": "UTC",
-    "includes": "Initial build, track/cab/doors/announcement/CBD work, stop guides, city ambience, passenger manifests, stop requests, tourist stops, the 1.35 km St Kilda Road/Shrine extension with 21 spaced stops, mobile panel controls, the door interlock and separate brake/reverse controls."
+    "includes": "Initial build, track/cab/doors/announcement/CBD work, stop guides, city ambience, passenger manifests, stop requests, tourist stops, the 1.35 km St Kilda Road/Shrine extension with 21 spaced stops, mobile panel controls, the door interlock, separate brake/reverse controls and an auto driver."
   },
   "tokens": {
-    "input": 1321705,
-    "output": 316059,
-    "reasoning": 456698,
-    "cacheRead": 227545472,
+    "input": 1371224,
+    "output": 329783,
+    "reasoning": 471729,
+    "cacheRead": 241345024,
     "cacheWrite": 1190,
-    "total": 2094462,
-    "totalWithCache": 229639934,
-    "note": "Snapshot from the OpenCode session record at 2026-11-01T22:44:30Z. total = input + output + reasoning. Cache reads/writes are context-usage figures and are reported separately."
+    "total": 2172736,
+    "totalWithCache": 243517760,
+    "note": "Snapshot from the OpenCode session record at 2026-11-01T22:59:30Z. total = input + output + reasoning. Cache reads/writes are context-usage figures and are reported separately."
   },
   "cost": {
     "usd": 0.0,
@@ -65,23 +65,23 @@
   "files": [
     {
       "path": "index.html",
-      "bytes": 19398,
-      "lines": 374
+      "bytes": 19897,
+      "lines": 379
     },
     {
       "path": "style.css",
-      "bytes": 59026,
-      "lines": 2287
+      "bytes": 59697,
+      "lines": 2312
     },
     {
       "path": "script.js",
-      "bytes": 295685,
-      "lines": 6819
+      "bytes": 301575,
+      "lines": 6973
     },
     {
       "path": "README.md",
-      "bytes": 25963,
-      "lines": 476
+      "bytes": 26935,
+      "lines": 496
     }
   ],
   "screenshots": [
@@ -112,7 +112,8 @@
     "screenshot-mobile-guide.png",
     "screenshot-shrine.png",
     "screenshot-qvm.png",
-    "screenshot-southbank.png"
+    "screenshot-southbank.png",
+    "screenshot-auto.png"
   ],
   "features": [
     "Procedural extended Melbourne city grid with St Kilda Road, the Domain, Swanston, Flinders, Spring/Exhibition, Victoria and La Trobe streets",
@@ -141,7 +142,8 @@
     "Layered city soundscape with traffic, crowd, birds, horns and distant tram bells",
     "Passenger destination manifests, pull-the-cord stop requests and alighting animations",
     "Tourist landmarks including Princess Theatre, Fitzroy and Carlton gardens, Old Treasury, Melbourne Museum, Queen Victoria Market, Melbourne Central, Town Hall, Hosier Lane, St Paul’s and the Shrine",
-    "Separate brake and reverse controls with brake priority"
+    "Separate brake and reverse controls with brake priority",
+    "Auto driver with platform stops, door control and manual takeover"
   ],
   "revisions": [
     {
@@ -179,10 +181,14 @@
     {
       "date": "2026-11-01",
       "change": "Separated braking from reverse: BRAKE stops and holds at zero, REVERSE is a dedicated R key/touch button, and brake overrides reverse when both are held."
+    },
+    {
+      "date": "2026-11-01",
+      "change": "Added an auto-driver mode (A / AUTO) that accelerates, brakes into platforms, opens and closes the doors, dwells, departs and yields instantly to manual input; added a 33rd self-test that serves a platform automatically."
     }
   ],
   "verification": {
-    "selfTest": "32/32 PASS",
+    "selfTest": "33/33 PASS",
     "selfTestUrl": "https://somphol.github.io/tramtracker-2088/?selftest=1",
     "checked": [
       "Three.js r128 and Cannon.js 0.6.2 loaded",
@@ -204,6 +210,7 @@
       "Passenger destination manifests, stop requests and alighting animations",
       "Minimizable telemetry and stop-guide panels",
       "Hook Turn scene readiness",
+      "Auto driver approaches, serves a platform, works the doors and departs",
       "Zero uncaught errors"
     ],
     "screenshots": "Desktop 1600×1000 and mobile 390×844 captured from the live build with headless Chrome (SwiftShader WebGL)."

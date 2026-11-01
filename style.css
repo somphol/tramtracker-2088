@@ -2285,3 +2285,28 @@ body.door-blocked .cab-door-warning {
 
 /* In the cab the dedicated cab warning is enough; avoid a duplicate bar. */
 body.view-driver .door-warning { display: none; }
+
+/* Auto-driver indicator in the cab. */
+.cab-auto {
+  position: absolute;
+  left: 50%;
+  bottom: calc(23vh + 58px);
+  transform: translate(-50%, 8px);
+  z-index: 7;
+  padding: 6px 12px;
+  border: 1px solid rgba(70, 255, 211, 0.55);
+  border-radius: 999px;
+  background: rgba(2, 20, 16, 0.7);
+  color: var(--neon);
+  font-family: var(--font-display);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s, transform 0.25s;
+  backdrop-filter: blur(7px);
+}
+
+body.auto-drive .cab-auto { opacity: 1; transform: translate(-50%, 0); }
+body.view-driver .cab-door-warning { bottom: calc(23vh + 92px); }
