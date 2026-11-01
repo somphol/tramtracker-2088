@@ -1393,7 +1393,7 @@ body.shot .touch-controls { opacity: 1; }
   .touch-controls { bottom: 74px; }
   .touch-btn { width: 58px; height: 58px; font-size: 17px; }
   .touch-bell, .touch-hook { width: 48px; height: 48px; }
-  .toasts { top: 176px; }
+  .toasts { top: 232px; }
   .start-card { padding: 22px 18px 18px; }
   .start-features { grid-template-columns: repeat(2, 1fr); }
   .start-controls { display: none; }
@@ -1687,4 +1687,124 @@ body[data-weather="rain"] .cab-wipers i:nth-child(2) {
   .cab-hint { display: none; }
   .cab-dash-inner { display: none; }
   .cab-wipers { bottom: 18vh; height: 40vh; }
+}
+
+/* --------------------------------------------------------------------------
+   Doors and tram announcements
+   -------------------------------------------------------------------------- */
+
+.tool-btn.is-ready {
+  color: var(--gold);
+  background: rgba(246, 200, 0, 0.12);
+  border-color: rgba(246, 200, 0, 0.52);
+  animation: doorReady 1.8s ease-out infinite;
+}
+
+.tool-btn.is-ready .tool-icon { animation: doorNudge 1.8s ease-in-out infinite; }
+
+.tool-btn.is-open {
+  color: var(--neon);
+  background: rgba(70, 255, 211, 0.1);
+  border-color: rgba(70, 255, 211, 0.52);
+  box-shadow: inset 0 0 18px rgba(70, 255, 211, 0.08);
+}
+
+.tool-btn.is-busy {
+  color: var(--amber);
+  border-color: rgba(255, 179, 64, 0.4);
+  background: rgba(255, 179, 64, 0.08);
+}
+
+@keyframes doorReady {
+  0% { box-shadow: 0 0 0 0 rgba(246, 200, 0, 0.4); }
+  70% { box-shadow: 0 0 0 8px rgba(246, 200, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(246, 200, 0, 0); }
+}
+
+@keyframes doorNudge {
+  0%, 100% { transform: translateX(0); }
+  30% { transform: translateX(-2px); }
+  60% { transform: translateX(2px); }
+}
+
+.announcement {
+  position: fixed;
+  left: 50%;
+  bottom: 188px;
+  z-index: 26;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: max-content;
+  max-width: min(560px, calc(100vw - 32px));
+  padding: 9px 15px 9px 11px;
+  border-radius: 13px;
+  border-color: rgba(70, 255, 211, 0.34);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 12px);
+  transition: opacity 0.24s, transform 0.24s;
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.announcement.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.announcement-icon {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  border: 1px solid rgba(70, 255, 211, 0.28);
+  background: rgba(70, 255, 211, 0.08);
+  font-size: 16px;
+}
+
+.announcement.show .announcement-icon { animation: announcePulse 1.3s ease-in-out infinite; }
+
+@keyframes announcePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(70, 255, 211, 0.25); }
+  50% { box-shadow: 0 0 0 7px rgba(70, 255, 211, 0); }
+}
+
+.announcement-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.announcement-copy span {
+  font-family: var(--font-display);
+  font-size: 7.5px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--neon);
+}
+
+.announcement-copy strong {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.35;
+  color: var(--ice);
+}
+
+@media (max-width: 900px) {
+  .announcement { bottom: 176px; }
+  .announcement-copy strong { font-size: 12px; }
+}
+
+@media (max-width: 640px) {
+  .announcement {
+    bottom: 204px;
+    width: calc(100% - 24px);
+    padding: 8px 11px 8px 9px;
+  }
+  .announcement-icon { width: 30px; height: 30px; font-size: 14px; }
+  .announcement-copy strong { font-size: 11.5px; }
 }

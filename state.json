@@ -1,26 +1,26 @@
 {
   "project": "tramtracker-2088",
-  "title": "TramTracker 2088 — Melbourne Yarra Trams 3D Simulator",
-  "description": "A complete, production-ready interactive 3D Melbourne tram simulator in vanilla HTML/CSS/ES6, rendered with Three.js r128 and simulated with Cannon.js 0.6.2, with chase and first-person driver's cab views.",
+  "title": "TramTracker 2088 \u2014 Melbourne Yarra Trams 3D Simulator",
+  "description": "A complete, production-ready interactive 3D Melbourne tram simulator in vanilla HTML/CSS/ES6, rendered with Three.js r128 and simulated with Cannon.js 0.6.2. It features an extended 518 m Hoddle Grid CBD loop, seven stops, manual doors with announcements, first-person cab and chase views, weather and the Hook Turn Challenge.",
   "repository": "https://github.com/somphol/tramtracker-2088",
   "liveDemo": "https://somphol.github.io/tramtracker-2088/",
   "build": {
     "startedAt": "2026-11-01T16:59:53Z",
-    "packagedAt": "2026-11-01T18:34:27Z",
-    "durationSeconds": 5671,
-    "durationHuman": "1h 34m 31s",
+    "packagedAt": "2026-11-01T19:39:26Z",
+    "durationSeconds": 9573,
+    "durationHuman": "2h 39m 33s",
     "timezone": "UTC",
-    "includes": "Initial build, track-spin fix and driver's cab view"
+    "includes": "Initial build, track-spin fix, driver cab view, manual doors and announcements, and the extended CBD loop"
   },
   "tokens": {
-    "input": 517460,
-    "output": 137170,
-    "reasoning": 135923,
-    "cacheRead": 36109056,
+    "input": 728905,
+    "output": 182998,
+    "reasoning": 251269,
+    "cacheRead": 82859904,
     "cacheWrite": 1190,
-    "total": 790553,
-    "totalWithCache": 36900799,
-    "note": "Snapshot from the OpenCode session record at 2026-11-01T18:34:27Z. total = input + output + reasoning. Cache reads/writes are context-usage figures and are reported separately rather than added to the model-token total."
+    "total": 1163172,
+    "totalWithCache": 84024266,
+    "note": "Snapshot from the OpenCode session record at 2026-11-01T19:39:26Z. total = input + output + reasoning. Cache reads/writes are context-usage figures and are reported separately rather than added to the model-token total."
   },
   "cost": {
     "usd": 0.0,
@@ -38,23 +38,61 @@
     "url": "https://opencode.ai"
   },
   "stack": {
-    "runtime": ["HTML5", "CSS3", "ES6 JavaScript"],
-    "graphics": ["Three.js r128", "OrbitControls r128"],
-    "physics": ["Cannon.js 0.6.2"],
-    "audio": ["Web Audio API synthesis"],
-    "storage": ["localStorage", "JSON file export/import"],
-    "fonts": ["Orbitron", "Rajdhani"]
+    "runtime": [
+      "HTML5",
+      "CSS3",
+      "ES6 JavaScript"
+    ],
+    "graphics": [
+      "Three.js r128",
+      "OrbitControls r128"
+    ],
+    "physics": [
+      "Cannon.js 0.6.2"
+    ],
+    "audio": [
+      "Web Audio API synthesis"
+    ],
+    "storage": [
+      "localStorage",
+      "JSON file export/import"
+    ],
+    "fonts": [
+      "Orbitron",
+      "Rajdhani"
+    ]
   },
   "files": [
-    { "path": "index.html", "bytes": 16515, "lines": 331 },
-    { "path": "style.css", "bytes": 45448, "lines": 1690 },
-    { "path": "script.js", "bytes": 201126, "lines": 4829 },
-    { "path": "README.md", "bytes": 14356, "lines": 336 }
+    {
+      "path": "index.html",
+      "bytes": 17501,
+      "lines": 345
+    },
+    {
+      "path": "style.css",
+      "bytes": 48340,
+      "lines": 1810
+    },
+    {
+      "path": "script.js",
+      "bytes": 230067,
+      "lines": 5489
+    },
+    {
+      "path": "README.md",
+      "bytes": 17564,
+      "lines": 372
+    }
   ],
   "screenshots": [
     "screenshot.png",
     "screenshot-driver.png",
     "screenshot-driver-rain.png",
+    "screenshot-doors.png",
+    "screenshot-cbd.png",
+    "screenshot-collins.png",
+    "screenshot-parliament.png",
+    "screenshot-rmit.png",
     "screenshot-rain.png",
     "screenshot-twilight.png",
     "screenshot-station.png",
@@ -67,7 +105,7 @@
   ],
   "features": [
     "Procedural Melbourne city grid with Swanston Street and Flinders Street",
-    "Flinders Street Station façade with copper dome and clock tower",
+    "Flinders Street Station fa\u00e7ade with copper dome and clock tower",
     "Federation Square deconstructivist shards, plaza, screen and amphitheatre",
     "Yarra River, Princes Bridge, Southbank skyline and Melbourne University",
     "Embedded steel rails, concrete sleepers and full overhead catenary",
@@ -76,42 +114,57 @@
     "Keyboard and touch traction/brake controls, orbit camera and recentre",
     "Double-ding Web Audio tram bell",
     "Four stops with waiting passengers and animated Myki boarding",
+    "Manual door control (O / Doors button) with sliding 3D doors, hiss, chimes and a traction safety interlock",
+    "Melbourne-style next-stop/current-stop/door announcements with en-AU speech, chimes and subtitles",
     "Synthesised Myki beeps, wheel screech, rail clatter, rain and thunder",
     "Hook Turn Challenge mini-game with live trams, bikes, signals and collisions",
     "Instant sunny, rain and twilight weather presets",
     "localStorage career save plus tramtracker_save.json export/import",
     "Nine route badges and career statistics",
     "Responsive glassmorphic Yarra green/gold + neon UI",
-    "Built-in 26-check self-test harness"
+    "Built-in 26-check self-test harness",
+    "Extended 518 m Hoddle Grid CBD loop with seven stops",
+    "Collins Street, Parliament House and RMIT University landmarks",
+    "CBD loop via Flinders, Spring/Exhibition, Collins, La Trobe/Queensberry and Swanston"
   ],
   "revisions": [
     {
       "date": "2026-11-01",
-      "change": "Fixed a 360° tram spin at track corners by removing duplicate straight/arc control points and stabilising heading sampling with a short chord."
+      "change": "Fixed a 360\u00b0 tram spin at track corners by removing duplicate straight/arc control points and stabilising heading sampling with a short chord."
     },
     {
       "date": "2026-11-01",
       "change": "Added a first-person driver's cab view (V) with cockpit overlay, drag-to-look, curve lean, speed-reactive FOV and animated rain wipers."
+    },
+    {
+      "date": "2026-11-01",
+      "change": "Added manual opening and closing doors (O / Doors button) with sliding door geometry, opening/closing chimes, a safety interlock and en-AU spoken stop, arrival and door announcements with subtitles."
+    },
+    {
+      "date": "2026-11-01",
+      "change": "Extended the track into the CBD as a 518 m loop through Collins Street, Spring/Parliament and RMIT, with new stops, landmarks, roads, City Loop minimap and Hoddle Grid-inspired block layout."
     }
   ],
   "verification": {
-    "selfTest": "26/26 PASS",
+    "selfTest": "28/28 PASS",
     "selfTestUrl": "https://somphol.github.io/tramtracker-2088/?selftest=1",
     "checked": [
       "Three.js r128 and Cannon.js 0.6.2 loaded",
-      "WebGL renderer and 320+ object scene",
-      "377 m Swanston Loop with four named stops and 20 waiting passengers",
+      "WebGL renderer and 400+ object scene",
+      "518 m seven-stop CBD loop with 28 waiting passengers",
       "49-part tram mesh and 12,000 kg Cannon body",
       "Flinders Street Station, Federation Square, Yarra River and catenary",
+      "Parliament House, RMIT University and Collins Street landmarks",
       "Web Audio voices and three weather presets",
       "Save schema validation and export/import",
       "Nine badges, minimap, HUD and save/load wiring",
       "Traction simulation and live Myki boarding",
       "Driver's cab view switching, camera FOV and orbit-control handoff",
+      "Manual door open/close, passenger boarding and stop/door announcement wiring",
       "Hook Turn scene readiness",
       "Zero uncaught errors"
     ],
-    "screenshots": "Desktop 1600×1000 and mobile 390×844 captured from the live build with headless Chrome (SwiftShader WebGL)."
+    "screenshots": "Desktop 1600\u00d71000 and mobile 390\u00d7844 captured from the live build with headless Chrome (SwiftShader WebGL)."
   },
   "credits": {
     "builtWith": "OpenCode v2.2.5 + DeepSeek V4.1 Flash (opencode-go/deepseek-v4.1-flash)",

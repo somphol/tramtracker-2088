@@ -11,7 +11,7 @@
      Constants
      ------------------------------------------------------------------------ */
 
-  const VERSION = '1.0.2';
+  const VERSION = '1.0.4';
   const SAVE_KEY = 'tramtracker_2088_v1';
   const SAVE_FILE = 'tramtracker_save.json';
   const APP_NAME = 'TramTracker 2088';
@@ -55,10 +55,13 @@
   ];
 
   const STOP_DEFS = [
-    { id: 'flinders', name: 'Flinders St Station', short: 'Flinders St', point: { x: 0, z: -8 }, hue: 0xf6c800 },
-    { id: 'yarra', name: 'Yarra Promenade', short: 'Yarra Prom', point: { x: 30, z: -40 }, hue: 0x46ffd3 },
-    { id: 'fed', name: 'Federation Square', short: 'Fed Square', point: { x: 60, z: 25 }, hue: 0xff7a4d },
-    { id: 'uni', name: 'Melbourne Uni', short: 'Melbourne Uni', point: { x: 0, z: 80 }, hue: 0x68a8ff }
+    { id: 'flinders', name: 'Flinders St Station', speechName: 'Flinders Street Station', short: 'Flinders St', point: { x: 0, z: -8 }, hue: 0xf6c800 },
+    { id: 'yarra', name: 'Yarra Promenade', speechName: 'Yarra Promenade', short: 'Yarra Prom', point: { x: 30, z: -40 }, hue: 0x46ffd3 },
+    { id: 'fed', name: 'Federation Square', speechName: 'Federation Square', short: 'Fed Square', point: { x: 60, z: 25 }, hue: 0xff7a4d },
+    { id: 'collins', name: 'Collins Street', speechName: 'Collins Street', short: 'Collins St', point: { x: 80, z: 25 }, hue: 0xffb340 },
+    { id: 'parliament', name: 'Parliament', speechName: 'Parliament Station', short: 'Parliament', point: { x: 100, z: 65 }, hue: 0x9d7bff },
+    { id: 'rmit', name: 'RMIT University', speechName: 'RMIT University', short: 'RMIT', point: { x: 60, z: 120 }, hue: 0xff5577 },
+    { id: 'uni', name: 'Melbourne Uni', speechName: 'Melbourne University', short: 'Melbourne Uni', point: { x: 0, z: 80 }, hue: 0x68a8ff }
   ];
 
   const PALETTE = {
@@ -256,6 +259,108 @@
       this.screechOsc = null;
       this.ready = false;
       this.lastClack = 0;
+      this.voice = null;
+      this.voicesBound = false;
+    }
+
+    loadVoices() {
+      if (!('speechSynthesis' in window)) return;
+      try {
+        const pick = () => {
+          const voices = window.speechSynthesis.getVoices() || [];
+          if (!voices.length) return;
+          this.voice = voices.find((v) => /en[-_]?AU/i.test(v.lang))
+            || voices.find((v) => /en[-_]?GB/i.test(v.lang))
+            || voices.find((v) => /^en/i.test(v.lang))
+            || voices[0];
+        };
+        pick();
+        if (!this.voicesBound && window.speechSynthesis.addEventListener) {
+          window.speechSynthesis.addEventListener('voiceschanged', pick);
+          this.voicesBound = true;
+        }
+      } catch (err) { /* speech is optional */ }
+    }
+
+    speak(text) {
+      if (this.muted || !text || !('speechSynthesis' in window)) return false;
+      try {
+        this.loadVoices();
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-AU';
+        utterance.rate = 0.93;
+        utterance.pitch = 1.02;
+        utterance.volume = 0.95;
+        if (this.voice) utterance.voice = this.voice;
+        window.speechSynthesis.speak(utterance);
+        return true;
+      } catch (err) {
+        return false;
+      }
+    }
+
+    stopSpeech() {
+      if ('speechSynthesis' in window) {
+        try { window.speechSynthesis.cancel(); } catch (err) { /* ignore */ }
+      }
+    }
+
+    chime(kind) {
+      if (!this.ensure()) return;
+      const t = this.ctx.currentTime;
+      let notes = [659.25, 987.77];
+      let gap = 0.17;
+      let dur = 0.55;
+      let vol = 0.065;
+      if (kind === 'close') { notes = [880, 880, 880]; gap = 0.18; dur = 0.17; vol = 0.055; }
+      else if (kind === 'open') { notes = [783.99, 1174.66]; gap = 0.16; dur = 0.6; }
+      else if (kind === 'welcome') { notes = [523.25, 659.25, 783.99]; gap = 0.14; dur = 0.5; }
+      notes.forEach((freq, i) => {
+        const at = t + i * gap;
+        [1, 2.01].forEach((mult, k) => {
+          const osc = this.ctx.createOscillator();
+          const g = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq * mult, at);
+          g.gain.setValueAtTime(0, at);
+          g.gain.linearRampToValueAtTime(vol * (k === 0 ? 1 : 0.3), at + 0.008);
+          g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+          osc.connect(g).connect(this.master);
+          osc.start(at);
+          osc.stop(at + dur + 0.05);
+        });
+      });
+    }
+
+    doorHiss(opening) {
+      if (!this.ensure()) return;
+      const t = this.ctx.currentTime;
+      const src = this.noiseSource(false);
+      const bp = this.ctx.createBiquadFilter();
+      bp.type = 'bandpass';
+      bp.frequency.setValueAtTime(opening ? 1300 : 900, t);
+      bp.frequency.exponentialRampToValueAtTime(opening ? 700 : 500, t + 0.45);
+      bp.Q.value = 1.1;
+      const g = this.ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(0.07, t + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
+      src.connect(bp).connect(g).connect(this.master);
+      src.start(t);
+      src.stop(t + 0.55);
+
+      const thunk = this.ctx.createOscillator();
+      const tg = this.ctx.createGain();
+      thunk.type = 'sine';
+      thunk.frequency.setValueAtTime(96, t + 0.38);
+      thunk.frequency.exponentialRampToValueAtTime(52, t + 0.55);
+      tg.gain.setValueAtTime(0.0001, t + 0.38);
+      tg.gain.linearRampToValueAtTime(0.08, t + 0.4);
+      tg.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
+      thunk.connect(tg).connect(this.master);
+      thunk.start(t + 0.38);
+      thunk.stop(t + 0.62);
     }
 
     ensure() {
@@ -273,6 +378,7 @@
         this.noiseBuffer = this.makeNoise(2.2);
         this.buildScreech();
         this.buildAmbient();
+        this.loadVoices();
         this.ready = true;
         return true;
       } catch (err) {
@@ -306,6 +412,7 @@
       if (this.master && this.ctx) {
         this.master.gain.setTargetAtTime(muted ? 0 : 0.8, this.ctx.currentTime, 0.03);
       }
+      if (muted) this.stopSpeech();
     }
 
     buildScreech() {
@@ -574,6 +681,9 @@
         rainDistance: 0,
         doors: false,
         doorTimer: 0,
+        doorState: 'closed',
+        doorStop: null,
+        doorAnim: 0,
         served: new Set(),
         combo: 1
       };
@@ -596,6 +706,12 @@
       this.driverDragging = false;
       this.driverLookIdle = 0;
       this.driverLast = null;
+      this.announceTimer = null;
+      this.announceHideTimer = null;
+      this.announcedStopId = null;
+      this.lastAnnouncementAt = 0;
+      this.lastDoorHint = 0;
+      this.tramDoors = [];
       this.expectedErrors = [];
       this.jsErrors = [];
       this.lastCameraPos = new THREE.Vector3();
@@ -647,6 +763,7 @@
         await this.frameBreak();
         this.setLoading(64, 'Raising Flinders Street Station…');
         this.buildCity();
+        this.buildCBDLandmarks();
         this.buildStreetProps();
         this.buildStops();
         this.buildPassengers();
@@ -717,12 +834,15 @@
         promptTitle: $('#promptTitle'),
         promptText: $('#promptText'),
         promptDist: $('#promptDist'),
+        announcementBar: $('#announcementBar'),
+        announcementText: $('#announcementText'),
         minimap: $('#minimap'),
         toasts: $('#toasts'),
         muteBtn: $('#muteBtn'),
         helpBtn: $('#helpBtn'),
         fullscreenBtn: $('#fullscreenBtn'),
         bellBtn: $('#bellBtn'),
+        doorBtn: $('#doorBtn'),
         viewBtn: $('#viewBtn'),
         hookBtn: $('#hookBtn'),
         badgesBtn: $('#badgesBtn'),
@@ -804,6 +924,7 @@
       if (d.helpBtn) d.helpBtn.addEventListener('click', () => this.openModal('helpModal'));
       if (d.fullscreenBtn) d.fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
       if (d.bellBtn) d.bellBtn.addEventListener('click', () => this.ringBell());
+      if (d.doorBtn) d.doorBtn.addEventListener('click', () => this.toggleDoors());
       if (d.viewBtn) d.viewBtn.addEventListener('click', () => this.toggleView());
       if (d.hookBtn) d.hookBtn.addEventListener('click', () => this.openHookGame());
       if (d.badgesBtn) d.badgesBtn.addEventListener('click', () => this.openBadges());
@@ -901,6 +1022,7 @@
 
       this.keys[key] = true;
       if (key === 'b' || key === 'B') this.ringBell();
+      if (key === 'o' || key === 'O') this.toggleDoors();
       if (key === 'v' || key === 'V') this.toggleView();
       if (key === 'g' || key === 'G') this.openHookGame();
       if (key === 'm' || key === 'M') this.toggleMute();
@@ -1068,30 +1190,52 @@
           bar.classList.toggle('brake', this.keys.ArrowDown || this.keys.s || this.keys.S);
         });
       }
+      const doorLabels = { closed: 'DOORS CLOSED', opening: 'DOORS OPENING', open: 'DOORS OPEN', closing: 'DOORS CLOSING' };
       if (d.doorState) {
-        d.doorState.textContent = this.trip.doors ? 'DOORS OPEN' : 'DOORS CLOSED';
-        d.doorState.classList.toggle('open', this.trip.doors);
+        d.doorState.textContent = doorLabels[this.trip.doorState] || 'DOORS CLOSED';
+        d.doorState.classList.toggle('open', this.trip.doorState !== 'closed');
       }
 
       const next = this.getNextStop();
+      const platform = this.getPlatformStop();
       if (next) {
         const ahead = this.distanceAhead(next);
         if (d.nextStopName) d.nextStopName.textContent = next.name;
         if (d.nextStopDistance) d.nextStopDistance.textContent = Math.round(ahead) + ' m';
         if (d.stopProgress) d.stopProgress.style.width = clamp(100 - (ahead / 70) * 100, 0, 100).toFixed(1) + '%';
-        if (d.stopHint) d.stopHint.textContent = ahead < 9 && Math.abs(this.tram.speed) < 1.4 ? 'Doors ready — hold the brake' : 'Roll up to the platform';
+        if (d.stopHint) d.stopHint.textContent = platform ? 'Press O or DOORS to open' : 'Roll up to the platform';
         if (d.stopPrompt) {
-          const show = ahead < 42 && !this.trip.doors;
+          const show = ahead < 42 && this.trip.doorState === 'closed';
           d.stopPrompt.classList.toggle('show', show);
-          d.stopPrompt.classList.toggle('ready', ahead < 9 && Math.abs(this.tram.speed) < 1.4);
+          d.stopPrompt.classList.toggle('ready', !!platform);
           if (d.promptTitle) d.promptTitle.textContent = next.name.toUpperCase();
-          if (d.promptText) d.promptText.textContent = ahead < 9 && Math.abs(this.tram.speed) < 1.4 ? 'Releasing doors · Myki validators live' : 'Stop within the platform zone to open doors';
-          if (d.promptDist) d.promptDist.textContent = Math.round(ahead) + ' m';
+          if (d.promptText) d.promptText.textContent = platform
+            ? 'Stopped at platform — press O or DOORS to open'
+            : 'Stop within the platform zone to open the doors';
+          if (d.promptDist) d.promptDist.textContent = platform ? 'READY' : Math.round(ahead) + ' m';
         }
+      } else if (d.stopPrompt) {
+        d.stopPrompt.classList.remove('show');
       }
+      this.updateDoorButtonUI();
 
       if (d.badgeCount) d.badgeCount.textContent = this.career.badges.length;
       if (force) this.refreshBadges();
+    }
+
+    updateDoorButtonUI() {
+      const btn = this.dom.doorBtn;
+      if (!btn) return;
+      const state = this.trip.doorState;
+      const ready = !!this.getPlatformStop();
+      btn.classList.toggle('is-ready', ready);
+      btn.classList.toggle('is-open', state === 'open');
+      btn.classList.toggle('is-busy', state === 'opening' || state === 'closing');
+      btn.setAttribute('aria-pressed', state === 'open' ? 'true' : 'false');
+      btn.setAttribute('aria-label', state === 'open' ? 'Close doors' : state === 'closed' ? 'Open doors' : 'Doors moving');
+      btn.title = state === 'open' ? 'Close doors (O)' : state === 'closed' ? 'Open doors (O)' : 'Doors moving';
+      const word = btn.querySelector('.tool-word');
+      if (word) word.textContent = state === 'open' ? 'Close' : ready ? 'Open' : 'Doors';
     }
 
     toast(html, ms, tone) {
@@ -1218,13 +1362,23 @@
       let bestAhead = Infinity;
       this.stops.forEach((stop) => {
         const ahead = mod(stop.s - this.tram.s, L);
-        if (ahead < bestAhead) { best = stop; bestAhead = ahead; }
+        const recentlyServed = this.time - stop.servedAt < 13 && ahead < 16;
+        if (!recentlyServed && ahead < bestAhead) { best = stop; bestAhead = ahead; }
       });
       return best;
     }
 
     distanceAhead(stop) {
       return mod(stop.s - this.tram.s, this.tram.length);
+    }
+
+    getPlatformStop() {
+      const next = this.getNextStop();
+      if (!next) return null;
+      if (this.trip.doorState !== 'closed') return null;
+      const ahead = this.distanceAhead(next);
+      if (ahead < 9.5 && Math.abs(this.tram.speed) < 1.4) return next;
+      return null;
     }
 
     /* =======================================================================
@@ -1278,39 +1432,88 @@
       this.scene.add(new THREE.AmbientLight(0xffffff, 0.12));
     }
 
-    buildCurve() {
+    roundedLoopPoints(vertices, radius, spacing) {
+      const n = vertices.length;
+      const corners = [];
+      for (let i = 0; i < n; i++) {
+        const prev = vertices[(i - 1 + n) % n];
+        const v = vertices[i];
+        const next = vertices[(i + 1) % n];
+        let ix = v.x - prev.x;
+        let iz = v.z - prev.z;
+        const inLen = Math.hypot(ix, iz);
+        ix /= inLen; iz /= inLen;
+        let ox = next.x - v.x;
+        let oz = next.z - v.z;
+        const outLen = Math.hypot(ox, oz);
+        ox /= outLen; oz /= outLen;
+        const dot = clamp(ix * ox + iz * oz, -1, 1);
+        const cross = ix * oz - iz * ox;
+        const theta = Math.acos(dot);
+        const t = radius * Math.tan(theta / 2);
+        const sx = v.x - ix * t;
+        const sz = v.z - iz * t;
+        const ex = v.x + ox * t;
+        const ez = v.z + oz * t;
+        const sign = cross > 0 ? 1 : -1;
+        const cx = sx + (-iz) * sign * radius;
+        const cz = sz + ix * sign * radius;
+        let a0 = Math.atan2(sz - cz, sx - cx);
+        let a1 = Math.atan2(ez - cz, ex - cx);
+        let delta = a1 - a0;
+        if (sign > 0) {
+          while (delta <= 0) delta += Math.PI * 2;
+          while (delta > Math.PI * 2) delta -= Math.PI * 2;
+        } else {
+          while (delta >= 0) delta -= Math.PI * 2;
+          while (delta < -Math.PI * 2) delta += Math.PI * 2;
+        }
+        corners.push({ sx, sz, ex, ez, cx, cz, a0, delta });
+      }
+
       const pts = [];
-      const push = (x, z) => {
-        const p = new THREE.Vector3(x, 0.12, z);
-        if (pts.length && pts[pts.length - 1].distanceToSquared(p) < 1e-8) return;
-        pts.push(p);
-      };
-      const R = 14;
-      const straight = (fromX, fromZ, toX, toZ, steps) => {
-        for (let i = 0; i <= steps; i++) {
-          const t = i / steps;
-          push(lerp(fromX, toX, t), lerp(fromZ, toZ, t));
+      const pushPoint = (x, z) => {
+        if (pts.length) {
+          const last = pts[pts.length - 1];
+          if ((last.x - x) * (last.x - x) + (last.z - z) * (last.z - z) < 1e-6) return;
         }
-      };
-      const arc = (cx, cz, start, end, steps) => {
-        for (let i = 0; i <= steps; i++) {
-          const a = lerp(start, end, i / steps);
-          push(cx + Math.cos(a) * R, cz + Math.sin(a) * R);
-        }
+        pts.push(new THREE.Vector3(x, 0.12, z));
       };
 
-      // Start mid-way down Swanston so the closing segment is a clean straight.
-      straight(0, 50, 0, -26, 18);
-      arc(14, -26, Math.PI, Math.PI * 1.5, 14);
-      straight(14, -40, 46, -40, 12);
-      arc(46, -26, Math.PI * 1.5, Math.PI * 2, 14);
-      straight(60, -26, 60, 86, 18);
-      arc(46, 86, 0, Math.PI * 0.5, 14);
-      straight(46, 100, 14, 100, 12);
-      arc(14, 86, Math.PI * 0.5, Math.PI, 14);
-      straight(0, 86, 0, 56, 6);
+      for (let i = 0; i < n; i++) {
+        const corner = corners[i];
+        const arcSteps = Math.max(3, Math.ceil(Math.abs(corner.delta) * radius / spacing));
+        for (let k = 0; k <= arcSteps; k++) {
+          const a = corner.a0 + (corner.delta * k) / arcSteps;
+          pushPoint(corner.cx + Math.cos(a) * radius, corner.cz + Math.sin(a) * radius);
+        }
+        const nextCorner = corners[(i + 1) % n];
+        const segLen = Math.hypot(nextCorner.sx - corner.ex, nextCorner.sz - corner.ez);
+        const lineSteps = Math.max(1, Math.round(segLen / spacing));
+        for (let k = 1; k < lineSteps; k++) {
+          const f = k / lineSteps;
+          pushPoint(lerp(corner.ex, nextCorner.sx, f), lerp(corner.ez, nextCorner.sz, f));
+        }
+      }
+      return pts;
+    }
 
-      this.tram.curve = new THREE.CatmullRomCurve3(pts, true, 'catmullrom', 0.25);
+    buildCurve() {
+      // Hoddle Grid-inspired CBD loop:
+      // Swanston St → Flinders St → Exhibition/Spring North → Collins St →
+      // La Trobe/Queensberry → RMIT → Swanston St.
+      const vertices = [
+        { x: 0, z: -40 },     // Flinders / river corner
+        { x: 60, z: -40 },    // east river corner
+        { x: 60, z: 25 },     // Federation Square / Collins corner
+        { x: 100, z: 25 },    // Collins Street east
+        { x: 100, z: 140 },   // Spring / Parliament north
+        { x: 60, z: 140 },    // RMIT north-west
+        { x: 60, z: 100 },    // RMIT / La Trobe corner
+        { x: 0, z: 100 }      // Swanston / La Trobe
+      ];
+      const pts = this.roundedLoopPoints(vertices, 12, 3);
+      this.tram.curve = new THREE.CatmullRomCurve3(pts, true, 'catmullrom', 0.2);
       this.tram.length = this.tram.curve.getLength();
 
       const startS = this.distanceAt(0, 30);
@@ -1323,12 +1526,16 @@
         const u = s / this.tram.length;
         const p = this.tram.curve.getPointAt(u);
         const tan = this.tram.curve.getTangentAt(u).normalize();
-        const outward = new THREE.Vector3(p.x - LOOP_CENTER.x, 0, p.z - LOOP_CENTER.z);
+        const toCentre = new THREE.Vector3(p.x - LOOP_CENTER.x, 0, p.z - LOOP_CENTER.z);
+        const normalA = new THREE.Vector3(-tan.z, 0, tan.x);
+        const normalB = new THREE.Vector3(tan.z, 0, -tan.x);
+        const outward = normalA.dot(toCentre) >= 0 ? normalA : normalB;
         if (outward.lengthSq() < 0.001) outward.set(-tan.z, 0, tan.x);
         outward.normalize();
         return {
           id: def.id,
           name: def.name,
+          speechName: def.speechName || def.name,
           short: def.short,
           hue: def.hue,
           s: s,
@@ -1475,12 +1682,12 @@
       sun.position.set(-60, 110, 70);
       sun.castShadow = true;
       sun.shadow.mapSize.set(2048, 2048);
-      sun.shadow.camera.left = -100;
-      sun.shadow.camera.right = 100;
-      sun.shadow.camera.top = 110;
-      sun.shadow.camera.bottom = -100;
+      sun.shadow.camera.left = -125;
+      sun.shadow.camera.right = 155;
+      sun.shadow.camera.top = 175;
+      sun.shadow.camera.bottom = -125;
       sun.shadow.camera.near = 1;
-      sun.shadow.camera.far = 320;
+      sun.shadow.camera.far = 420;
       sun.shadow.bias = -0.0005;
       sun.shadow.normalBias = 0.03;
       this.scene.add(sun);
@@ -1562,11 +1769,14 @@
 
       road(22, 190, 0, 30);        // Swanston Street
       road(280, 22, 0, 0);         // Flinders Street
-      road(18, 164, 60, 30);       // East / Exhibition Street
+      road(18, 210, 60, 55);       // Spring / Exhibition Street (extended north)
       road(86, 18, 30, -40);       // Yarra Street
-      road(86, 18, 30, 100);       // University Street
+      road(86, 18, 30, 100);       // La Trobe / University Street
       road(20, 170, -72, 30);      // West street
       road(280, 18, 0, 72);        // Collins-like street
+      road(90, 18, 105, 25);       // Collins Street east
+      road(18, 150, 100, 80);      // Spring Street north / Parliament
+      road(100, 18, 80, 140);      // La Trobe / Queensberry north
 
       const walk = (w, d, x, z, h) => {
         const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h || 0.22, d), this.sidewalkMat);
@@ -1586,9 +1796,20 @@
       walk(150, 3.4, -96, -12.7);
       walk(150, 3.4, 96, -12.7);
       walk(64, 3.4, 35, 12.7);
-      // East street sidewalks
+      // East / Spring street sidewalks
       walk(3, 92, 50.5, 28);
       walk(3, 92, 70.5, 28);
+      walk(3, 66, 50.5, 120);
+      walk(3, 66, 70.5, 120);
+      // Collins Street sidewalks
+      walk(92, 3, 105, 15.5);
+      walk(92, 3, 105, 34.5);
+      // Spring / Parliament sidewalks
+      walk(3, 140, 90.5, 82);
+      walk(3, 140, 109.5, 82);
+      // Northern La Trobe sidewalks
+      walk(100, 3, 80, 129.5);
+      walk(100, 3, 80, 150.5);
       // Plaza edges
       walk(60, 3, 40, -50.5);
       walk(60, 3, 40, 109);
@@ -1599,12 +1820,21 @@
       this.addLaneMarking(0, 9, 0, 120, 12, 3);
       this.addLaneMarking(-130, 0, -14, 0, 14, 3);
       this.addLaneMarking(14, 0, 130, 0, 14, 3);
+      this.addLaneMarking(62, 25, 142, 25, 8, 9);
+      this.addLaneMarking(100, 30, 100, 140, 10, 9);
+      this.addLaneMarking(60, 102, 60, 145, 5, 8);
+      this.addLaneMarking(30, 140, 126, 140, 9, 9);
 
       // Crosswalks around the Flinders / Swanston intersection.
       this.addCrosswalk(0, 12.4, 'x');
       this.addCrosswalk(0, -12.4, 'x');
       this.addCrosswalk(-12.4, 0, 'z');
       this.addCrosswalk(12.4, 0, 'z');
+      this.addCrosswalk(60, 18, 'x');
+      this.addCrosswalk(100, 18, 'x');
+      this.addCrosswalk(100, 32.4, 'x');
+      this.addCrosswalk(60, 140, 'x');
+      this.addCrosswalk(100, 140, 'x');
 
       // Painted hook turn box reference at the north-east corner.
       const hookBox = new THREE.Mesh(new THREE.PlaneGeometry(9, 7), new THREE.MeshStandardMaterial({ color: 0xf6c800, transparent: true, opacity: 0.42, roughness: 0.8 }));
@@ -2407,26 +2637,42 @@
         { x0: 16, x1: 64, z0: 10, z1: 60 },    // federation square
         { x0: -18, x1: 74, z0: -14, z1: 14 },  // Flinders/Swanston junction
         { x0: -16, x1: 76, z0: -56, z1: -24 },
-        { x0: -16, x1: 76, z0: 84, z1: 114 }
+        { x0: -16, x1: 76, z0: 84, z1: 114 },
+        { x0: 90, x1: 110, z0: 16, z1: 150 },  // Spring / Parliament corridor
+        { x0: 52, x1: 150, z0: 15, z1: 35 },   // Collins Street East
+        { x0: 30, x1: 132, z0: 130, z1: 151 }, // La Trobe / Queensberry
+        { x0: 50, x1: 70, z0: 94, z1: 150 },   // Spring north / RMIT
+        { x0: 68, x1: 98, z0: 106, z1: 136 },  // RMIT campus
+        { x0: 106, x1: 134, z0: 50, z1: 80 },  // Parliament House
+        { x0: 62, x1: 98, z0: 36, z1: 56 },    // Collins north landmark
+        { x0: 62, x1: 98, z0: 0, z1: 16 }      // Collins south landmark
       ];
       const overlaps = (r) => exclude.some((e) => r.x0 < e.x1 && r.x1 > e.x0 && r.z0 < e.z1 && r.z1 > e.z0);
-      const nearRoad = (r) => (
-        (r.x0 < -11 && r.x1 > 11) ||
-        (r.z0 < -11 && r.z1 > 11) ||
-        (r.x0 < 69 && r.x1 > 51 && r.z0 < 90) ||
-        (r.z0 < -31 && r.z1 > -49) ||
-        (r.z0 < 91 && r.z1 > 109)
-      );
+      const roadCorridors = [
+        { x0: -11, x1: 11, z0: -70, z1: 150 },     // Swanston
+        { x0: -140, x1: 140, z0: -11, z1: 11 },    // Flinders
+        { x0: 51, x1: 69, z0: -60, z1: 150 },      // Spring / Exhibition
+        { x0: -70, x1: 70, z0: -49, z1: -31 },     // Yarra / south edge
+        { x0: -30, x1: 75, z0: 91, z1: 109 },      // La Trobe / University
+        { x0: 91, x1: 109, z0: 5, z1: 150 },       // Spring North / Parliament
+        { x0: 52, x1: 150, z0: 16, z1: 34 },       // Collins Street East
+        { x0: 30, x1: 132, z0: 130, z1: 150 },     // La Trobe / Queensberry
+        { x0: -82, x1: -62, z0: -60, z1: 150 }     // West / Spencer
+      ];
+      const nearRoad = (r) => roadCorridors.some((e) => r.x0 < e.x1 && r.x1 > e.x0 && r.z0 < e.z1 && r.z1 > e.z0);
 
       const cells = [];
       for (let x = -116; x < -20; x += 26) {
         for (let z = -74; z < 132; z += 30) cells.push({ x, z });
       }
-      for (let x = 78; x < 150; x += 27) {
-        for (let z = -66; z < 132; z += 30) cells.push({ x, z });
+      for (let x = 78; x < 156; x += 27) {
+        for (let z = -66; z < 166; z += 30) cells.push({ x, z });
       }
       for (let x = -160; x < -80; x += 26) {
-        for (let z = -50; z < 130; z += 32) cells.push({ x, z });
+        for (let z = -50; z < 160; z += 32) cells.push({ x, z });
+      }
+      for (let x = 2; x < 56; x += 26) {
+        for (let z = 102; z < 140; z += 28) cells.push({ x, z });
       }
 
       cells.forEach((cell, i) => {
@@ -2443,11 +2689,258 @@
       // Add a few taller towers farther out.
       const towerSpots = [
         { x: -148, z: 60, w: 20, d: 20, h: 58 },
-        { x: 116, z: 58, w: 18, d: 18, h: 64 },
+        { x: 152, z: 58, w: 18, d: 18, h: 64 },
         { x: 104, z: -34, w: 22, d: 18, h: 48 },
-        { x: -140, z: -8, w: 16, d: 20, h: 42 }
+        { x: -140, z: -8, w: 16, d: 20, h: 42 },
+        { x: 126, z: 112, w: 18, d: 20, h: 56 },
+        { x: 82, z: 78, w: 16, d: 18, h: 46 },
+        { x: 82, z: 158, w: 18, d: 16, h: 38 }
       ];
       towerSpots.forEach((t, i) => this.addBuilding(t.x, t.z, t.w, t.d, t.h, rng, 900 + i, true));
+    }
+
+    buildCBDLandmarks() {
+      this.buildParliamentHouse();
+      this.buildRMIT();
+      this.buildCollinsStreet();
+    }
+
+    buildParliamentHouse() {
+      const group = new THREE.Group();
+      group.name = 'Parliament House';
+      const stone = new THREE.MeshStandardMaterial({ color: 0xcfc4a5, roughness: 0.84 });
+      const stoneLight = new THREE.MeshStandardMaterial({ color: 0xe0d6b8, roughness: 0.8 });
+      const copper = new THREE.MeshStandardMaterial({ color: 0x2f7d63, roughness: 0.42, metalness: 0.5, emissive: 0x0b2a20, emissiveIntensity: 0.3 });
+
+      const hall = new THREE.Mesh(new THREE.BoxGeometry(16, 11, 28), stone);
+      hall.position.set(120, 5.5, 65);
+      hall.castShadow = true;
+      hall.receiveShadow = true;
+      group.add(hall);
+      const roof = new THREE.Mesh(new THREE.BoxGeometry(17, 1.3, 29), copper);
+      roof.position.set(120, 11.8, 65);
+      group.add(roof);
+
+      const facadeTex = makeCanvasTexture(1024, 420, (ctx, w, h) => {
+        const grd = ctx.createLinearGradient(0, 0, 0, h);
+        grd.addColorStop(0, '#e6dbbd');
+        grd.addColorStop(1, '#c6b98f');
+        ctx.fillStyle = grd;
+        ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = '#8f7c4d';
+        ctx.fillRect(0, 0, w, 14);
+        ctx.fillRect(0, h - 16, w, 16);
+        // pediment
+        ctx.fillStyle = '#d5c8a4';
+        ctx.beginPath();
+        ctx.moveTo(0, 96);
+        ctx.lineTo(w / 2, 16);
+        ctx.lineTo(w, 96);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = '#8f7c4d';
+        ctx.lineWidth = 6;
+        ctx.stroke();
+        // windows and pilasters
+        for (let i = 0; i < 7; i++) {
+          const x = 80 + i * 124;
+          ctx.fillStyle = '#1b2a25';
+          roundRectPath(ctx, x, 150, 62, 150, 24);
+          ctx.fill();
+          ctx.strokeStyle = '#8f7c4d';
+          ctx.lineWidth = 5;
+          ctx.stroke();
+          ctx.fillStyle = 'rgba(160,235,220,0.18)';
+          ctx.fillRect(x + 10, 160, 18, 124);
+          ctx.fillStyle = '#d5c8a4';
+          ctx.fillRect(x - 16, 128, 18, 184);
+        }
+        ctx.fillStyle = '#0d3b2a';
+        ctx.fillRect(0, 326, w, 62);
+        ctx.fillStyle = '#f6c800';
+        ctx.font = '900 34px Orbitron, Arial Black, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('PARLIAMENT OF VICTORIA', w / 2, 366);
+      });
+      facadeTex.wrapS = facadeTex.wrapT = THREE.ClampToEdgeWrapping;
+      const facade = new THREE.Mesh(
+        new THREE.PlaneGeometry(28, 11),
+        new THREE.MeshStandardMaterial({ map: facadeTex, roughness: 0.78, emissiveMap: facadeTex, emissive: 0xffffff, emissiveIntensity: 0.1 })
+      );
+      facade.position.set(111.92, 5.5, 65);
+      facade.rotation.y = -Math.PI / 2;
+      group.add(facade);
+
+      for (let i = 0; i < 7; i++) {
+        const col = new THREE.Mesh(new THREE.CylinderGeometry(0.48, 0.6, 9.2, 10), stoneLight);
+        col.position.set(110.9, 4.8, 55 + i * 3.4);
+        col.castShadow = true;
+        group.add(col);
+        const cap = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.35, 1.4), stoneLight);
+        cap.position.set(110.9, 9.5, 55 + i * 3.4);
+        group.add(cap);
+      }
+
+      const drum = new THREE.Mesh(new THREE.CylinderGeometry(3.8, 4.4, 3.2, 16), stoneLight);
+      drum.position.set(120, 13.2, 65);
+      group.add(drum);
+      const dome = new THREE.Mesh(new THREE.SphereGeometry(3.8, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2), copper);
+      dome.position.set(120, 14.8, 65);
+      group.add(dome);
+      const flag = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.08, 4.2, 6), stoneLight);
+      flag.position.set(120, 19.4, 65);
+      group.add(flag);
+
+      for (let i = 0; i < 5; i++) {
+        const step = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.24, 22 - i * 1.2), stoneLight);
+        step.position.set(109.8 - i * 0.9, 0.12 + i * 0.24, 65);
+        step.receiveShadow = true;
+        group.add(step);
+      }
+
+      const lawn = new THREE.Mesh(new THREE.PlaneGeometry(22, 30), new THREE.MeshStandardMaterial({ color: 0x28583a, roughness: 1 }));
+      lawn.rotation.x = -Math.PI / 2;
+      lawn.position.set(116, 0.05, 65);
+      group.add(lawn);
+
+      this.scene.add(group);
+      this.parliament = group;
+    }
+
+    buildRMIT() {
+      const group = new THREE.Group();
+      group.name = 'RMIT University';
+      const brickTex = this.buildingTextures && this.buildingTextures[1] ? this.buildingTextures[1] : null;
+      const brick = new THREE.MeshStandardMaterial({ map: brickTex, color: 0xd08a70, roughness: 0.88, emissiveMap: brickTex, emissive: 0xffffff, emissiveIntensity: 0.14 });
+      const brickLight = new THREE.MeshStandardMaterial({ color: 0xb06048, roughness: 0.82 });
+      const glassMat = this.buildingMats && this.buildingMats[1]
+        ? this.buildingMats[1]
+        : new THREE.MeshStandardMaterial({ color: 0x24424a, roughness: 0.3, metalness: 0.55 });
+
+      const podium = new THREE.Mesh(new THREE.BoxGeometry(18, 7, 22), brick);
+      podium.position.set(84, 3.5, 120);
+      podium.castShadow = true;
+      podium.receiveShadow = true;
+      group.add(podium);
+
+      const tower = new THREE.Mesh(new THREE.BoxGeometry(14, 34, 16), glassMat);
+      tower.position.set(86, 24, 122);
+      tower.castShadow = true;
+      group.add(tower);
+
+      const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.16, 28, 2.4), new THREE.MeshStandardMaterial({ color: 0xff5577, emissive: 0xff3355, emissiveIntensity: 1.4 }));
+      stripe.position.set(78.9, 24, 124);
+      group.add(stripe);
+
+      const sign = new THREE.Mesh(new THREE.PlaneGeometry(17, 3), new THREE.MeshBasicMaterial({ map: makeSignTexture('RMIT UNIVERSITY', 'CITY CAMPUS · 2088', { fontSize: 44, fg: '#f6c800', accent: '#ff5577' }) }));
+      sign.position.set(78.88, 14, 120);
+      sign.rotation.y = -Math.PI / 2;
+      group.add(sign);
+
+      const podiumSign = new THREE.Mesh(new THREE.PlaneGeometry(14, 2.3), new THREE.MeshBasicMaterial({ map: makeSignTexture('RMIT UNIVERSITY', 'CITY CAMPUS', { fontSize: 44, fg: '#f6c800', accent: '#ff5577' }) }));
+      podiumSign.position.set(74.88, 5.2, 120);
+      podiumSign.rotation.y = -Math.PI / 2;
+      group.add(podiumSign);
+
+      const awning = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.22, 16), new THREE.MeshStandardMaterial({ color: 0x2b3a35, roughness: 0.6, metalness: 0.4 }));
+      awning.position.set(74.2, 3.2, 120);
+      group.add(awning);
+
+      const forecourt = new THREE.Mesh(new THREE.PlaneGeometry(10, 26), new THREE.MeshStandardMaterial({ color: 0x5a655c, roughness: 0.95 }));
+      forecourt.rotation.x = -Math.PI / 2;
+      forecourt.position.set(68, 0.04, 120);
+      group.add(forecourt);
+
+      const canopy = new THREE.Mesh(new THREE.BoxGeometry(8, 0.25, 13), new THREE.MeshStandardMaterial({ color: 0x2b3a35, roughness: 0.6, metalness: 0.4 }));
+      canopy.position.set(74, 4.2, 120);
+      group.add(canopy);
+      for (let i = 0; i < 3; i++) {
+        const post = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 4, 8), brickLight);
+        post.position.set(70 + i * 3, 2.1, 114);
+        group.add(post);
+      }
+
+      this.scene.add(group);
+      this.rmit = group;
+    }
+
+    buildCollinsStreet() {
+      const group = new THREE.Group();
+      group.name = 'Collins Street';
+      const collinsTex = makeCanvasTexture(512, 512, (ctx, w, h) => {
+        const grd = ctx.createLinearGradient(0, 0, 0, h);
+        grd.addColorStop(0, '#ddcfae');
+        grd.addColorStop(1, '#bfae82');
+        ctx.fillStyle = grd;
+        ctx.fillRect(0, 0, w, h);
+        for (let y = 26; y < h - 30; y += 64) {
+          for (let x = 24; x < w - 30; x += 58) {
+            const dark = 0.7 + Math.random() * 0.2;
+            ctx.fillStyle = 'rgba(20, 36, 31, ' + dark + ')';
+            roundRectPath(ctx, x, y, 34, 42, 8);
+            ctx.fill();
+            ctx.fillStyle = 'rgba(130, 230, 215, 0.2)';
+            ctx.fillRect(x + 5, y + 6, 8, 28);
+          }
+          ctx.fillStyle = 'rgba(120, 100, 60, 0.4)';
+          ctx.fillRect(0, y + 52, w, 3);
+        }
+        ctx.fillStyle = 'rgba(246, 200, 0, 0.25)';
+        ctx.fillRect(0, 0, w, 5);
+      });
+      const stone = new THREE.MeshStandardMaterial({ map: collinsTex, color: 0xffffff, roughness: 0.82, emissiveMap: collinsTex, emissive: 0xffffff, emissiveIntensity: 0.12 });
+      const stoneLight = new THREE.MeshStandardMaterial({ color: 0xded1b1, roughness: 0.78 });
+      const dark = new THREE.MeshStandardMaterial({ color: 0x15201b, roughness: 0.3, metalness: 0.5 });
+
+      const north = new THREE.Mesh(new THREE.BoxGeometry(32, 20, 16), stone);
+      north.position.set(80, 10, 50);
+      north.castShadow = true;
+      north.receiveShadow = true;
+      group.add(north);
+      const cornice = new THREE.Mesh(new THREE.BoxGeometry(33, 1.2, 17), stoneLight);
+      cornice.position.set(80, 20.4, 50);
+      group.add(cornice);
+
+      for (let i = 0; i < 6; i++) {
+        const win = new THREE.Mesh(new THREE.PlaneGeometry(3, 5), dark);
+        win.position.set(68 + i * 5, 10, 41.92);
+        win.rotation.y = Math.PI;
+        group.add(win);
+      }
+      const sign = new THREE.Mesh(new THREE.PlaneGeometry(16, 2.2), new THREE.MeshBasicMaterial({ map: makeSignTexture('COLLINS STREET', 'PARIS END · 2088', { fontSize: 44 }) }));
+      sign.position.set(80, 4.2, 41.88);
+      sign.rotation.y = Math.PI;
+      group.add(sign);
+      for (let i = 0; i < 4; i++) {
+        const sideWin = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 4.2), dark);
+        sideWin.position.set(63.92, 8 + (i % 2) * 5, 43 + i * 3.4);
+        sideWin.rotation.y = -Math.PI / 2;
+        group.add(sideWin);
+      }
+      const sideSign = new THREE.Mesh(new THREE.PlaneGeometry(10, 1.8), new THREE.MeshBasicMaterial({ map: makeSignTexture('COLLINS', 'PARIS END', { fontSize: 44 }), side: THREE.DoubleSide }));
+      sideSign.position.set(63.85, 14.5, 50);
+      sideSign.rotation.y = -Math.PI / 2;
+      group.add(sideSign);
+
+      for (let i = 0; i < 5; i++) {
+        const awning = new THREE.Mesh(new THREE.BoxGeometry(5.4, 0.16, 2.6), new THREE.MeshStandardMaterial({ color: 0x1b3d2e, roughness: 0.6, metalness: 0.3 }));
+        awning.position.set(68 + i * 6, 3.6, 40.3);
+        group.add(awning);
+        const post = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 3.5, 6), stoneLight);
+        post.position.set(66 + i * 6, 1.8, 39.2);
+        group.add(post);
+      }
+
+      const south = new THREE.Mesh(new THREE.BoxGeometry(30, 15, 13), stone);
+      south.position.set(80, 7.5, 2);
+      south.castShadow = true;
+      group.add(south);
+      const southSign = new THREE.Mesh(new THREE.PlaneGeometry(14, 2), new THREE.MeshBasicMaterial({ map: makeSignTexture('PARIS END', 'COLLINS STREET', { fontSize: 44, fg: '#46ffd3' }) }));
+      southSign.position.set(80, 4, 8.56);
+      group.add(southSign);
+
+      this.scene.add(group);
+      this.collins = group;
     }
 
     addBuilding(x, z, w, d, h, rng, index, isTower) {
@@ -2510,7 +3003,9 @@
       const lampPositions = [
         [-13.5, 10], [13.5, 30], [-13.5, 50], [13.5, 70], [-13.5, 90],
         [-40, 13.5], [40, 13.5], [-80, 13.5], [80, 13.5],
-        [50.5, 20], [70.5, 40], [50.5, 60], [30, -50.5], [50, -50.5]
+        [50.5, 20], [70.5, 40], [50.5, 60], [30, -50.5], [50, -50.5],
+        [90.5, 48], [90.5, 92], [109.5, 118], [70.5, 130], [80, 129.5],
+        [80, 150.5], [50.5, 118], [109.5, 38]
       ];
       lampPositions.forEach(([x, z], i) => {
         const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.14, 6.4, 8), poleMat);
@@ -2572,7 +3067,9 @@
       const treeSpots = [
         [-15.4, 22], [-15.4, 45], [-15.4, 68], [15.4, 12], [15.4, 82],
         [-30, 15.4], [-55, 15.4], [35, 15.4], [75, 15.4], [-20, -15.4], [20, -15.4],
-        [53.5, 8], [53.5, 52], [67, 8], [67, 52], [10, 50], [10, 75]
+        [53.5, 8], [53.5, 52], [67, 8], [67, 52], [10, 50], [10, 75],
+        [90, 45], [90, 90], [110, 110], [80, 150], [50, 120], [70, 110],
+        [110, 35], [80, 33]
       ];
       treeSpots.forEach(([x, z], i) => {
         const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.25, 2.6, 7), trunkMat);
@@ -2959,7 +3456,7 @@
       });
 
       // Destination signs.
-      const destTex = makeSignTexture('2088  FLINDERS ST', 'SWANSTON LOOP', { fontSize: 40, bg: '#0a0f0c', fg: '#f6c800', accent: '#46ffd3', border: false });
+      const destTex = makeSignTexture('2088  FLINDERS ST', 'CBD LOOP', { fontSize: 40, bg: '#0a0f0c', fg: '#f6c800', accent: '#46ffd3', border: false });
       [-1, 1].forEach((dir) => {
         const dest = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 0.6), new THREE.MeshBasicMaterial({ map: destTex }));
         dest.position.set(0, 3.16, dir * 5.27);
@@ -2977,15 +3474,25 @@
         group.add(tail);
       });
 
-      // Doors (with gold frames).
+      // Doors with gold frames, dark doorways and a manual sliding action.
+      const doorDark = new THREE.MeshBasicMaterial({ color: 0x040b08 });
       [-2.2, 2.2].forEach((z) => {
         [-1.27, 1.27].forEach((x) => {
           const frame = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1.8, 1.5), gold);
           frame.position.set(x, 1.85, z);
           group.add(frame);
+          const doorway = new THREE.Mesh(new THREE.PlaneGeometry(1.28, 1.6), doorDark);
+          doorway.position.set(x + (x > 0 ? -0.006 : 0.006), 1.85, z);
+          doorway.rotation.y = x > 0 ? -Math.PI / 2 : Math.PI / 2;
+          group.add(doorway);
           const door = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.62, 1.3), glass);
           door.position.set(x + (x > 0 ? 0.02 : -0.02), 1.85, z);
           group.add(door);
+          this.tramDoors.push({
+            mesh: door,
+            baseZ: z,
+            dir: z > 0 ? 1 : -1
+          });
         });
       });
 
@@ -3395,8 +3902,9 @@
       if (!this.tramGroup) return;
       this.tram.bellCooldown = Math.max(0, this.tram.bellCooldown - dt);
 
-      const throttle = !this.trip.doors && (this.keys.ArrowUp || this.keys.w || this.keys.W);
-      const brake = this.keys.ArrowDown || this.keys.s || this.keys.S || this.trip.doors;
+      const doorsLocked = this.trip.doorState !== 'closed';
+      const throttle = !doorsLocked && (this.keys.ArrowUp || this.keys.w || this.keys.W);
+      const brake = this.keys.ArrowDown || this.keys.s || this.keys.S || doorsLocked;
       const handbrake = this.keys[' '];
 
       let speed = this.tram.speed;
@@ -3406,21 +3914,20 @@
       if (!throttle && !brake && !handbrake) speed *= Math.pow(0.55, dt);
       speed = clamp(speed, this.tram.maxReverse, this.tram.maxSpeed);
       if (Math.abs(speed) < 0.02) speed = 0;
-
-      const next = this.getNextStop();
-      if (!this.trip.doors && next && next.riders.some((r) => r.state === 'waiting')) {
-        const ahead = this.distanceAhead(next);
-        if (ahead < 9.5 && Math.abs(speed) < 1.4 && this.time - next.servedAt > 14) {
-          this.serveStop(next);
-          speed = 0;
+      if (doorsLocked) {
+        speed = 0;
+        if ((this.keys.ArrowUp || this.keys.w || this.keys.W) && this.time - this.lastDoorHint > 5) {
+          this.lastDoorHint = this.time;
+          this.toast('Doors are open — press O or DOORS to close before departing.', 2400);
         }
       }
-      if (this.trip.doors) {
-        speed = 0;
-        this.trip.doorTimer -= dt;
-        if (this.trip.doorTimer <= 0) {
-          this.trip.doors = false;
-          this.trip.doorTimer = 0;
+
+      const next = this.getNextStop();
+      if (next && !doorsLocked && this.started) {
+        const ahead = this.distanceAhead(next);
+        if (ahead > 10 && ahead < 38 && this.announcedStopId !== next.id && this.time - this.lastAnnouncementAt > 6) {
+          this.announcedStopId = next.id;
+          this.announce('Next stop, ' + next.speechName + '.', 'stop');
         }
       }
 
@@ -3492,19 +3999,84 @@
       }
     }
 
-    serveStop(stop) {
-      if (!stop || this.trip.doors) return;
-      const waiting = stop.riders.filter((r) => r.state === 'waiting');
+    announce(text, chimeKind) {
+      this.showAnnouncement(text);
+      this.lastAnnouncementAt = this.time;
+      if (this.audio.muted) return;
+      this.audio.chime(chimeKind || 'stop');
+      clearTimeout(this.announceTimer);
+      this.announceTimer = setTimeout(() => this.audio.speak(text), 640);
+    }
+
+    showAnnouncement(text) {
+      const bar = this.dom.announcementBar;
+      const copy = this.dom.announcementText;
+      if (!bar || !copy) return;
+      copy.textContent = text;
+      bar.classList.add('show');
+      clearTimeout(this.announceHideTimer);
+      const ms = clamp(text.length * 78, 3800, 8200);
+      this.announceHideTimer = setTimeout(() => bar.classList.remove('show'), ms);
+    }
+
+    toggleDoors() {
+      if (!this.started) return;
+      if (this.trip.doorState === 'open') {
+        this.closeDoors();
+      } else if (this.trip.doorState === 'closed') {
+        this.openDoors();
+      } else {
+        this.audio.click();
+      }
+    }
+
+    openDoors() {
+      if (!this.started || this.trip.doorState !== 'closed') return;
+      const stop = this.getPlatformStop();
+      if (!stop) {
+        this.audio.click();
+        const next = this.getNextStop();
+        if (next && Math.abs(this.tram.speed) < 1.4) {
+          this.toast('Roll closer to the platform marker to release the doors.', 2800, 'danger');
+          this.showAnnouncement('Doors locked. Move closer to the platform to open.');
+        } else {
+          this.toast('Doors locked while moving — stop at a platform first.', 2800, 'danger');
+          this.showAnnouncement('Doors locked while the tram is moving.');
+        }
+        return;
+      }
+
       const ahead = this.distanceAhead(stop);
-      const perfect = ahead < 4.2;
-
-      stop.servedAt = this.time;
+      this.trip.doorState = 'opening';
       this.trip.doors = true;
-      this.trip.doorTimer = 3.4;
+      this.trip.doorTimer = 0.85;
+      this.trip.doorStop = stop;
+      this.trip.doorAnim = 0;
       this.tram.speed = 0;
+      stop.servedAt = this.time;
+      this.announcedStopId = null;
       this.audio.ensure();
+      this.audio.doorHiss(true);
       this.audio.click();
+      this.announce('Now arriving at ' + stop.speechName + '. Doors opening.', 'open');
+      this.trip.perfectStopPending = ahead < 4.2;
+      this.updateHud(true);
+    }
 
+    closeDoors() {
+      if (this.trip.doorState !== 'open' && this.trip.doorState !== 'opening') return;
+      this.trip.doorState = 'closing';
+      this.trip.doorTimer = 0.85;
+      this.tram.speed = 0;
+      this.audio.doorHiss(false);
+      this.announce('Doors closing. Please stand clear.', 'close');
+      this.updateHud(true);
+    }
+
+    boardPassengers(stop) {
+      if (!stop) return;
+      const waiting = stop.riders.filter((r) => r.state === 'waiting');
+      const perfect = this.trip.perfectStopPending || this.distanceAhead(stop) < 4.2;
       if (!waiting.length) {
         this.toast('🚏 ' + stop.name + ' · no passengers waiting', 2200);
         return;
@@ -3520,7 +4092,7 @@
         rider.state = 'boarding';
         rider.t = -i * 0.14;
         rider.start = rider.mesh.position.clone();
-        setTimeout(() => { if (this.audio.ready) this.audio.myki(); }, 260 + i * 150);
+        setTimeout(() => { if (this.audio.ready) this.audio.myki(); }, 280 + i * 150);
       });
 
       const perfectText = perfect ? ' · perfect stop +40' : '';
@@ -3533,6 +4105,38 @@
       this.refreshBadges();
       this.updateHud(true);
       this.drawMinimap();
+    }
+
+    updateDoors(dt) {
+      if (!this.tramDoors) this.tramDoors = [];
+      const state = this.trip.doorState;
+      const target = state === 'opening' || state === 'open' ? 1 : 0;
+      this.trip.doorAnim = damp(this.trip.doorAnim, target, 7, dt);
+      this.tramDoors.forEach((door) => {
+        door.mesh.position.z = door.baseZ + door.dir * 0.72 * this.trip.doorAnim;
+      });
+
+      if (state === 'opening') {
+        this.trip.doorTimer -= dt;
+        if (this.trip.doorTimer <= 0) {
+          this.trip.doorState = 'open';
+          this.trip.doorTimer = 0;
+          this.boardPassengers(this.trip.doorStop);
+          this.career.stats.bestScore = Math.max(this.career.stats.bestScore, Math.floor(this.trip.score));
+          this.updateHud(true);
+        }
+      } else if (state === 'closing') {
+        this.trip.doorTimer -= dt;
+        if (this.trip.doorTimer <= 0) {
+          this.trip.doorState = 'closed';
+          this.trip.doorTimer = 0;
+          this.trip.doors = false;
+          this.trip.doorStop = null;
+          this.announcedStopId = null;
+          this.toast('🚪 Doors closed — ready to depart', 2000);
+          this.updateHud(true);
+        }
+      }
     }
 
     updatePassengers(dt) {
@@ -3715,7 +4319,10 @@
         const t = this.tram.curve.getTangentAt(u);
         const side = new THREE.Vector3(-t.z, 0, t.x);
         const view = params.get('view');
-        if (view === 'station') {
+        if (view === 'hero') {
+          this.camera.position.set(16, 12.5, 68);
+          this.camera.lookAt(0, 2.5, 22);
+        } else if (view === 'station') {
           this.camera.position.set(34, 17, 6);
           this.camera.lookAt(-30, 8, -32);
         } else if (view === 'fed') {
@@ -3730,14 +4337,26 @@
         } else if (view === 'uni') {
           this.camera.position.set(28, 13, 56);
           this.camera.lookAt(-28, 7, 94);
+        } else if (view === 'collins') {
+          this.camera.position.set(48, 19, 60);
+          this.camera.lookAt(82, 4, 22);
+        } else if (view === 'parliament') {
+          this.camera.position.set(68, 21, 104);
+          this.camera.lookAt(102, 5, 64);
+        } else if (view === 'rmit') {
+          this.camera.position.set(32, 22, 154);
+          this.camera.lookAt(62, 5, 120);
+        } else if (view === 'cbd') {
+          this.camera.position.set(6, 66, 174);
+          this.camera.lookAt(55, 0, 58);
         } else {
           const aspect = window.innerWidth / window.innerHeight;
           if (aspect < 0.8) {
-            this.camera.position.set(p.x + side.x * 4 - t.x * 32, 15, p.z + side.z * 4 - t.z * 32);
-            this.camera.lookAt(p.x + t.x * 10, 2.6, p.z + t.z * 10);
+            this.camera.position.set(p.x - t.x * 36, 19, p.z - t.z * 36);
+            this.camera.lookAt(p.x + t.x * 14, 2.6, p.z + t.z * 14);
           } else {
-            this.camera.position.set(p.x + side.x * 15 - t.x * 24, 12.5, p.z + side.z * 15 - t.z * 24);
-            this.camera.lookAt(p.x + t.x * 16, 2.6, p.z + t.z * 16);
+            this.camera.position.set(p.x - t.x * 32, 17, p.z - t.z * 32);
+            this.camera.lookAt(p.x + t.x * 18, 2.6, p.z + t.z * 18);
           }
         }
         return;
@@ -3755,7 +4374,7 @@
       if (this.recenterRequested) {
         const u = mod(this.tram.s / this.tram.length, 1);
         const t = this.tram.curve.getTangentAt(u);
-        this.camera.position.set(p.x - t.x * 20 + t.z * 7, 10.5, p.z - t.z * 20 - t.x * 7);
+        this.camera.position.set(p.x - t.x * 20, 13.5, p.z - t.z * 20);
         this.controls.target.copy(target);
         this.recenterRequested = false;
         this.cameraInitialised = true;
@@ -3783,7 +4402,7 @@
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, w, h);
 
-      const bounds = { x0: -58, x1: 88, z0: -56, z1: 114 };
+      const bounds = { x0: -70, x1: 140, z0: -60, z1: 165 };
       const pad = 20;
       const scale = Math.min((w - pad * 2) / (bounds.x1 - bounds.x0), (h - pad * 2) / (bounds.z1 - bounds.z0));
       const ox = (w - (bounds.x1 - bounds.x0) * scale) / 2;
@@ -3810,6 +4429,14 @@
       ctx.strokeStyle = 'rgba(255, 122, 77, 0.5)';
       ctx.fillRect(mx(18), mz(12), 44 * scale, 46 * scale);
       ctx.strokeRect(mx(18), mz(12), 44 * scale, 46 * scale);
+      ctx.fillStyle = 'rgba(157, 123, 255, 0.13)';
+      ctx.strokeStyle = 'rgba(157, 123, 255, 0.45)';
+      ctx.fillRect(mx(106), mz(50), 28 * scale, 30 * scale);
+      ctx.strokeRect(mx(106), mz(50), 28 * scale, 30 * scale);
+      ctx.fillStyle = 'rgba(255, 85, 119, 0.13)';
+      ctx.strokeStyle = 'rgba(255, 85, 119, 0.45)';
+      ctx.fillRect(mx(68), mz(106), 30 * scale, 30 * scale);
+      ctx.strokeRect(mx(68), mz(106), 30 * scale, 30 * scale);
 
       // Route line.
       ctx.lineCap = 'round';
@@ -3845,7 +4472,7 @@
         ctx.lineWidth = 1;
         ctx.stroke();
         ctx.fillStyle = 'rgba(220,255,246,0.72)';
-        ctx.font = '600 8px Rajdhani, sans-serif';
+        ctx.font = '600 7px Rajdhani, sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText(stop.short, X, Y - 8);
       });
@@ -3901,7 +4528,10 @@
         this.updateTraffic(dt);
         this.updatePassengers(dt);
         this.updateSignalCycle();
-        if (this.started && !this.paused) this.updateTram(dt);
+        if (this.started && !this.paused) {
+          this.updateDoors(dt);
+          this.updateTram(dt);
+        }
         this.updateCamera(dt);
         if (this.waterTex) this.waterTex.offset.x += dt * 0.006;
 
@@ -3966,8 +4596,8 @@
       add('Cannon.js runtime loaded', typeof CANNON !== 'undefined' && !!CANNON.World, typeof CANNON !== 'undefined' ? '0.6.2' : 'missing');
       add('WebGL renderer created', !!(this.renderer && this.renderer.domElement), this.renderer ? 'canvas' : 'none');
       add('Scene populated', this.scene && this.scene.children.length > 80, this.scene ? this.scene.children.length + ' objects' : 'none');
-      add('Swanston Loop built', !!(this.tram.curve && this.tram.length > 350), Math.round(this.tram.length) + ' m');
-      add('Four named tram stops', this.stops.length === 4, this.stops.map((s) => s.short).join(', '));
+      add('CBD loop built', !!(this.tram.curve && this.tram.length > 500), Math.round(this.tram.length) + ' m');
+      add('Seven named tram stops', this.stops.length === 7, this.stops.map((s) => s.short).join(', '));
       add('Waiting passengers spawned', this.stops.reduce((n, s) => n + s.riders.length, 0) >= 12, this.stops.reduce((n, s) => n + s.riders.length, 0) + ' riders');
       add('Tram mesh assembled', !!(this.tramGroup && this.tramGroup.children.length > 40), this.tramGroup ? this.tramGroup.children.length + ' parts' : 'none');
       add('Cannon tram body', !!(this.tramBody && this.tramBody.mass > 1000), this.tramBody ? Math.round(this.tramBody.mass) + ' kg' : 'none');
@@ -3994,9 +4624,37 @@
       add('Traction moves the tram', moved > 0.5, moved.toFixed(1) + ' m');
 
       const stop = this.stops.find((s) => s.riders.some((r) => r.state === 'waiting'));
-      const beforePax = this.career.stats.totalPassengers;
-      if (stop) this.serveStop(stop);
-      add('Myki boarding adds passengers', !stop || this.career.stats.totalPassengers > beforePax, stop ? (this.career.stats.totalPassengers - beforePax) + ' tapped on' : 'no riders');
+      let doorOK = false;
+      let paxOK = false;
+      let boarded = 0;
+      if (stop) {
+        this.tram.s = mod(stop.s - 3, this.tram.length);
+        this.tram.speed = 0;
+        this.trip.doorState = 'closed';
+        this.trip.doors = false;
+        this.trip.doorStop = null;
+        this.trip.doorAnim = 0;
+        const beforePax = this.career.stats.totalPassengers;
+        this.openDoors();
+        const opening = this.trip.doorState === 'opening';
+        for (let i = 0; i < 70; i++) this.updateDoors(1 / 60);
+        const open = this.trip.doorState === 'open';
+        boarded = this.career.stats.totalPassengers - beforePax;
+        paxOK = boarded > 0;
+        this.closeDoors();
+        for (let i = 0; i < 70; i++) this.updateDoors(1 / 60);
+        const closed = this.trip.doorState === 'closed' && this.trip.doors === false;
+        doorOK = opening && open && closed;
+      }
+      add('Manual doors open, board and close', doorOK && paxOK, paxOK ? boarded + ' tapped on' : 'no boarding');
+
+      this.showAnnouncement('Now arriving at Flinders Street Station.');
+      const annOK = typeof this.audio.speak === 'function'
+        && typeof this.audio.chime === 'function'
+        && !!this.dom.announcementBar
+        && !!this.dom.announcementText
+        && this.dom.announcementText.textContent.indexOf('Flinders Street') >= 0;
+      add('Stop & door announcements', annOK, 'en-AU speech + chime + subtitle');
 
       this.setWeather('rain', true);
       const rainOK = this.currentWeather === 'rain';
@@ -4009,6 +4667,8 @@
       const cabOK = document.body.classList.contains('view-driver') && this.camera.fov === 66 && this.controls.enabled === false && !!document.querySelector('.cab-overlay');
       this.setViewMode('chase', true);
       add('Driver cab view', cabOK, 'first-person cab, drag-to-look and rain wipers');
+
+      add('CBD extension landmarks', !!(this.parliament && this.rmit && this.collins), 'Parliament · RMIT · Collins Street');
 
       add('Hook turn scene ready', !!(this.hook && this.hook.ready && this.hook.carGroup), this.hook && this.hook.ready ? '60 s challenge' : 'unavailable');
       add('Minimap canvas', !!this.dom.minimap, '440 × 320');

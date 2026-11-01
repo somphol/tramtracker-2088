@@ -6,10 +6,10 @@
 
 **Melbourne Yarra Trams · 3D Simulator**
 
-Drive a retro-futuristic W-Class cyber tram around the Swanston Loop, collect Myki passengers, survive four seasons in one day, and master the famous Melbourne hook turn — from the chase camera or the driver's cab.
+Drive a retro-futuristic W-Class cyber tram around an extended Hoddle Grid CBD loop, collect Myki passengers, survive four seasons in one day, and master the famous Melbourne hook turn — from the chase camera or the driver's cab.
 
 [![Live demo](https://img.shields.io/badge/live_demo-online-46ffd3?style=flat-square)](https://somphol.github.io/tramtracker-2088/)
-[![Self-tests](https://img.shields.io/badge/self--tests-26%2F26-00b85c?style=flat-square)](#verification)
+[![Self-tests](https://img.shields.io/badge/self--tests-28%2F28-00b85c?style=flat-square)](#verification)
 [![License: MIT](https://img.shields.io/badge/license-MIT-f6c800?style=flat-square)](LICENSE)
 
 **[Play it live →](https://somphol.github.io/tramtracker-2088/)**
@@ -32,9 +32,10 @@ The whole thing runs from three files — `index.html`, `style.css` and `script.
 ## Contents
 
 - [The sim](#the-sim)
+- [Doors and announcements](#doors-and-announcements)
 - [Features](#features)
 - [Controls](#controls)
-- [The Swanston Loop](#the-swanston-loop)
+- [The CBD Loop](#the-cbd-loop)
 - [Hook Turn Challenge](#hook-turn-challenge)
 - [Weather](#weather)
 - [Scoring and badges](#scoring-and-badges)
@@ -50,17 +51,34 @@ The whole thing runs from three files — `index.html`, `style.css` and `script.
 
 ## The sim
 
-You clock on at the north end of Swanston Street in a green-and-gold cyber tram. The tram is rail-guided — the computer handles steering, you handle traction and braking. Roll into a platform below 2 km/h and the doors open, Myki validators beep, and passengers board.
+You clock on at the north end of Swanston Street in a green-and-gold cyber tram. The tram is rail-guided — the computer handles steering, you handle traction and braking. Roll into a platform below 2 km/h, open the doors with `O`, and Myki validators beep as passengers board. The loop now runs out of Swanston into Collins Street, Spring Street, Parliament and RMIT, following the real Hoddle Grid street pattern.
 
-The loop is roughly 377 metres and takes you past:
+The extended loop is roughly 518 metres and takes you past:
 
 - the cream façade, copper dome and clock tower of **Flinders Street Station**;
 - the angular zinc-and-glass shards, plaza screen and amphitheatre of **Federation Square**;
 - the **Yarra River**, Princes Bridge and the Southbank skyline;
-- the classical portico of **Melbourne University**;
+- the classical portico of **Melbourne University**, the **Parliament of Victoria** and **RMIT University**;
+- the new Collins Street canyon and Spring Street/Parliament platforms.
 - a full cast of low-poly commuters, bikes, taxis, trams, street trees, traffic lights and overhead catenary.
 
 A Cannon.js rigid body follows the rails and collides with street furniture, while the Three.js scene supplies the follow camera, orbit controls and a live HUD.
+
+---
+
+## Doors and announcements
+
+<img src="screenshot-doors.png" alt="Tram stopped at Flinders Street Station with doors open and a stop announcement shown" width="100%" />
+
+Stopping is now a proper service stop:
+
+- Roll into a platform below 2 km/h. The **Doors** button pulses gold and the stop prompt says to open.
+- Press **`O`** (or the toolbar **Doors** button) to release the doors. The 3D door panels slide open, the chime plays and the en-AU voice announces the current stop: *"Now arriving at Flinders Street Station. Doors opening."*
+- Passengers tap on with Myki beeps and the score updates.
+- Press **`O`** again to close. The warning chime and *"Doors closing. Please stand clear."* play, the doors slide shut, and traction unlocks.
+- A subtitle bar displays every announcement, so it still works with sound muted.
+
+Automatic **next stop** announcements call the upcoming platform while you approach, using the browser's Australian English voice, a two-tone chime and the same subtitle strip. The Doors/Myki sound and speech are all synthesised or spoken locally — no audio files.
 
 ---
 
@@ -76,12 +94,15 @@ A Cannon.js rigid body follows the rails and collides with street furniture, whi
 - **W-Class / Cyber-Tram 2088**: green hull, cream roof, gold waistline, window band, destination signs, headlights, tail lights, bogies, pantograph, bell and neon underglow.
 - **Rail physics** with acceleration, braking, rolling resistance, curve drag, wheel screech, rail clatter and a Cannon.js tram body for impacts.
 - **First-person driver's cab view** with a glass cockpit, dashboard, speed-reactive FOV, head sway and curve lean; drag to look around and let go to ease back to the road. Rain triggers animated wipers and droplets on the glass.
+- **Extended Hoddle Grid CBD loop** — 518 m through Swanston, Flinders, Spring/Exhibition, Collins, Spring North and La Trobe/Queensberry, with new stops at Collins Street, Parliament and RMIT.
+- **Parliament House, RMIT and Collins Street landmarks** — a classical dome and portico, a brick-and-glass campus tower, and a Paris-end Collins canyon.
 - Follow camera with **mouse orbit and zoom**, plus a recentre key.
 
 ### Passengers and Myki
 
-- Four named stops with shelters, benches, Myki validators, platform markers and waiting passengers (complete with umbrellas when it rains).
-- Automatic door release when you stop inside the platform zone below 2 km/h.
+- Seven named stops with shelters, benches, Myki validators, platform markers and waiting passengers (complete with umbrellas when it rains).
+- **Manual door release** with `O` or the pulsing **Doors** button once stopped in the platform zone below 2 km/h; the doors slide open, the icon turns cyan and changes to **Close**.
+- **Melbourne-style announcements** — a two-tone chime then an en-AU spoken "Next stop…", "Now arriving at… Doors opening" and "Doors closing. Please stand clear", mirrored in an on-screen subtitle bar.
 - A **synthesised Myki tap-on beep** for each boarding passenger, a staggered boarding animation and a perfect-stop bonus.
 - Passenger counts, best score, loops, shift score and career totals update live.
 
@@ -132,6 +153,7 @@ Yarra Trams green and gold meets a cyberpunk neon HUD: glassmorphic telemetry, c
 | Brake / reverse | `S` / `↓` | **BRAKE** pad |
 | Ring bell | `B` | 🔔 |
 | Hook Turn Challenge | `G` | ↱ |
+| Open / close doors | `O` | **DOORS** toolbar button |
 | Driver / chase view | `V` | **VIEW** toolbar button |
 | Recentre camera | `C` | — |
 | Mute sound | `M` | speaker button |
@@ -144,16 +166,23 @@ In the Hook Turn Challenge: `W`/`↑` throttle, `S`/`↓` brake, `A`/`D` or `←
 
 ---
 
-## The Swanston Loop
+## The CBD Loop
+
+<img src="screenshot-cbd.png" alt="Extended CBD tram loop through Collins Street, Parliament and RMIT" width="100%" />
+
+The route is modelled on Melbourne's [Hoddle Grid](https://en.wikipedia.org/wiki/Hoddle_Grid): Flinders, Collins and La Trobe run east–west, while Swanston and Spring/Exhibition run north–south.
 
 | # | Stop | Where it is | Platform detail |
 | --- | --- | --- | --- |
 | 1 | **Flinders St Station** | Swanston St, in front of the station | Shelter, bench, Myki validator |
 | 2 | **Yarra Promenade** | South edge of the loop | River-facing shelter |
 | 3 | **Federation Square** | East edge of the loop | Plaza-side shelter |
-| 4 | **Melbourne Uni** | North end of Swanston St | University-side shelter |
+| 4 | **Collins Street** | Collins St East, near Fed Square | Paris-end shelter |
+| 5 | **Parliament** | Spring Street, by Parliament House | Parliament-side shelter |
+| 6 | **RMIT University** | Spring/La Trobe, by the RMIT campus | Campus-side shelter |
+| 7 | **Melbourne Uni** | North end of Swanston St | University-side shelter |
 
-Stops are placed by arc length on the closed Catmull-Rom loop, so the next-stop HUD and minimap always agree with the rails.
+The route follows the Hoddle Grid’s parallel streets: Flinders, Collins and La Trobe run east–west, while Swanston, Spring/Exhibition and the northern edge close the loop. Stops are placed by arc length on the closed Catmull-Rom loop, so the next-stop HUD and minimap always agree with the rails.
 
 ---
 
@@ -239,7 +268,7 @@ Internet access is required for the Three.js and Cannon.js CDNs and the Google F
 
 ### Self-test surface
 
-Append `?selftest=1` (optionally with `&autostart=1`) to run the built-in 26-check harness. Results are written to `#selftestOut`, `document.body.dataset.selftest` and the console.
+Append `?selftest=1` (optionally with `&autostart=1`) to run the built-in 28-check harness. Results are written to `#selftestOut`, `document.body.dataset.selftest` and the console.
 
 Useful development params:
 
@@ -270,6 +299,11 @@ tramtracker-2088/
 ├── screenshot-start.png
 ├── screenshot-driver.png
 ├── screenshot-driver-rain.png
+├── screenshot-doors.png
+├── screenshot-cbd.png
+├── screenshot-collins.png
+├── screenshot-parliament.png
+├── screenshot-rmit.png
 ├── STATE.md / state.json         # build duration, token usage, credits
 ├── THIRD_PARTY_NOTICES.md
 ├── LICENSE
@@ -289,11 +323,11 @@ Build duration, token usage and full credits are recorded in [STATE.md](STATE.md
 
 ## Verification
 
-The built-in harness reports **26/26 PASS**, covering:
+The built-in harness reports **28/28 PASS**, covering:
 
 - Three.js r128 and Cannon.js 0.6.2 runtime availability;
-- WebGL renderer, scene population (300+ objects), 377 m loop;
-- four named stops and 20 waiting passengers;
+- WebGL renderer, 400+ object scene and the 518 m seven-stop CBD loop;
+- seven named stops and 28 waiting passengers;
 - tram mesh, 12,000 kg Cannon body, catenary, station, Federation Square and Yarra geometry;
 - Web Audio voices and three weather presets;
 - save schema validation and the export/import path;
@@ -303,6 +337,8 @@ The built-in harness reports **26/26 PASS**, covering:
 - weather switching;
 - hook-turn scene readiness;
 - driver's cab view switching, FOV and orbit-control handoff;
+- manual door open/close, boarding and announcement wiring;
+- the 518 m seven-stop CBD loop and the Parliament/RMIT/Collins landmarks;
 - zero uncaught errors.
 
 Headless Chrome (SwiftShader WebGL) screenshots were used to verify desktop 1600×1000 and mobile 390×844 layouts, all three weather presets, the hook-turn challenge, and the start/result overlays.
