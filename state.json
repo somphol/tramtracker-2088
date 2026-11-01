@@ -6,21 +6,21 @@
   "liveDemo": "https://somphol.github.io/tramtracker-2088/",
   "build": {
     "startedAt": "2026-11-01T16:59:53Z",
-    "packagedAt": "2026-11-01T22:59:30Z",
-    "durationSeconds": 21560,
-    "durationHuman": "5h 59m 20s",
+    "packagedAt": "2026-11-01T23:03:40Z",
+    "durationSeconds": 21812,
+    "durationHuman": "6h 3m 32s",
     "timezone": "UTC",
     "includes": "Initial build, track/cab/doors/announcement/CBD work, stop guides, city ambience, passenger manifests, stop requests, tourist stops, the 1.35 km St Kilda Road/Shrine extension with 21 spaced stops, mobile panel controls, the door interlock, separate brake/reverse controls and an auto driver."
   },
   "tokens": {
-    "input": 1371224,
-    "output": 329783,
-    "reasoning": 471729,
-    "cacheRead": 241345024,
+    "input": 1378642,
+    "output": 332952,
+    "reasoning": 473049,
+    "cacheRead": 243959424,
     "cacheWrite": 1190,
-    "total": 2172736,
-    "totalWithCache": 243517760,
-    "note": "Snapshot from the OpenCode session record at 2026-11-01T22:59:30Z. total = input + output + reasoning. Cache reads/writes are context-usage figures and are reported separately."
+    "total": 2184643,
+    "totalWithCache": 246144067,
+    "note": "Snapshot from the OpenCode session record at 2026-11-01T23:03:40Z. total = input + output + reasoning. Cache reads/writes are context-usage figures and are reported separately."
   },
   "cost": {
     "usd": 0.0,
@@ -75,8 +75,8 @@
     },
     {
       "path": "script.js",
-      "bytes": 301575,
-      "lines": 6973
+      "bytes": 301735,
+      "lines": 6976
     },
     {
       "path": "README.md",
@@ -185,6 +185,10 @@
     {
       "date": "2026-11-01",
       "change": "Added an auto-driver mode (A / AUTO) that accelerates, brakes into platforms, opens and closes the doors, dwells, departs and yields instantly to manual input; added a 33rd self-test that serves a platform automatically."
+    },
+    {
+      "date": "2026-11-01",
+      "change": "Auto driver now yields to raw throttle, brake or reverse input even while the doors are open, showing the door interlock warning as manual control resumes."
     }
   ],
   "verification": {

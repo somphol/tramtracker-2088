@@ -4,8 +4,8 @@
 | --- | --- |
 | Project | TramTracker 2088 — Melbourne Yarra Trams 3D Simulator (`tramtracker-2088`) |
 | Started | 2026-11-01 16:59:53 UTC |
-| Packaged | 2026-11-01 22:59:30 UTC |
-| Duration | **5h 59m 20s** (21,560 seconds) |
+| Packaged | 2026-11-01 23:03:40 UTC |
+| Duration | **6h 3m 32s** (21,812 seconds) |
 | Harness | OpenCode 2.2.5 |
 | Model | DeepSeek V4.1 Flash (`opencode-go/deepseek-v4.1-flash`) |
 | Session | `ses_e67f25924ffeV87ZCfDRsei45y` |
@@ -16,15 +16,15 @@
 
 | Metric | Tokens |
 | --- | ---: |
-| Input | 1,371,224 |
-| Output | 329,783 |
-| Reasoning | 471,729 |
-| **Total (input + output + reasoning)** | **2,172,736** |
-| Cache read | 241,345,024 |
+| Input | 1,378,642 |
+| Output | 332,952 |
+| Reasoning | 473,049 |
+| **Total (input + output + reasoning)** | **2,184,643** |
+| Cache read | 243,959,424 |
 | Cache write | 1,190 |
-| Total including cache | 243,517,760 |
+| Total including cache | 246,144,067 |
 
-> Snapshot taken from the OpenCode session record when the project was packaged at 2026-11-01 22:59:30 UTC. It includes the original build, track/cab/doors/announcement/CBD work, stop guides, city ambience, passenger manifests, stop requests, tourist stops, the 1.35 km St Kilda Road/Shrine extension with 21 respaced stops, mobile panel controls and the door interlock. The final state-file commit, push, Pages re-verification and closing response happen outside this snapshot, so the live session totals will be marginally higher. Total cost reported by the session: **$0.00**.
+> Snapshot taken from the OpenCode session record when the project was packaged at 2026-11-01 23:03:40 UTC. It includes the original build, track/cab/doors/announcement/CBD work, stop guides, city ambience, passenger manifests, stop requests, tourist stops, the 1.35 km St Kilda Road/Shrine extension with 21 respaced stops, mobile panel controls and the door interlock. The final state-file commit, push, Pages re-verification and closing response happen outside this snapshot, so the live session totals will be marginally higher. Total cost reported by the session: **$0.00**.
 
 ## Revisions after the first package
 
@@ -85,7 +85,7 @@ A complete, self-contained 3D tram simulator in three modular source files plus 
 | --- | ---: |
 | `index.html` | 19,897 bytes · 379 lines |
 | `style.css` | 59,697 bytes · 2,312 lines |
-| `script.js` | 301,575 bytes · 6,973 lines |
+| `script.js` | 301,735 bytes · 6,976 lines |
 | `README.md` | 26,935 bytes · 496 lines |
 | `screenshot.png` | 893 KB |
 | `screenshot-rain.png` | 1.16 MB |

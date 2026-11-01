@@ -11,7 +11,7 @@
      Constants
      ------------------------------------------------------------------------ */
 
-  const VERSION = '1.2.0';
+  const VERSION = '1.2.1';
   const SAVE_KEY = 'tramtracker_2088_v1';
   const SAVE_FILE = 'tramtracker_save.json';
   const APP_NAME = 'TramTracker 2088';
@@ -5054,12 +5054,15 @@
       this.tram.bellCooldown = Math.max(0, this.tram.bellCooldown - dt);
 
       const doorsLocked = this.trip.doorState !== 'closed';
-      const throttle = !doorsLocked && (this.keys.ArrowUp || this.keys.w || this.keys.W);
+      const throttleHeld = this.keys.ArrowUp || this.keys.w || this.keys.W;
+      const reverseHeld = this.keys.r || this.keys.R;
+      const throttle = !doorsLocked && throttleHeld;
       const braking = this.keys.ArrowDown || this.keys.s || this.keys.S;
-      const reverse = !doorsLocked && !braking && (this.keys.r || this.keys.R);
+      const reverse = !doorsLocked && !braking && reverseHeld;
       const brake = braking || doorsLocked;
       const handbrake = this.keys[' '];
-      const manualInput = throttle || braking || reverse || handbrake;
+      // Raw inputs take the auto driver out even while the doors are open.
+      const manualInput = throttleHeld || braking || reverseHeld || handbrake;
       if (this.autoDrive && manualInput) this.setAutoDrive(false);
 
       const next = this.getNextStop();
