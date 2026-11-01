@@ -11,7 +11,7 @@
      Constants
      ------------------------------------------------------------------------ */
 
-  const VERSION = '1.0.4';
+  const VERSION = '1.0.7';
   const SAVE_KEY = 'tramtracker_2088_v1';
   const SAVE_FILE = 'tramtracker_save.json';
   const APP_NAME = 'TramTracker 2088';
@@ -55,13 +55,55 @@
   ];
 
   const STOP_DEFS = [
-    { id: 'flinders', name: 'Flinders St Station', speechName: 'Flinders Street Station', short: 'Flinders St', point: { x: 0, z: -8 }, hue: 0xf6c800 },
-    { id: 'yarra', name: 'Yarra Promenade', speechName: 'Yarra Promenade', short: 'Yarra Prom', point: { x: 30, z: -40 }, hue: 0x46ffd3 },
-    { id: 'fed', name: 'Federation Square', speechName: 'Federation Square', short: 'Fed Square', point: { x: 60, z: 25 }, hue: 0xff7a4d },
-    { id: 'collins', name: 'Collins Street', speechName: 'Collins Street', short: 'Collins St', point: { x: 80, z: 25 }, hue: 0xffb340 },
-    { id: 'parliament', name: 'Parliament', speechName: 'Parliament Station', short: 'Parliament', point: { x: 100, z: 65 }, hue: 0x9d7bff },
-    { id: 'rmit', name: 'RMIT University', speechName: 'RMIT University', short: 'RMIT', point: { x: 60, z: 120 }, hue: 0xff5577 },
-    { id: 'uni', name: 'Melbourne Uni', speechName: 'Melbourne University', short: 'Melbourne Uni', point: { x: 0, z: 80 }, hue: 0x68a8ff }
+    {
+      id: 'flinders', name: 'Flinders Street Station', speechName: 'Flinders Street Station', short: 'Flinders St',
+      point: { x: 0, z: -8 }, hue: 0xf6c800,
+      wiki: 'https://en.wikipedia.org/wiki/Flinders_Street_railway_station',
+      blurb: "Melbourne's grand 1854 railway station and one of the city's best-loved landmarks, with its green copper dome, clock tower and long cream façade.",
+      nearby: ['Federation Square', "St Paul's Cathedral", 'the Yarra River']
+    },
+    {
+      id: 'arts', name: 'Arts Precinct', speechName: 'Arts Precinct', short: 'Arts Precinct',
+      point: { x: 30, z: -40 }, hue: 0x46ffd3,
+      wiki: 'https://en.wikipedia.org/wiki/Melbourne_Arts_Precinct',
+      blurb: 'The riverside cultural heart of Melbourne, home to the National Gallery of Victoria, Arts Centre Melbourne and Hamer Hall.',
+      nearby: ['the National Gallery of Victoria', 'Arts Centre Melbourne', 'Southbank Promenade']
+    },
+    {
+      id: 'fed', name: 'Federation Square', speechName: 'Federation Square', short: 'Fed Square',
+      point: { x: 60, z: 25 }, hue: 0xff7a4d,
+      wiki: 'https://en.wikipedia.org/wiki/Federation_Square',
+      blurb: 'A deconstructivist civic square opened in 2002, hosting ACMI, the Ian Potter Centre and a packed calendar of events.',
+      nearby: ['NGV Australia', 'ACMI', 'Flinders Street Station']
+    },
+    {
+      id: 'collins', name: 'Collins Street', speechName: 'Collins Street', short: 'Collins St',
+      point: { x: 80, z: 25 }, hue: 0xffb340,
+      wiki: 'https://en.wikipedia.org/wiki/Collins_Street,_Melbourne',
+      blurb: "Melbourne's historic Paris End, lined with Victorian-era arcades, luxury boutiques, theatres and the Town Hall.",
+      nearby: ['the Block Arcade', 'Melbourne Town Hall', 'Parliament House']
+    },
+    {
+      id: 'parliament', name: 'Parliament', speechName: 'Parliament Station', short: 'Parliament',
+      point: { x: 100, z: 65 }, hue: 0x9d7bff,
+      wiki: 'https://en.wikipedia.org/wiki/Parliament_House,_Melbourne',
+      blurb: "The seat of Victoria's Parliament since 1856, with a grand colonnade, dome and formal gardens on Spring Street.",
+      nearby: ['Parliament Station', 'the Old Treasury Building', 'Fitzroy Gardens']
+    },
+    {
+      id: 'rmit', name: 'RMIT University', speechName: 'RMIT University', short: 'RMIT',
+      point: { x: 60, z: 120 }, hue: 0xff5577,
+      wiki: 'https://en.wikipedia.org/wiki/RMIT_University',
+      blurb: 'A globally ranked design and technology university founded in 1887, whose city campus spills into the surrounding laneways.',
+      nearby: ['State Library Victoria', 'Melbourne Central', 'the Old Melbourne Gaol']
+    },
+    {
+      id: 'uni', name: 'Melbourne University', speechName: 'Melbourne University', short: 'Melbourne Uni',
+      point: { x: 0, z: 80 }, hue: 0x68a8ff,
+      wiki: 'https://en.wikipedia.org/wiki/University_of_Melbourne',
+      blurb: "Australia's second-oldest university, founded in 1853, with a historic Parkville campus and cultural collections.",
+      nearby: ['the Grainger Museum', 'the Royal Melbourne Hospital', 'Carlton Gardens']
+    }
   ];
 
   const PALETTE = {
@@ -170,7 +212,15 @@
       ctx.textAlign = o.align;
       ctx.textBaseline = 'middle';
       ctx.fillStyle = o.fg;
-      ctx.font = '900 ' + (o.fontSize || 56) + 'px Orbitron, Arial Black, sans-serif';
+      let fontSize = o.fontSize || 56;
+      const fontFamily = 'Orbitron, Arial Black, sans-serif';
+      ctx.font = '900 ' + fontSize + 'px ' + fontFamily;
+      const maxWidth = w - (o.align === 'left' ? 70 : 56);
+      const measured = ctx.measureText(text).width;
+      if (measured > maxWidth) {
+        fontSize = Math.max(14, Math.floor(fontSize * maxWidth / measured));
+        ctx.font = '900 ' + fontSize + 'px ' + fontFamily;
+      }
       const x = o.align === 'left' ? 30 : w / 2;
       ctx.fillText(text, x, h * 0.43);
       if (sub) {
@@ -261,6 +311,15 @@
       this.lastClack = 0;
       this.voice = null;
       this.voicesBound = false;
+      this.ambienceActive = false;
+      this.ambientLayers = null;
+      this.cityMood = 'sunny';
+      this.ambienceClock = 0;
+      this.nextTraffic = 2.4;
+      this.nextHorn = 9;
+      this.nextBird = 3.5;
+      this.nextDistantTram = 15;
+      this.nextCrowd = 7;
     }
 
     loadVoices() {
@@ -437,22 +496,57 @@
     }
 
     buildAmbient() {
-      const src = this.noiseSource(true);
-      const lp = this.ctx.createBiquadFilter();
-      lp.type = 'lowpass';
-      lp.frequency.value = 320;
       this.ambientGain = this.ctx.createGain();
       this.ambientGain.gain.value = 0;
-      src.connect(lp).connect(this.ambientGain).connect(this.master);
-      src.start();
+      this.ambientGain.connect(this.master);
 
-      [58, 92].forEach((f, i) => {
+      const layer = (filterType, frequency, q, gain) => {
+        const src = this.noiseSource(true);
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = filterType;
+        filter.frequency.value = frequency;
+        if (q) filter.Q.value = q;
+        const g = this.ctx.createGain();
+        g.gain.value = gain;
+        const pan = this.ctx.createStereoPanner ? this.ctx.createStereoPanner() : null;
+        if (pan) {
+          src.connect(filter).connect(g).connect(pan).connect(this.ambientGain);
+        } else {
+          src.connect(filter).connect(g).connect(this.ambientGain);
+        }
+        src.start();
+        return { src, filter, gain: g, pan };
+      };
+
+      const rumble = layer('lowpass', 230, 0.6, 0.10);
+      const traffic = layer('bandpass', 460, 0.7, 0.045);
+      const crowd = layer('bandpass', 880, 0.8, 0.032);
+      const wind = layer('highpass', 1500, 0.5, 0.018);
+
+      if (traffic.pan) traffic.pan.pan.value = 0.14;
+      if (crowd.pan) crowd.pan.pan.value = -0.2;
+
+      // Slow swells keep the street bed alive.
+      const lfo = (rate, depth, target) => {
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = rate;
+        g.gain.value = depth;
+        osc.connect(g).connect(target);
+        osc.start();
+      };
+      lfo(0.055, 0.014, traffic.gain.gain);
+      lfo(0.083, 0.01, crowd.gain.gain);
+      lfo(0.037, 0.018, rumble.gain.gain);
+
+      [58, 92, 132].forEach((f, i) => {
         const osc = this.ctx.createOscillator();
         osc.type = 'sine';
         osc.frequency.value = f;
         const g = this.ctx.createGain();
-        g.gain.value = i === 0 ? 0.018 : 0.009;
-        osc.connect(g).connect(this.master);
+        g.gain.value = i === 0 ? 0.014 : i === 1 ? 0.007 : 0.004;
+        osc.connect(g).connect(this.ambientGain);
         osc.start();
       });
 
@@ -464,11 +558,190 @@
       this.rainGain.gain.value = 0;
       rainSrc.connect(hp).connect(this.rainGain).connect(this.master);
       rainSrc.start();
+
+      this.ambientLayers = { rumble, traffic, crowd, wind };
+    }
+
+    setWeatherMood(name) {
+      this.cityMood = name || 'sunny';
+      if (!this.ctx || !this.ambientLayers) return;
+      const t = this.ctx.currentTime;
+      const settings = {
+        sunny: { rumble: 0.1, traffic: 0.05, crowd: 0.035, wind: 0.018 },
+        rain: { rumble: 0.13, traffic: 0.024, crowd: 0.02, wind: 0.05 },
+        twilight: { rumble: 0.12, traffic: 0.055, crowd: 0.05, wind: 0.024 }
+      }[this.cityMood] || { rumble: 0.1, traffic: 0.05, crowd: 0.035, wind: 0.018 };
+      Object.keys(settings).forEach((key) => {
+        if (this.ambientLayers[key]) {
+          this.ambientLayers[key].gain.gain.setTargetAtTime(settings[key], t, 1.2);
+        }
+      });
+    }
+
+    trafficPass() {
+      if (!this.ctx || this.muted) return;
+      const t = this.ctx.currentTime;
+      const duration = 2.4 + Math.random() * 1.4;
+      const src = this.noiseSource(true);
+      const bp = this.ctx.createBiquadFilter();
+      bp.type = 'bandpass';
+      bp.Q.value = 0.75;
+      bp.frequency.setValueAtTime(280 + Math.random() * 180, t);
+      bp.frequency.exponentialRampToValueAtTime(900 + Math.random() * 600, t + duration * 0.45);
+      bp.frequency.exponentialRampToValueAtTime(260, t + duration);
+      const g = this.ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(0.055 + Math.random() * 0.025, t + 0.45);
+      g.gain.setValueAtTime(0.055, t + duration * 0.62);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+      const pan = this.ctx.createStereoPanner ? this.ctx.createStereoPanner() : null;
+      if (pan) {
+        const dir = Math.random() > 0.5 ? 1 : -1;
+        pan.pan.setValueAtTime(-0.75 * dir, t);
+        pan.pan.linearRampToValueAtTime(0.75 * dir, t + duration);
+        src.connect(bp).connect(g).connect(pan).connect(this.ambientGain);
+      } else {
+        src.connect(bp).connect(g).connect(this.ambientGain);
+      }
+      src.start(t);
+      src.stop(t + duration + 0.05);
+    }
+
+    carHorn() {
+      if (!this.ctx || this.muted) return;
+      const t = this.ctx.currentTime + Math.random() * 0.4;
+      const pan = this.ctx.createStereoPanner ? this.ctx.createStereoPanner() : null;
+      if (pan) {
+        pan.pan.value = (Math.random() - 0.5) * 1.4;
+        pan.connect(this.ambientGain);
+      }
+      [392, 494].forEach((freq, i) => {
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        const lp = this.ctx.createBiquadFilter();
+        lp.type = 'lowpass';
+        lp.frequency.value = 1200;
+        osc.type = 'square';
+        osc.frequency.value = freq;
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.linearRampToValueAtTime(0.008, t + 0.015);
+        g.gain.setValueAtTime(0.008, t + 0.22);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.34);
+        osc.connect(lp).connect(g);
+        if (pan) g.connect(pan); else g.connect(this.ambientGain);
+        osc.start(t);
+        osc.stop(t + 0.4);
+      });
+    }
+
+    birdChirp() {
+      if (!this.ctx || this.muted || this.cityMood === 'rain') return;
+      const t = this.ctx.currentTime + 0.1;
+      const pan = this.ctx.createStereoPanner ? this.ctx.createStereoPanner() : null;
+      if (pan) {
+        pan.pan.value = (Math.random() - 0.5) * 1.6;
+        pan.connect(this.ambientGain);
+      }
+      const base = 2200 + Math.random() * 1200;
+      for (let i = 0; i < 3; i++) {
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        const at = t + i * 0.13;
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(base, at);
+        osc.frequency.exponentialRampToValueAtTime(base + 700, at + 0.06);
+        osc.frequency.exponentialRampToValueAtTime(base + 200, at + 0.1);
+        g.gain.setValueAtTime(0.0001, at);
+        g.gain.linearRampToValueAtTime(0.008, at + 0.008);
+        g.gain.exponentialRampToValueAtTime(0.0001, at + 0.12);
+        osc.connect(g);
+        if (pan) g.connect(pan); else g.connect(this.ambientGain);
+        osc.start(at);
+        osc.stop(at + 0.14);
+      }
+    }
+
+    distantTramBell() {
+      if (!this.ctx || this.muted) return;
+      const t = this.ctx.currentTime + 0.2;
+      const pan = this.ctx.createStereoPanner ? this.ctx.createStereoPanner() : null;
+      if (pan) {
+        pan.pan.value = (Math.random() - 0.5) * 1.2;
+        pan.connect(this.ambientGain);
+      }
+      const lp = this.ctx.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = 1800;
+      if (pan) lp.connect(pan); else lp.connect(this.ambientGain);
+      [1046.5, 1568].forEach((freq) => {
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.linearRampToValueAtTime(0.008, t + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.7);
+        osc.connect(g).connect(lp);
+        osc.start(t);
+        osc.stop(t + 0.75);
+      });
+    }
+
+    crowdSwell() {
+      if (!this.ctx || this.muted) return;
+      const t = this.ctx.currentTime;
+      const duration = 4 + Math.random() * 3;
+      const src = this.noiseSource(true);
+      const bp = this.ctx.createBiquadFilter();
+      bp.type = 'bandpass';
+      bp.frequency.setValueAtTime(650, t);
+      bp.frequency.linearRampToValueAtTime(1150, t + duration * 0.5);
+      bp.frequency.linearRampToValueAtTime(720, t + duration);
+      bp.Q.value = 0.7;
+      const g = this.ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.linearRampToValueAtTime(0.024, t + duration * 0.4);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+      src.connect(bp).connect(g).connect(this.ambientGain);
+      src.start(t);
+      src.stop(t + duration + 0.05);
+    }
+
+    updateAmbience(dt) {
+      if (!this.ctx || !this.ambienceActive || this.muted) return;
+      this.ambienceClock += dt;
+      this.nextTraffic -= dt;
+      this.nextHorn -= dt;
+      this.nextBird -= dt;
+      this.nextDistantTram -= dt;
+      this.nextCrowd -= dt;
+      if (this.nextTraffic <= 0) {
+        this.trafficPass();
+        this.nextTraffic = 4.5 + Math.random() * 6;
+      }
+      if (this.nextHorn <= 0) {
+        if (Math.random() > 0.35) this.carHorn();
+        this.nextHorn = 16 + Math.random() * 24;
+      }
+      if (this.nextBird <= 0) {
+        if (this.cityMood !== 'rain' && Math.random() > 0.25) this.birdChirp();
+        this.nextBird = 7 + Math.random() * 10;
+      }
+      if (this.nextDistantTram <= 0) {
+        if (Math.random() > 0.3) this.distantTramBell();
+        this.nextDistantTram = 18 + Math.random() * 24;
+      }
+      if (this.nextCrowd <= 0) {
+        this.crowdSwell();
+        this.nextCrowd = 9 + Math.random() * 14;
+      }
     }
 
     startAmbience() {
       if (!this.ensure()) return;
-      this.ambientGain.gain.setTargetAtTime(0.055, this.ctx.currentTime, 0.8);
+      this.ambienceActive = true;
+      this.setWeatherMood(this.cityMood);
+      this.ambientGain.gain.setTargetAtTime(0.18, this.ctx.currentTime, 0.9);
     }
 
     setRain(active) {
@@ -711,6 +984,8 @@
       this.announcedStopId = null;
       this.lastAnnouncementAt = 0;
       this.lastDoorHint = 0;
+      this.guideStopId = null;
+      this.guideTimer = null;
       this.tramDoors = [];
       this.expectedErrors = [];
       this.jsErrors = [];
@@ -836,6 +1111,13 @@
         promptDist: $('#promptDist'),
         announcementBar: $('#announcementBar'),
         announcementText: $('#announcementText'),
+        stopInfo: $('#stopInfo'),
+        stopInfoName: $('#stopInfoName'),
+        stopInfoBlurb: $('#stopInfoBlurb'),
+        stopInfoNearby: $('#stopInfoNearby'),
+        stopInfoLink: $('#stopInfoLink'),
+        stopInfoBtn: $('#stopInfoBtn'),
+        stopInfoClose: $('#stopInfoClose'),
         minimap: $('#minimap'),
         toasts: $('#toasts'),
         muteBtn: $('#muteBtn'),
@@ -926,6 +1208,8 @@
       if (d.bellBtn) d.bellBtn.addEventListener('click', () => this.ringBell());
       if (d.doorBtn) d.doorBtn.addEventListener('click', () => this.toggleDoors());
       if (d.viewBtn) d.viewBtn.addEventListener('click', () => this.toggleView());
+      if (d.stopInfoBtn) d.stopInfoBtn.addEventListener('click', () => this.showStopGuide(this.getNextStop(), true));
+      if (d.stopInfoClose) d.stopInfoClose.addEventListener('click', () => this.hideStopGuide());
       if (d.hookBtn) d.hookBtn.addEventListener('click', () => this.openHookGame());
       if (d.badgesBtn) d.badgesBtn.addEventListener('click', () => this.openBadges());
       if (d.saveBtn) d.saveBtn.addEventListener('click', () => this.exportSave());
@@ -1204,6 +1488,9 @@
         if (d.nextStopDistance) d.nextStopDistance.textContent = Math.round(ahead) + ' m';
         if (d.stopProgress) d.stopProgress.style.width = clamp(100 - (ahead / 70) * 100, 0, 100).toFixed(1) + '%';
         if (d.stopHint) d.stopHint.textContent = platform ? 'Press O or DOORS to open' : 'Roll up to the platform';
+        if (ahead > 2 && ahead < 26 && this.trip.doorState === 'closed' && next.blurb && this.guideStopId !== next.id) {
+          this.showStopGuide(next);
+        }
         if (d.stopPrompt) {
           const show = ahead < 42 && this.trip.doorState === 'closed';
           d.stopPrompt.classList.toggle('show', show);
@@ -1331,7 +1618,7 @@
         this.audio.ensure();
         this.audio.startAmbience();
         this.audio.bell();
-        setTimeout(() => this.toast('Route <b>2088</b> — welcome aboard. Next stop: Flinders St Station.', 4200), 450);
+        setTimeout(() => this.toast('Route <b>2088</b> — welcome aboard. Next stop: Flinders Street Station.', 4200), 450);
       }
       this.career.stats.trips += 1;
       this.persist();
@@ -1538,6 +1825,9 @@
           speechName: def.speechName || def.name,
           short: def.short,
           hue: def.hue,
+          blurb: def.blurb || '',
+          nearby: def.nearby || [],
+          wiki: def.wiki || '',
           s: s,
           point: new THREE.Vector3(p.x, 0.16, p.z),
           tangent: tan,
@@ -3216,24 +3506,34 @@
         backGlass.rotation.y = heading;
         group.add(backGlass);
 
-        // Stop sign and Myki validator.
-        const signTex = makeSignTexture(stop.short.toUpperCase(), 'TRAM 2088', { fontSize: 44, bg: '#031a12', fg: '#f6c800' });
-        const sign = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 0.85), new THREE.MeshBasicMaterial({ map: signTex, side: THREE.DoubleSide }));
-        sign.position.set(px + stop.outward.x * 0.1, 3.5, pz + stop.outward.z * 0.1);
-        sign.rotation.y = heading + Math.PI / 2;
-        group.add(sign);
+        // Double-faced stop sign: one face to the tram, one to the platform.
+        const signTex = makeSignTexture(stop.name.toUpperCase(), 'TRAM 2088', { fontSize: 38, bg: '#031a12', fg: '#f6c800' });
+        const signMat = new THREE.MeshBasicMaterial({ map: signTex });
+        const signToTrack = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 1.05), signMat);
+        signToTrack.position.set(px, 3.56, pz);
+        signToTrack.rotation.y = Math.atan2(-stop.outward.x, -stop.outward.z);
+        group.add(signToTrack);
+        const signToPlatform = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 1.05), signMat);
+        signToPlatform.position.set(px, 3.56, pz);
+        signToPlatform.rotation.y = Math.atan2(stop.outward.x, stop.outward.z);
+        group.add(signToPlatform);
+        const signPost = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.055, 3.35, 6), zinc);
+        signPost.position.set(px, 1.9, pz);
+        group.add(signPost);
 
+        // Myki validator, screen facing the platform.
         const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 2.6, 6), zinc);
         pole.position.set(px + stop.tangent.x * 5.8, 1.5, pz + stop.tangent.z * 5.8);
         group.add(pole);
+        const validatorGroup = new THREE.Group();
+        validatorGroup.position.set(px + stop.tangent.x * 5.8, 1.75, pz + stop.tangent.z * 5.8);
+        validatorGroup.rotation.y = Math.atan2(stop.outward.x, stop.outward.z);
         const validator = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.55, 0.22), new THREE.MeshStandardMaterial({ color: 0x0b1713, roughness: 0.4, metalness: 0.5 }));
-        validator.position.set(px + stop.tangent.x * 5.8, 1.75, pz + stop.tangent.z * 5.8);
-        validator.rotation.y = heading;
-        group.add(validator);
+        validatorGroup.add(validator);
         const validatorScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.24, 0.16), new THREE.MeshBasicMaterial({ color: 0x46ffd3 }));
-        validatorScreen.position.set(px + stop.tangent.x * 5.8, 1.82, pz + stop.tangent.z * 5.8 + 0.115);
-        validatorScreen.rotation.y = heading + Math.PI;
-        group.add(validatorScreen);
+        validatorScreen.position.set(0, 0.07, 0.115);
+        validatorGroup.add(validatorScreen);
+        group.add(validatorGroup);
 
         // Bench.
         const benchMat = new THREE.MeshStandardMaterial({ color: 0x5b3f28, roughness: 0.9 });
@@ -3681,6 +3981,7 @@
       document.body.dataset.weather = name;
       $$('.weather-btn').forEach((btn) => btn.classList.toggle('is-active', btn.dataset.weather === name));
       this.audio.setRain(this.weatherTarget.rain > 0.5);
+      this.audio.setWeatherMood(name);
       this.career.settings.weather = name;
       if (!silent) {
         this.toast('Weather set · ' + this.weatherTarget.label, 2600);
@@ -3927,7 +4228,8 @@
         const ahead = this.distanceAhead(next);
         if (ahead > 10 && ahead < 38 && this.announcedStopId !== next.id && this.time - this.lastAnnouncementAt > 6) {
           this.announcedStopId = next.id;
-          this.announce('Next stop, ' + next.speechName + '.', 'stop');
+          const nearby = this.formatNearby(next);
+          this.announce('Next stop, ' + next.speechName + '.' + (nearby ? ' Get off here for ' + nearby + '.' : ''), 'stop');
         }
       }
 
@@ -4008,6 +4310,47 @@
       this.announceTimer = setTimeout(() => this.audio.speak(text), 640);
     }
 
+    formatNearby(stop) {
+      const items = stop && Array.isArray(stop.nearby) ? stop.nearby : [];
+      if (!items.length) return '';
+      if (items.length === 1) return items[0];
+      return items.slice(0, -1).join(', ') + ' and ' + items[items.length - 1];
+    }
+
+    showStopGuide(stop, force) {
+      if (!stop || !this.dom.stopInfo) return;
+      if (!force && this.guideStopId === stop.id) return;
+      this.guideStopId = stop.id;
+      const d = this.dom;
+      if (d.stopInfoName) d.stopInfoName.textContent = stop.name;
+      if (d.stopInfoBlurb) d.stopInfoBlurb.textContent = stop.blurb || '';
+      if (d.stopInfoNearby) {
+        d.stopInfoNearby.innerHTML = '';
+        (stop.nearby || []).forEach((place) => {
+          const chip = document.createElement('span');
+          chip.textContent = place;
+          d.stopInfoNearby.appendChild(chip);
+        });
+      }
+      if (d.stopInfoLink) {
+        d.stopInfoLink.href = stop.wiki || 'https://en.wikipedia.org/wiki/Melbourne';
+        d.stopInfoLink.setAttribute('aria-label', 'Read more about ' + stop.name + ' on Wikipedia');
+      }
+      d.stopInfo.classList.add('show');
+      d.stopInfo.setAttribute('aria-hidden', 'false');
+      clearTimeout(this.guideTimer);
+      this.guideTimer = setTimeout(() => this.hideStopGuide(), 15000);
+    }
+
+    hideStopGuide() {
+      clearTimeout(this.guideTimer);
+      this.guideTimer = null;
+      if (this.dom.stopInfo) {
+        this.dom.stopInfo.classList.remove('show');
+        this.dom.stopInfo.setAttribute('aria-hidden', 'true');
+      }
+    }
+
     showAnnouncement(text) {
       const bar = this.dom.announcementBar;
       const copy = this.dom.announcementText;
@@ -4059,6 +4402,7 @@
       this.audio.doorHiss(true);
       this.audio.click();
       this.announce('Now arriving at ' + stop.speechName + '. Doors opening.', 'open');
+      this.showStopGuide(stop);
       this.trip.perfectStopPending = ahead < 4.2;
       this.updateHud(true);
     }
@@ -4524,6 +4868,7 @@
         this.time += dt;
         this.updateWeather(dt);
         this.updateRain(dt);
+        if (this.started) this.audio.updateAmbience(dt);
         this.updateClouds(dt);
         this.updateTraffic(dt);
         this.updatePassengers(dt);
@@ -4602,10 +4947,10 @@
       add('Tram mesh assembled', !!(this.tramGroup && this.tramGroup.children.length > 40), this.tramGroup ? this.tramGroup.children.length + ' parts' : 'none');
       add('Cannon tram body', !!(this.tramBody && this.tramBody.mass > 1000), this.tramBody ? Math.round(this.tramBody.mass) + ' kg' : 'none');
       add('Overhead catenary', !!(this.poles && this.poles.children.length > 30), this.poles ? this.poles.children.length + ' pieces' : 'none');
-      add('Flinders St Station', !!(this.station && this.station.children.length > 20), this.station ? this.station.children.length + ' parts' : 'none');
+      add('Flinders Street Station', !!(this.station && this.station.children.length > 20), this.station ? this.station.children.length + ' parts' : 'none');
       add('Federation Square', !!(this.fedSquare && this.fedSquare.children.length > 10), this.fedSquare ? this.fedSquare.children.length + ' parts' : 'none');
       add('Yarra River & bridge', !!(this.yarra && this.waterMat), this.yarra ? this.yarra.children.length + ' parts' : 'none');
-      add('Web Audio synth voices', typeof this.audio.bell === 'function' && typeof this.audio.myki === 'function' && typeof this.audio.setScreech === 'function', 'bell, myki, screech, rain');
+      add('Web Audio synth voices', typeof this.audio.bell === 'function' && typeof this.audio.myki === 'function' && typeof this.audio.setScreech === 'function' && typeof this.audio.updateAmbience === 'function', 'bell, myki, screech, traffic, crowd, birds, distant trams');
       add('Three weather presets', Object.keys(WEATHERS).length === 3, Object.keys(WEATHERS).join(', '));
       add('Nine route badges', BADGES.length === 9, BADGES.length + ' badges');
       add('Save schema validates', sanitizeSave(this.serializeSave()) !== null, 'tramtracker_save.json');
@@ -4655,6 +5000,15 @@
         && !!this.dom.announcementText
         && this.dom.announcementText.textContent.indexOf('Flinders Street') >= 0;
       add('Stop & door announcements', annOK, 'en-AU speech + chime + subtitle');
+
+      this.showStopGuide(this.stops[0], true);
+      const guideOK = !!this.dom.stopInfo
+        && !!this.dom.stopInfoLink
+        && this.dom.stopInfoLink.href.indexOf('wikipedia.org') >= 0
+        && this.dom.stopInfoName.textContent.indexOf('Flinders') >= 0
+        && this.stops.every((s) => s.blurb && s.nearby && s.nearby.length && s.wiki);
+      add('Stop guide with Wikipedia links', guideOK, 'nearby places · background · external link');
+      this.hideStopGuide();
 
       this.setWeather('rain', true);
       const rainOK = this.currentWeather === 'rain';

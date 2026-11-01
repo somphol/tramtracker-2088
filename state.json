@@ -6,21 +6,21 @@
   "liveDemo": "https://somphol.github.io/tramtracker-2088/",
   "build": {
     "startedAt": "2026-11-01T16:59:53Z",
-    "packagedAt": "2026-11-01T19:39:26Z",
-    "durationSeconds": 9573,
-    "durationHuman": "2h 39m 33s",
+    "packagedAt": "2026-11-01T20:17:46Z",
+    "durationSeconds": 11873,
+    "durationHuman": "3h 17m 53s",
     "timezone": "UTC",
-    "includes": "Initial build, track-spin fix, driver cab view, manual doors and announcements, and the extended CBD loop"
+    "includes": "Initial build, track fix, driver cab, doors/announcements, extended CBD loop, stop guides, Richer city soundscape and real stop names"
   },
   "tokens": {
-    "input": 728905,
-    "output": 182998,
-    "reasoning": 251269,
-    "cacheRead": 82859904,
+    "input": 882635,
+    "output": 218794,
+    "reasoning": 310011,
+    "cacheRead": 131062016,
     "cacheWrite": 1190,
-    "total": 1163172,
-    "totalWithCache": 84024266,
-    "note": "Snapshot from the OpenCode session record at 2026-11-01T19:39:26Z. total = input + output + reasoning. Cache reads/writes are context-usage figures and are reported separately rather than added to the model-token total."
+    "total": 1411440,
+    "totalWithCache": 132474646,
+    "note": "Snapshot from the OpenCode session record at 2026-11-01T20:17:46Z. total = input + output + reasoning. Cache reads/writes are context-usage figures and are reported separately."
   },
   "cost": {
     "usd": 0.0,
@@ -65,23 +65,23 @@
   "files": [
     {
       "path": "index.html",
-      "bytes": 17501,
-      "lines": 345
+      "bytes": 18381,
+      "lines": 360
     },
     {
       "path": "style.css",
-      "bytes": 48340,
-      "lines": 1810
+      "bytes": 52154,
+      "lines": 2006
     },
     {
       "path": "script.js",
-      "bytes": 230067,
-      "lines": 5489
+      "bytes": 244929,
+      "lines": 5843
     },
     {
       "path": "README.md",
-      "bytes": 17564,
-      "lines": 372
+      "bytes": 18561,
+      "lines": 378
     }
   ],
   "screenshots": [
@@ -89,6 +89,7 @@
     "screenshot-driver.png",
     "screenshot-driver-rain.png",
     "screenshot-doors.png",
+    "screenshot-stop-guide.png",
     "screenshot-cbd.png",
     "screenshot-collins.png",
     "screenshot-parliament.png",
@@ -125,7 +126,10 @@
     "Built-in 26-check self-test harness",
     "Extended 518 m Hoddle Grid CBD loop with seven stops",
     "Collins Street, Parliament House and RMIT University landmarks",
-    "CBD loop via Flinders, Spring/Exhibition, Collins, La Trobe/Queensberry and Swanston"
+    "CBD loop via Flinders, Spring/Exhibition, Collins, La Trobe/Queensberry and Swanston",
+    "Stop guide cards with nearby landmarks and Wikipedia links",
+    "Layered city soundscape with traffic, crowd, birds, horns and distant tram bells",
+    "Real Melbourne stop names including Arts Precinct, Flinders Street Station and Melbourne University"
   ],
   "revisions": [
     {
@@ -143,10 +147,14 @@
     {
       "date": "2026-11-01",
       "change": "Extended the track into the CBD as a 518 m loop through Collins Street, Spring/Parliament and RMIT, with new stops, landmarks, roads, City Loop minimap and Hoddle Grid-inspired block layout."
+    },
+    {
+      "date": "2026-11-01",
+      "change": "Added stop-guide cards with nearby places and Wikipedia links, richer layered city ambience, real stop names and double-faced stop signage."
     }
   ],
   "verification": {
-    "selfTest": "28/28 PASS",
+    "selfTest": "29/29 PASS",
     "selfTestUrl": "https://somphol.github.io/tramtracker-2088/?selftest=1",
     "checked": [
       "Three.js r128 and Cannon.js 0.6.2 loaded",
@@ -161,6 +169,7 @@
       "Traction simulation and live Myki boarding",
       "Driver's cab view switching, camera FOV and orbit-control handoff",
       "Manual door open/close, passenger boarding and stop/door announcement wiring",
+      "Stop-guide cards, nearby places and Wikipedia links",
       "Hook Turn scene readiness",
       "Zero uncaught errors"
     ],
