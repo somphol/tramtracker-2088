@@ -1270,7 +1270,11 @@
 
     buildCurve() {
       const pts = [];
-      const push = (x, z) => pts.push(new THREE.Vector3(x, 0.12, z));
+      const push = (x, z) => {
+        const p = new THREE.Vector3(x, 0.12, z);
+        if (pts.length && pts[pts.length - 1].distanceToSquared(p) < 1e-8) return;
+        pts.push(p);
+      };
       const R = 14;
       const straight = (fromX, fromZ, toX, toZ, steps) => {
         for (let i = 0; i <= steps; i++) {
@@ -1301,7 +1305,7 @@
 
       const startS = this.distanceAt(0, 30);
       this.tram.s = startS;
-      this.tram.heading = Math.atan2(this.tram.curve.getTangentAt(startS / this.tram.length).x, this.tram.curve.getTangentAt(startS / this.tram.length).z);
+      this.tram.heading = this.headingAtDistance(startS);
 
       // Resolve each named stop onto the arc-length of the loop.
       this.stops = STOP_DEFS.map((def) => {
@@ -1351,6 +1355,16 @@
         if (d < bestD) { bestD = d; bestU = u; }
       }
       return bestU * this.tram.length;
+    }
+
+    headingAtDistance(s) {
+      const L = this.tram.length;
+      const delta = Math.min(1.2, L * 0.004);
+      const u1 = mod((s - delta) / L, 1);
+      const u2 = mod((s + delta) / L, 1);
+      const a = this.tram.curve.getPointAt(u1);
+      const b = this.tram.curve.getPointAt(u2);
+      return Math.atan2(b.x - a.x, b.z - a.z);
     }
 
     buildSky() {
@@ -3388,9 +3402,10 @@
       const u = mod(this.tram.s / this.tram.length, 1);
       const p = this.tram.curve.getPointAt(u);
       const t = this.tram.curve.getTangentAt(u);
-      const yaw = Math.atan2(t.x, t.z);
+      const yaw = this.headingAtDistance(this.tram.s);
       const delta = Math.atan2(Math.sin(yaw - this.tram.heading), Math.cos(yaw - this.tram.heading));
-      this.tram.heading += delta * Math.min(1, dt * 14);
+      const step = clamp(delta * Math.min(1, dt * 14), -0.32, 0.32);
+      this.tram.heading += step;
 
       this.tramGroup.position.set(p.x, 0.12, p.z);
       this.tramGroup.rotation.y = this.tram.heading;
