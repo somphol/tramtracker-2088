@@ -11,7 +11,7 @@
      Constants
      ------------------------------------------------------------------------ */
 
-  const VERSION = '1.1.0';
+  const VERSION = '1.1.1';
   const SAVE_KEY = 'tramtracker_2088_v1';
   const SAVE_FILE = 'tramtracker_save.json';
   const APP_NAME = 'TramTracker 2088';
@@ -1408,7 +1408,7 @@
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
 
       const key = e.key;
-      const drivingKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ', 'w', 'a', 's', 'd', 'W', 'A', 'S', 'D'];
+      const drivingKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' ', 'w', 'a', 's', 'd', 'r', 'W', 'A', 'S', 'D', 'R'];
       if (drivingKeys.includes(key)) e.preventDefault();
 
       if (this.hookActive) {
@@ -4952,14 +4952,25 @@
 
       const doorsLocked = this.trip.doorState !== 'closed';
       const throttle = !doorsLocked && (this.keys.ArrowUp || this.keys.w || this.keys.W);
-      const brake = this.keys.ArrowDown || this.keys.s || this.keys.S || doorsLocked;
+      const braking = this.keys.ArrowDown || this.keys.s || this.keys.S;
+      const reverse = !doorsLocked && !braking && (this.keys.r || this.keys.R);
+      const brake = braking || doorsLocked;
       const handbrake = this.keys[' '];
 
       let speed = this.tram.speed;
       if (throttle) speed += 1.95 * dt;
-      if (brake) speed -= (speed > 0 ? 4.6 : 1.7) * dt;
+      if (brake) {
+        // Brake toward zero from either direction; it never pushes into reverse.
+        const rate = Math.abs(speed) > 0.1 ? 4.6 : 1.7;
+        speed -= Math.sign(speed) * rate * dt;
+        if (Math.abs(speed) < 0.06) speed = 0;
+      } else if (reverse) {
+        // Reverse is a separate control: shed forward speed first, then back up.
+        if (speed > 0.05) speed -= 4.6 * dt;
+        else speed -= 1.45 * dt;
+      }
       if (handbrake) speed *= Math.pow(0.015, dt);
-      if (!throttle && !brake && !handbrake) speed *= Math.pow(0.55, dt);
+      if (!throttle && !brake && !reverse && !handbrake) speed *= Math.pow(0.55, dt);
       speed = clamp(speed, this.tram.maxReverse, this.tram.maxSpeed);
       if (Math.abs(speed) < 0.02) speed = 0;
       if (doorsLocked) {

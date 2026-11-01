@@ -6,21 +6,21 @@
   "liveDemo": "https://somphol.github.io/tramtracker-2088/",
   "build": {
     "startedAt": "2026-11-01T16:59:53Z",
-    "packagedAt": "2026-11-01T22:11:00Z",
-    "durationSeconds": 18637,
-    "durationHuman": "5h 10m 37s",
+    "packagedAt": "2026-11-01T22:44:30Z",
+    "durationSeconds": 20665,
+    "durationHuman": "5h 44m 25s",
     "timezone": "UTC",
-    "includes": "Initial build, track/cab/doors/announcement/CBD work, stop guides, city ambience, passenger manifests, stop requests, tourist stops, a 1.35 km St Kilda Road/Shrine extension with 21 spaced stops, mobile panel controls and a door interlock."
+    "includes": "Initial build, track/cab/doors/announcement/CBD work, stop guides, city ambience, passenger manifests, stop requests, tourist stops, the 1.35 km St Kilda Road/Shrine extension with 21 spaced stops, mobile panel controls, the door interlock and separate brake/reverse controls."
   },
   "tokens": {
-    "input": 1289744,
-    "output": 305607,
-    "reasoning": 451714,
-    "cacheRead": 219630976,
+    "input": 1321705,
+    "output": 316059,
+    "reasoning": 456698,
+    "cacheRead": 227545472,
     "cacheWrite": 1190,
-    "total": 2047065,
-    "totalWithCache": 221678041,
-    "note": "Snapshot from the OpenCode session record at 2026-11-01T22:11:00Z. total = input + output + reasoning. Cache reads/writes are context-usage figures and are reported separately."
+    "total": 2094462,
+    "totalWithCache": 229639934,
+    "note": "Snapshot from the OpenCode session record at 2026-11-01T22:44:30Z. total = input + output + reasoning. Cache reads/writes are context-usage figures and are reported separately."
   },
   "cost": {
     "usd": 0.0,
@@ -65,23 +65,23 @@
   "files": [
     {
       "path": "index.html",
-      "bytes": 19181,
-      "lines": 373
+      "bytes": 19398,
+      "lines": 374
     },
     {
       "path": "style.css",
-      "bytes": 58950,
-      "lines": 2286
+      "bytes": 59026,
+      "lines": 2287
     },
     {
       "path": "script.js",
-      "bytes": 295161,
-      "lines": 6808
+      "bytes": 295685,
+      "lines": 6819
     },
     {
       "path": "README.md",
-      "bytes": 25771,
-      "lines": 474
+      "bytes": 25963,
+      "lines": 476
     }
   ],
   "screenshots": [
@@ -140,7 +140,8 @@
     "Stop guide cards with nearby landmarks and Wikipedia links",
     "Layered city soundscape with traffic, crowd, birds, horns and distant tram bells",
     "Passenger destination manifests, pull-the-cord stop requests and alighting animations",
-    "Tourist landmarks including Princess Theatre, Fitzroy and Carlton gardens, Old Treasury, Melbourne Museum, Queen Victoria Market, Melbourne Central, Town Hall, Hosier Lane, St Paul’s and the Shrine"
+    "Tourist landmarks including Princess Theatre, Fitzroy and Carlton gardens, Old Treasury, Melbourne Museum, Queen Victoria Market, Melbourne Central, Town Hall, Hosier Lane, St Paul’s and the Shrine",
+    "Separate brake and reverse controls with brake priority"
   ],
   "revisions": [
     {
@@ -174,6 +175,10 @@
     {
       "date": "2026-11-01",
       "change": "Added minimizable telemetry and stop-guide panels for mobile, plus a persistent door interlock warning in the HUD and driver cab when traction is requested with the doors open."
+    },
+    {
+      "date": "2026-11-01",
+      "change": "Separated braking from reverse: BRAKE stops and holds at zero, REVERSE is a dedicated R key/touch button, and brake overrides reverse when both are held."
     }
   ],
   "verification": {

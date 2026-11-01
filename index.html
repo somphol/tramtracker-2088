@@ -24,7 +24,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=1.1.0" />
+  <link rel="stylesheet" href="style.css?v=1.1.1" />
 </head>
 <body>
   <div id="app">
@@ -219,6 +219,7 @@
       <div class="touch-pad" aria-label="Tram controls">
         <button class="touch-btn touch-throttle" data-key="ArrowUp" aria-label="Throttle">▲<small>POWER</small></button>
         <button class="touch-btn touch-brake" data-key="ArrowDown" aria-label="Brake">▼<small>BRAKE</small></button>
+        <button class="touch-btn touch-reverse" data-key="r" aria-label="Reverse">◀<small>REVERSE</small></button>
       </div>
       <div class="touch-side">
         <button class="touch-btn touch-bell" data-action="bell" aria-label="Ring bell">🔔</button>
@@ -272,7 +273,7 @@
         <div class="help-grid">
           <section>
             <h3>Drive</h3>
-            <p><kbd>W</kbd>/<kbd>↑</kbd> apply traction. <kbd>S</kbd>/<kbd>↓</kbd> brake, then reverse. The tram is rail-guided — it steers itself. Slow for curves or the wheels will sing.</p>
+            <p><kbd>W</kbd>/<kbd>↑</kbd> apply traction. <kbd>S</kbd>/<kbd>↓</kbd> brake to a stop and hold. Hold <kbd>R</kbd> or the <b>REVERSE</b> button to back up; the brake always overrides reverse. The tram is rail-guided — it steers itself. Slow for curves or the wheels will sing.</p>
             <h3>Serve stops</h3>
             <p>Each stop has a glowing platform marker. Roll in below 2 km/h inside the zone, then press <kbd>O</kbd> or the <b>Doors</b> toolbar button to release the doors. Passenger boarding, Myki beeps and the stop announcement follow. Press <kbd>O</kbd> again to close the doors before departing.</p>
             <h3>Bell</h3>
@@ -368,6 +369,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
-  <script src="script.js?v=1.1.0"></script>
+  <script src="script.js?v=1.1.1"></script>
 </body>
 </html>

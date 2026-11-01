@@ -164,6 +164,7 @@ On a phone the telemetry panel and stop guide can cover a lot of the road. Both 
 - **Twenty-one-stop tourist loop** — Flinders Street, St Paul's, Hosier Lane, Arts Precinct, Shrine of Remembrance, Southbank, Federation Square, Collins Street, Old Treasury, Parliament, Princess Theatre, Fitzroy Gardens, RMIT, Carlton Gardens, Melbourne Museum, Melbourne University, Melbourne Central, Queen Victoria Market, Bourke Street Mall, Chinatown and Town Hall.
 - **Tourist landmarks** — Parliament House, RMIT, the Princess Theatre, Fitzroy and Carlton gardens, the Old Treasury, Melbourne Museum, Queen Victoria Market, Melbourne Central's shot tower, Town Hall, Hosier Lane, St Paul's Cathedral and the Shrine of Remembrance.
 - **Door interlock** — traction is blocked with a pulsing warning until the doors are fully closed.
+- **Separate brake and reverse** — the brake stops and holds at zero, while reverse is a dedicated `R` / REVERSE control; the brake overrides it.
 - **Minimizable mobile panels** — collapse the telemetry and stop guide to see the road.
 - Follow camera with **mouse orbit and zoom**, plus a recentre key.
 
@@ -208,7 +209,7 @@ The city bed follows the weather: birds in classic sun, more wind and rain in a 
 
 ### UI
 
-Yarra Trams green and gold meets a cyberpunk neon HUD: glassmorphic telemetry, conic-gradient speedometer, live route minimap, next-stop guidance, toasts, a driver's manual, route badges, and responsive layouts for desktop, tablet and phone. Touch power/brake/bell/hook controls appear on small screens.
+Yarra Trams green and gold meets a cyberpunk neon HUD: glassmorphic telemetry, conic-gradient speedometer, live route minimap, next-stop guidance, toasts, a driver's manual, route badges, and responsive layouts for desktop, tablet and phone. Touch power/brake/reverse/bell/hook controls appear on small screens.
 
 ### Persistence
 
@@ -223,7 +224,8 @@ Yarra Trams green and gold meets a cyberpunk neon HUD: glassmorphic telemetry, c
 | Action | Keyboard | Touch |
 | --- | --- | --- |
 | Apply traction | `W` / `↑` | **POWER** pad |
-| Brake / reverse | `S` / `↓` | **BRAKE** pad |
+| Brake to a stop | `S` / `↓` | **BRAKE** pad |
+| Reverse | `R` | **REVERSE** pad |
 | Ring bell | `B` | 🔔 |
 | Hook Turn Challenge | `G` | ↱ |
 | Open / close doors | `O` | **DOORS** toolbar button |

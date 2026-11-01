@@ -764,6 +764,7 @@ kbd {
 }
 .touch-throttle { border-color: rgba(70, 255, 211, 0.4); }
 .touch-brake { border-color: rgba(255, 179, 64, 0.45); }
+.touch-reverse { border-color: rgba(157, 123, 255, 0.55); color: #d9c8ff; }
 .touch-bell, .touch-hook { width: 54px; height: 54px; font-size: 18px; }
 
 /* --------------------------------------------------------------------------

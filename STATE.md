@@ -4,8 +4,8 @@
 | --- | --- |
 | Project | TramTracker 2088 — Melbourne Yarra Trams 3D Simulator (`tramtracker-2088`) |
 | Started | 2026-11-01 16:59:53 UTC |
-| Packaged | 2026-11-01 22:11:00 UTC |
-| Duration | **5h 10m 37s** (18,637 seconds) |
+| Packaged | 2026-11-01 22:44:30 UTC |
+| Duration | **5h 44m 25s** (20,665 seconds) |
 | Harness | OpenCode 2.2.5 |
 | Model | DeepSeek V4.1 Flash (`opencode-go/deepseek-v4.1-flash`) |
 | Session | `ses_e67f25924ffeV87ZCfDRsei45y` |
@@ -16,15 +16,15 @@
 
 | Metric | Tokens |
 | --- | ---: |
-| Input | 1,289,744 |
-| Output | 305,607 |
-| Reasoning | 451,714 |
-| **Total (input + output + reasoning)** | **2,047,065** |
-| Cache read | 219,630,976 |
+| Input | 1,321,705 |
+| Output | 316,059 |
+| Reasoning | 456,698 |
+| **Total (input + output + reasoning)** | **2,094,462** |
+| Cache read | 227,545,472 |
 | Cache write | 1,190 |
-| Total including cache | 221,678,041 |
+| Total including cache | 229,639,934 |
 
-> Snapshot taken from the OpenCode session record when the project was packaged at 2026-11-01 22:11:00 UTC. It includes the original build, track/cab/doors/announcement/CBD work, stop guides, city ambience, passenger manifests, stop requests, tourist stops, the 1.35 km St Kilda Road/Shrine extension with 21 respaced stops, mobile panel controls and the door interlock. The final state-file commit, push, Pages re-verification and closing response happen outside this snapshot, so the live session totals will be marginally higher. Total cost reported by the session: **$0.00**.
+> Snapshot taken from the OpenCode session record when the project was packaged at 2026-11-01 22:44:30 UTC. It includes the original build, track/cab/doors/announcement/CBD work, stop guides, city ambience, passenger manifests, stop requests, tourist stops, the 1.35 km St Kilda Road/Shrine extension with 21 respaced stops, mobile panel controls and the door interlock. The final state-file commit, push, Pages re-verification and closing response happen outside this snapshot, so the live session totals will be marginally higher. Total cost reported by the session: **$0.00**.
 
 ## Revisions after the first package
 
@@ -35,7 +35,8 @@
 5. **Stop guides, soundscape and names** — added nearby-place/Wikipedia stop cards, richer layered city ambience, actual Melbourne stop names and double-faced stop signs.
 6. **Passengers and tourist stops** — added destination manifests, pull-the-cord stop requests, alighting animations and more tourist stops.
 7. **1.35 km Shrine extension** — rebuilt the loop around St Kilda Road, Kings Domain and the Shrine of Remembrance, respaced all 21 stops to at least 30 m, added two tram bridges and kept buildings clear of the track.
-8. **Mobile panels and door interlock** — added minimizable telemetry/stop-guide panels and a persistent door warning that blocks traction until the doors close. Self-tests increased to 32 checks.
+8. **Mobile panels and door interlock** — added minimizable telemetry/stop-guide panels and a persistent door warning that blocks traction until the doors close.
+9. **Separate brake and reverse** — braking now stops and holds at zero; reverse is its own `R`/REVERSE control, and the brake always takes priority over reverse. Self-tests remain at 32 checks.
 
 ## What was built
 
@@ -51,7 +52,7 @@ A complete, self-contained 3D tram simulator in three modular source files plus 
 - **Rails and catenary** — 1.35 km closed CBD and Shrine loop, two embedded steel rails, sleepers, contact and messenger wires, droppers and poles.
 - **W-Class / Cyber-Tram 2088** — green hull, cream roof, gold waistline, window band, destination signs, headlights, bogies, pantograph, neon underglow and a bell.
 - **Cannon.js physics** — 12,000 kg dynamic tram body, static collision volumes, contact events, rail-following velocity, acceleration, braking, curve drag and impact penalties.
-- **Keyboard/touch controls** — `W`/`↑` traction, `S`/`↓` brake and reverse; rail guidance is automatic; mouse/touch orbit camera; `C` recentre.
+- **Keyboard/touch controls** — `W`/`↑` traction, `S`/`↓` brake to a stop, and a separate `R`/REVERSE control; the brake overrides reverse. Rail guidance is automatic; mouse/touch orbit camera; `C` recentre.
 - **First-person driver's cab** — `V` toggles between chase and cab views, with a cockpit dashboard, drag-to-look, speed FOV, head sway, curve lean and rain wipers.
 - **Manual doors and announcements** — `O` or **Doors** opens/closes the sliding doors at a platform, with chimes, hiss, a persistent door interlock warning and spoken Melbourne-style stop/arrival/door announcements and subtitles.
 - **Tram bell** — `B` synthesises the double-ding bell.
@@ -80,10 +81,10 @@ A complete, self-contained 3D tram simulator in three modular source files plus 
 
 | File | Size |
 | --- | ---: |
-| `index.html` | 19,181 bytes · 373 lines |
-| `style.css` | 58,950 bytes · 2,286 lines |
-| `script.js` | 295,161 bytes · 6,808 lines |
-| `README.md` | 25,771 bytes · 474 lines |
+| `index.html` | 19,398 bytes · 374 lines |
+| `style.css` | 59,026 bytes · 2,287 lines |
+| `script.js` | 295,685 bytes · 6,819 lines |
+| `README.md` | 25,963 bytes · 476 lines |
 | `screenshot.png` | 893 KB |
 | `screenshot-rain.png` | 1.16 MB |
 | `screenshot-twilight.png` | 1.09 MB |
