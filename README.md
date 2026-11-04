@@ -48,6 +48,7 @@ The whole thing runs from three files — `index.html`, `style.css` and `script.
 - [Project structure](#project-structure)
 - [Verification](#verification)
 - [Browser support](#browser-support)
+- [Documentation](#documentation)
 - [Credits](#credits)
 - [License](#license)
 
@@ -424,6 +425,12 @@ tramtracker-2088/
 ├── screenshot-parliament.png
 ├── screenshot-rmit.png
 ├── STATE.md / state.json         # build duration, token usage, credits
+├── AGENTS.md                     # maintainer handoff
+├── CHANGELOG.md                  # change history
+├── docs/ARCHITECTURE.md          # loop, driving, passengers, audio, hook turn
+├── docs/REPRODUCTION.md          # rebuild and acceptance checks
+├── docs/DEPLOYMENT.md            # Pages hosting, CDN dependencies, rollback
+├── docs/TESTING.md               # evidence, selftest, manual matrix
 ├── THIRD_PARTY_NOTICES.md
 ├── LICENSE
 └── .nojekyll                     # GitHub Pages
@@ -474,6 +481,20 @@ Headless Chrome (SwiftShader WebGL) screenshots were used to verify desktop 1600
 Built and tested in current Chrome/Chromium with WebGL 1/2. It uses standard ES6, Canvas 2D, Web Audio and `localStorage`. For best results use a recent desktop browser with hardware acceleration; mobile works with the on-screen touch controls.
 
 ---
+
+## Documentation
+
+| Document | Purpose |
+| --- | --- |
+| [README.md](README.md) | Overview, setup, controls, route and verification |
+| [AGENTS.md](AGENTS.md) | Handoff for the next maintainer or agent |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Loop, driving/physics, doors, passengers, weather, hook turn |
+| [docs/REPRODUCTION.md](docs/REPRODUCTION.md) | How to rebuild the project from scratch |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Pages hosting, CDN dependencies, rollback |
+| [docs/TESTING.md](docs/TESTING.md) | Evidence, self-test record, manual matrix |
+| [CHANGELOG.md](CHANGELOG.md) | Notable changes and release history |
+| [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) | Library, font, and asset attribution |
+| [LICENSE](LICENSE) | MIT licence |
 
 ## Credits
 
